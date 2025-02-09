@@ -2,6 +2,14 @@
 name = "pwsp"
 version = "0.1.0"
 edition = "2021"
+authors = ["arabian"]
+description = "A simple soundpad application written in Rust using egui for the GUI, pipewire for audio input/output, and rodio for audio decoding."
+readme = "README.md"
+homepage = "https://github.com/arabianq/pipewire-soundpad"
+repository = "https://github.com/arabianq/pipewire-soundpad"
+license = "MIT"
+keywords = ["soundpad", "pipewire"]
+
 
 [dependencies]
 egui = "0.31.0"
