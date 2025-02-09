@@ -1,0 +1,21 @@
+[package]
+name = "pwsp"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+egui = "0.31.0"
+eframe = "0.31.0"
+egui_material_icons = "0.3.0"
+rfd = "0.15.2"
+dirs = "6.0.0"
+rodio = {version = "0.20.1", default-features = false, features = ["symphonia-all"]}
+metadata = "0.1.10"
+
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1
+opt-level = "z"
+panic = "abort"
+
