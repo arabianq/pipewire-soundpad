@@ -25,15 +25,29 @@ pub struct OutputDevice {
 
 impl OutputDevice {
     pub fn link(&self, input_device: &InputDevice) {
-        let _ = Command::new("pw-link")
+        Command::new("pw-link")
             .arg(&self.output_fl)
             .arg(&input_device.input_fl)
-            .status();
+            .status().ok();
 
-        let _ = Command::new("pw-link")
+        Command::new("pw-link")
             .arg(&self.output_fr)
             .arg(&input_device.input_fr)
-            .status();
+            .status().ok();
+    }
+
+    pub fn unlink(&self, input_device: &InputDevice) {
+        Command::new("pw-link")
+            .arg("--disconnect")
+            .arg(&self.output_fl)
+            .arg(&input_device.input_fl)
+            .status().ok();
+
+        Command::new("pw-link")
+            .arg("--disconnect")
+            .arg(&self.output_fr)
+            .arg(&input_device.input_fr)
+            .status().ok();
     }
 }
 
