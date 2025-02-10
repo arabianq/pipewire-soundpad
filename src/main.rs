@@ -420,6 +420,7 @@ impl App {
             return;
         }
 
+        pwsp_output.unwrap().unlink(mic.unwrap());
         pwsp_output.unwrap().link(mic.unwrap());
     }
 }
