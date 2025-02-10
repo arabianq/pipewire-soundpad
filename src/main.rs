@@ -23,18 +23,16 @@ impl Default for PlayerState {
     }
 }
 
-#[derive(Default)]
 struct App {
     player_position: f32,
     prev_player_position: f32,
     max_player_position: f32,
-
     volume: f32,
 
     player_state: PlayerState,
 
     directories: Vec<PathBuf>,
-    deleted_directory: Option<usize>,
+    directory_to_delete: Option<usize>,
     current_directory: Option<usize>,
 
     selected_input_device: String,
@@ -44,43 +42,66 @@ struct App {
 
     search_query: String,
 
-    _audio_stream: Option<OutputStream>,
-    _audio_stream_handle: Option<OutputStreamHandle>,
-    audio_sink: Option<Sink>,
+    _audio_stream: OutputStream,
+    _audio_stream_handle: OutputStreamHandle,
+    audio_sink: Sink,
 }
 
 impl App {
     pub fn new(_cc: &CreationContext<'_>) -> Self {
         let saved_dirs_path = dirs::config_dir().unwrap().join("pwsp").join("saved_dirs");
         let saved_dirs_content = fs::read_to_string(&saved_dirs_path).unwrap_or_default();
-        let saved_dirs: Vec<_> = saved_dirs_content.lines().map(PathBuf::from).collect();
-        let current_directory = match saved_dirs.is_empty() {
+        let directories: Vec<_> = saved_dirs_content.lines().map(PathBuf::from).collect();
+        let current_directory = match directories.is_empty() {
             false => Some(0),
             true => None,
         };
 
         let saved_mic_path = dirs::config_dir().unwrap().join("pwsp").join("saved_mic");
-        let saved_mic_content = fs::read_to_string(&saved_mic_path).unwrap_or_default();
+        let selected_input_device = fs::read_to_string(&saved_mic_path).unwrap_or_default();
 
-        let (_audio_stream, audio_stream_handle) = OutputStream::try_default().unwrap();
-        let audio_sink = Sink::try_new(&audio_stream_handle).unwrap();
+        let saved_volume_path = dirs::config_dir()
+            .unwrap()
+            .join("pwsp")
+            .join("saved_volume");
+        let saved_volume = fs::read_to_string(&saved_volume_path).unwrap_or_default();
+        let volume = match saved_volume.is_empty() {
+            true => 1.0,
+            false => saved_volume.parse().unwrap(),
+        };
+
+        let (_audio_stream, _audio_stream_handle) = OutputStream::try_default().unwrap();
+        let audio_sink = Sink::try_new(&_audio_stream_handle).unwrap();
         audio_sink.pause();
 
         Self {
+            player_position: 0.0,
+            prev_player_position: 0.0,
             max_player_position: 1.0,
-            directories: saved_dirs,
-            selected_input_device: saved_mic_content,
-            _audio_stream: Some(_audio_stream),
-            _audio_stream_handle: Some(audio_stream_handle),
-            audio_sink: Some(audio_sink),
-            volume: 1.0,
+            volume,
+
+            player_state: PlayerState::PAUSED,
+
+            directories,
+            directory_to_delete: None,
             current_directory,
 
-            ..Default::default()
+            selected_input_device,
+            available_input_devices: Vec::new(),
+
+            current_file: PathBuf::new(),
+
+            search_query: String::new(),
+
+            _audio_stream,
+            _audio_stream_handle,
+            audio_sink,
         }
     }
 
     fn upd(&mut self, ui: &mut Ui, ctx: &Context, _frame: &mut Frame) {
+        self.render_ui(ui);
+
         self.available_input_devices = pw::get_input_devices().unwrap();
 
         let saved_mic_path = dirs::config_dir().unwrap().join("pwsp").join("saved_mic");
@@ -88,32 +109,36 @@ impl App {
         if self.selected_input_device != saved_mic_content {
             fs::write(saved_mic_path, self.selected_input_device.clone()).ok();
         }
+        let saved_volume_path = dirs::config_dir()
+            .unwrap()
+            .join("pwsp")
+            .join("saved_volume");
+        fs::write(saved_volume_path, self.volume.to_string()).ok();
 
-        if let PlayerState::PLAYING = self.player_state {
-            ctx.request_repaint();
-            self.audio_sink.as_ref().unwrap().set_volume(self.volume);
+        if self.audio_sink.len() == 0 && !self.audio_sink.is_paused() {
+            self.audio_sink.pause();
         }
 
-        self.player_state = match self.audio_sink.as_ref().unwrap().is_paused() {
+        self.player_state = match self.audio_sink.is_paused() {
             true => PlayerState::PAUSED,
             false => PlayerState::PLAYING,
         };
 
         if self.player_position != self.prev_player_position {
-            let target_pos = core::time::Duration::from_secs_f32(self.player_position);
-            self.audio_sink
-                .as_ref()
-                .unwrap()
-                .try_seek(target_pos)
-                .unwrap();
+            let target_pos = core::time::Duration::from_secs_f32(self.player_position - 0.5);
+            self.audio_sink.try_seek(target_pos).unwrap();
             self.prev_player_position = self.player_position;
         } else {
-            self.player_position = self.audio_sink.as_ref().unwrap().get_pos().as_secs_f32();
+        }
+
+        if let PlayerState::PLAYING = self.player_state {
+            ctx.request_repaint();
+            self.audio_sink.set_volume(self.volume);
+
+            self.player_position = self.audio_sink.get_pos().as_secs_f32();
         }
 
         self.prev_player_position = self.player_position;
-
-        self.render_ui(ui);
     }
 
     fn render_ui(&mut self, ui: &mut Ui) {
@@ -169,10 +194,10 @@ impl App {
             {
                 match self.player_state {
                     PlayerState::PLAYING => {
-                        self.audio_sink.as_ref().unwrap().pause();
+                        self.audio_sink.pause();
                     }
                     PlayerState::PAUSED => {
-                        self.audio_sink.as_ref().unwrap().play();
+                        self.audio_sink.play();
                     }
                 }
             }
@@ -184,11 +209,7 @@ impl App {
             });
 
             ui.add_sized([30.0, 30.0], player_position_label);
-
-            let volume_slider_response = ui.add_sized([15.0, 30.0], volume_slider);
-            if volume_slider_response.changed() {
-                // println!("{}", self.volume.);
-            }
+            ui.add_sized([15.0, 30.0], volume_slider);
         });
     }
 
@@ -243,7 +264,7 @@ impl App {
 
                             let directory_delete_button_response = ui.add(dir_delete_button);
                             if directory_delete_button_response.clicked() {
-                                self.deleted_directory = Some(index);
+                                self.directory_to_delete = Some(index);
                             }
                         });
                         ui.separator();
@@ -268,7 +289,7 @@ impl App {
     }
 
     fn handle_directory_deletion(&mut self) {
-        if let Some(index) = self.deleted_directory {
+        if let Some(index) = self.directory_to_delete {
             if let Some(current_index) = self.current_directory {
                 if current_index > index {
                     self.current_directory = Some(current_index - 1);
@@ -278,7 +299,7 @@ impl App {
             }
 
             self.directories.remove(index);
-            self.deleted_directory = None;
+            self.directory_to_delete = None;
 
             let saved_dirs_path = dirs::config_dir().unwrap().join("pwsp").join("saved_dirs");
             let content = self
@@ -302,7 +323,7 @@ impl App {
             .get(self.current_directory.unwrap())
             .unwrap();
         if !fs::exists(current_path).ok().unwrap_or(false) {
-            self.deleted_directory = self.current_directory;
+            self.directory_to_delete = self.current_directory;
             return;
         }
 
@@ -383,12 +404,14 @@ impl App {
         let file = fs::File::open(self.current_file.display().to_string()).unwrap();
         let source = Decoder::new(file).unwrap();
 
+        self.audio_sink.stop();
+        self.audio_sink.play();
+        self.audio_sink.append(source);
+
         let metadata = MediaFileMetadata::new(&self.current_file.as_path()).unwrap();
         self.max_player_position = metadata._duration.unwrap() as f32;
-
-        self.audio_sink.as_ref().unwrap().stop();
-        self.audio_sink.as_ref().unwrap().play();
-        self.audio_sink.as_ref().unwrap().append(source);
+        self.player_position = 0.0;
+        self.prev_player_position = 0.0;
     }
 
     fn link_devices(&self) {
@@ -446,6 +469,12 @@ fn main() -> Result<(), eframe::Error> {
         .unwrap_or(false)
     {
         fs::File::create(config_dir_path.join("saved_mic")).ok();
+    }
+    if !fs::exists(config_dir_path.join("saved_volume"))
+        .ok()
+        .unwrap_or(false)
+    {
+        fs::File::create(config_dir_path.join("saved_volume")).ok();
     }
 
     let mut options = NativeOptions {
