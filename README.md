@@ -19,8 +19,13 @@ This is a simple soundpad application written in Rust using egui for the GUI, pi
 
 1.  **Rust and Cargo:** Ensure you have Rust and Cargo installed. You can install them from [https://www.rust-lang.org/tools/install](https://www.rust-lang.org/tools/install).
 2.  **Dependencies:** This project requires PipeWire to be installed on your system.  The specific installation steps will depend on your distribution.
-3.  **Clone the Repository:** Clone this repository to your local machine.
-4.  **Build:** Navigate to the project directory in your terminal and run `cargo build --release`.
+3. Run `cargo install pwsp`. Now you have PWSP installed on your system (`which pwsp`).
+
+## Building without installing
+
+1.  **Clone the Repository:** Clone this repository to your local machine with `git clone https://github.com/arabianq/pipewire-soundpad`
+2.  **Build:** Navigate to the project directory in your terminal and run `cargo build --release`.
+3. Now the binary is available in the *target* directory.
 
 ## Usage
 
