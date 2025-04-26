@@ -125,10 +125,12 @@ impl App {
         };
 
         if self.player_position != self.prev_player_position {
-            let target_pos = core::time::Duration::from_secs_f32(self.player_position - 0.5);
-            self.audio_sink.try_seek(target_pos).unwrap();
+            let mut target_pos = self.player_position - 0.5;
+            target_pos = target_pos.clamp(0f32, self.max_player_position);
+
+            let target_pos_dur = core::time::Duration::from_secs_f32(target_pos);
+            self.audio_sink.try_seek(target_pos_dur).unwrap();
             self.prev_player_position = self.player_position;
-        } else {
         }
 
         if let PlayerState::PLAYING = self.player_state {
