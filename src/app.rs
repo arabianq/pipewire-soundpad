@@ -189,7 +189,7 @@ impl App {
             Slider::new(&mut self.player_position, 0.0..=self.max_player_position)
                 .show_value(false);
 
-        let volume_slider = Slider::new(&mut self.volume, 0.0..=5.0).show_value(false);
+        let volume_slider = Slider::new(&mut self.volume, 0.0..=1.0).show_value(false);
 
         ui.add_space(10.0);
 
