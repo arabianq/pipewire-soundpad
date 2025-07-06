@@ -1,28 +1,10 @@
-use eframe::NativeOptions;
-use egui::Vec2;
 use std::fs;
-use std::fs::create_dir;
 
 mod app;
 
 fn main() -> Result<(), eframe::Error> {
     create_dirs();
-
-    let mut options = NativeOptions {
-        ..Default::default()
-    };
-    options.viewport.min_inner_size = Some(Vec2::new(400.0, 400.0));
-    options.vsync = true;
-    options.hardware_acceleration = eframe::HardwareAcceleration::Preferred;
-
-    eframe::run_native(
-        "PipeWire SoundPad",
-        options,
-        Box::new(|cc| {
-            egui_material_icons::initialize(&cc.egui_ctx);
-            Ok(Box::new(app::App::new(cc)))
-        }),
-    )
+    app::run()
 }
 
 fn create_dirs() {
