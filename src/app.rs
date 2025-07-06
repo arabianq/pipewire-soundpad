@@ -1,4 +1,4 @@
-use eframe::{CreationContext, Frame};
+use eframe::{CreationContext, Frame, NativeOptions};
 use egui::{
     Button, CentralPanel, ComboBox, Context, Label, ScrollArea, Separator, Slider, TextEdit, Ui,
     Vec2,
@@ -454,4 +454,28 @@ impl eframe::App for App {
     fn update(&mut self, ctx: &Context, frame: &mut Frame) {
         CentralPanel::default().show(ctx, |ui| self.upd(ui, ctx, frame));
     }
+}
+
+pub fn run() -> Result<(), eframe::Error> {
+    let options = NativeOptions {
+        vsync: true,
+        centered: true,
+        hardware_acceleration: eframe::HardwareAcceleration::Preferred,
+
+        viewport: egui::ViewportBuilder::default()
+            .with_app_id("ru.arabianq.pwsp")
+            .with_inner_size(Vec2::new(800.0, 600.0))
+            .with_min_inner_size(Vec2::new(400.0, 400.0)),
+
+        ..Default::default()
+    };
+
+    eframe::run_native(
+        "PipeWire SoundPad",
+        options,
+        Box::new(|cc| {
+            egui_material_icons::initialize(&cc.egui_ctx);
+            Ok(Box::new(App::new(cc)))
+        }),
+    )
 }
