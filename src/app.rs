@@ -1,3 +1,6 @@
+mod pw;
+pub mod settings;
+
 use eframe::{CreationContext, Frame, NativeOptions};
 use egui::{
     Button, CentralPanel, ComboBox, Context, Label, ScrollArea, Separator, Slider, TextEdit, Ui,
@@ -7,11 +10,10 @@ use egui_material_icons::icons;
 use metadata::media_file::MediaFileMetadata;
 use rfd::FileDialog;
 use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
-use std::io::Write;
+pub use settings::Settings;
 use std::{fs, path::PathBuf};
 
-mod pw;
-
+#[derive(PartialEq)]
 enum PlayerState {
     PLAYING,
     PAUSED,
@@ -24,9 +26,12 @@ impl Default for PlayerState {
 }
 
 pub struct App {
+    saved_settings: Settings,
+
     player_position: f32,
     prev_player_position: f32,
     max_player_position: f32,
+
     volume: f32,
 
     player_state: PlayerState,
@@ -47,46 +52,88 @@ pub struct App {
     audio_sink: Sink,
 }
 
+impl eframe::App for App {
+    fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
+        CentralPanel::default().show(ctx, |ui| {
+            // Render UI
+            self.render_ui(ui);
+
+            // Load all available input devices
+            self.available_input_devices = pw::get_input_devices().unwrap_or_default();
+
+            // Save new settings
+            let current_settings = Settings {
+                saved_dirs: self.directories.clone(),
+                saved_mic: self.selected_input_device.clone(),
+                saved_volume: self.volume,
+            };
+            if current_settings != self.saved_settings {
+                current_settings.save_to_file(
+                    &dirs::config_dir()
+                        .unwrap_or_default()
+                        .join("pwsp")
+                        .join("pwsp.json"),
+                );
+                self.saved_settings = current_settings;
+            }
+
+            // Pause audio_sink on audio end
+            if self.audio_sink.len() == 0 && !self.audio_sink.is_paused() {
+                self.audio_sink.pause();
+            }
+
+            // Change player_state based on audio_sink state
+            self.player_state = match self.audio_sink.is_paused() {
+                true => PlayerState::PAUSED,
+                false => PlayerState::PLAYING,
+            };
+
+            // Handle changing player position
+            if self.player_position != self.prev_player_position {
+                let mut target_pos = self.player_position - 0.5;
+                target_pos = target_pos.clamp(0f32, self.max_player_position);
+
+                let target_pos_dur = core::time::Duration::from_secs_f32(target_pos);
+                self.audio_sink.try_seek(target_pos_dur).unwrap();
+                self.prev_player_position = self.player_position;
+            }
+
+            // Update UI when playing
+            if self.player_state == PlayerState::PLAYING {
+                ctx.request_repaint();
+                self.audio_sink.set_volume(self.volume);
+                self.player_position = self.audio_sink.get_pos().as_secs_f32();
+            }
+
+            self.prev_player_position = self.player_position;
+        });
+    }
+}
+
 impl App {
-    pub fn new(_cc: &CreationContext<'_>) -> Self {
-        let saved_dirs_path = dirs::config_dir().unwrap().join("pwsp").join("saved_dirs");
-        let saved_dirs_content = fs::read_to_string(&saved_dirs_path).unwrap_or_default();
-        let directories: Vec<_> = saved_dirs_content.lines().map(PathBuf::from).collect();
-        let current_directory = match directories.is_empty() {
-            false => Some(0),
-            true => None,
-        };
-
-        let saved_mic_path = dirs::config_dir().unwrap().join("pwsp").join("saved_mic");
-        let selected_input_device = fs::read_to_string(&saved_mic_path).unwrap_or_default();
-
-        let saved_volume_path = dirs::config_dir()
-            .unwrap()
-            .join("pwsp")
-            .join("saved_volume");
-        let saved_volume = fs::read_to_string(&saved_volume_path).unwrap_or_default();
-        let volume = match saved_volume.is_empty() {
-            true => 1.0,
-            false => saved_volume.parse().unwrap(),
-        };
-
+    pub fn new(_cc: &CreationContext<'_>, settings: Settings) -> Self {
         let (_audio_stream, _audio_stream_handle) = OutputStream::try_default().unwrap();
         let audio_sink = Sink::try_new(&_audio_stream_handle).unwrap();
         audio_sink.pause();
 
         Self {
+            saved_settings: settings.clone(),
+
             player_position: 0.0,
             prev_player_position: 0.0,
             max_player_position: 1.0,
-            volume,
+            volume: settings.saved_volume,
 
             player_state: PlayerState::PAUSED,
 
-            directories,
+            directories: settings.saved_dirs.clone(),
             directory_to_delete: None,
-            current_directory,
+            current_directory: match settings.saved_dirs.len() {
+                0 => None,
+                _ => Some(0),
+            },
 
-            selected_input_device,
+            selected_input_device: settings.saved_mic,
             available_input_devices: Vec::new(),
 
             current_file: PathBuf::new(),
@@ -97,50 +144,6 @@ impl App {
             _audio_stream_handle,
             audio_sink,
         }
-    }
-
-    fn upd(&mut self, ui: &mut Ui, ctx: &Context, _frame: &mut Frame) {
-        self.render_ui(ui);
-
-        self.available_input_devices = pw::get_input_devices().unwrap();
-
-        let saved_mic_path = dirs::config_dir().unwrap().join("pwsp").join("saved_mic");
-        let saved_mic_content = fs::read_to_string(&saved_mic_path).unwrap_or_default();
-        if self.selected_input_device != saved_mic_content {
-            fs::write(saved_mic_path, self.selected_input_device.clone()).ok();
-        }
-        let saved_volume_path = dirs::config_dir()
-            .unwrap()
-            .join("pwsp")
-            .join("saved_volume");
-        fs::write(saved_volume_path, self.volume.to_string()).ok();
-
-        if self.audio_sink.len() == 0 && !self.audio_sink.is_paused() {
-            self.audio_sink.pause();
-        }
-
-        self.player_state = match self.audio_sink.is_paused() {
-            true => PlayerState::PAUSED,
-            false => PlayerState::PLAYING,
-        };
-
-        if self.player_position != self.prev_player_position {
-            let mut target_pos = self.player_position - 0.5;
-            target_pos = target_pos.clamp(0f32, self.max_player_position);
-
-            let target_pos_dur = core::time::Duration::from_secs_f32(target_pos);
-            self.audio_sink.try_seek(target_pos_dur).unwrap();
-            self.prev_player_position = self.player_position;
-        }
-
-        if let PlayerState::PLAYING = self.player_state {
-            ctx.request_repaint();
-            self.audio_sink.set_volume(self.volume);
-
-            self.player_position = self.audio_sink.get_pos().as_secs_f32();
-        }
-
-        self.prev_player_position = self.player_position;
     }
 
     fn render_ui(&mut self, ui: &mut Ui) {
@@ -186,7 +189,7 @@ impl App {
             Slider::new(&mut self.player_position, 0.0..=self.max_player_position)
                 .show_value(false);
 
-        let volume_slider = Slider::new(&mut self.volume, 0.0..=1.0).show_value(false);
+        let volume_slider = Slider::new(&mut self.volume, 0.0..=5.0).show_value(false);
 
         ui.add_space(10.0);
 
@@ -278,13 +281,9 @@ impl App {
 
     fn handle_directory_adding(&mut self) {
         if let Some(dirs) = FileDialog::pick_folders(Default::default()) {
-            let saved_dirs_path = dirs::config_dir().unwrap().join("pwsp").join("saved_dirs");
-            if let Ok(mut file) = fs::OpenOptions::new().append(true).open(saved_dirs_path) {
-                for path in dirs {
-                    if !self.directories.contains(&path) {
-                        self.directories.push(path.clone());
-                        writeln!(file, "{}", path.display()).ok();
-                    }
+            for path in dirs {
+                if !self.directories.contains(&path) {
+                    self.directories.push(path.clone());
                 }
             }
         }
@@ -302,16 +301,6 @@ impl App {
 
             self.directories.remove(index);
             self.directory_to_delete = None;
-
-            let saved_dirs_path = dirs::config_dir().unwrap().join("pwsp").join("saved_dirs");
-            let content = self
-                .directories
-                .iter()
-                .map(|p| p.display().to_string())
-                .collect::<Vec<_>>()
-                .join("\n");
-
-            fs::write(saved_dirs_path, content).ok();
         }
     }
 
@@ -450,13 +439,7 @@ impl App {
     }
 }
 
-impl eframe::App for App {
-    fn update(&mut self, ctx: &Context, frame: &mut Frame) {
-        CentralPanel::default().show(ctx, |ui| self.upd(ui, ctx, frame));
-    }
-}
-
-pub fn run() -> Result<(), eframe::Error> {
+pub fn run(settings: Settings) -> Result<(), eframe::Error> {
     let options = NativeOptions {
         vsync: true,
         centered: true,
@@ -475,7 +458,7 @@ pub fn run() -> Result<(), eframe::Error> {
         options,
         Box::new(|cc| {
             egui_material_icons::initialize(&cc.egui_ctx);
-            Ok(Box::new(App::new(cc)))
+            Ok(Box::new(App::new(cc, settings)))
         }),
     )
 }

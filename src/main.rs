@@ -3,30 +3,22 @@ use std::fs;
 mod app;
 
 fn main() -> Result<(), eframe::Error> {
-    create_dirs();
-    app::run()
+    let settings = generate_settings();
+    app::run(settings)
 }
 
-fn create_dirs() {
-    let config_dir_path = dirs::config_dir().unwrap().join("pwsp");
+fn generate_settings() -> app::Settings {
+    let config_dir_path = dirs::config_dir().unwrap_or_default().join("pwsp");
+    let config_path = config_dir_path.join("pwsp.json");
     fs::create_dir_all(&config_dir_path).ok();
 
-    if !fs::exists(config_dir_path.join("saved_dirs"))
-        .ok()
-        .unwrap_or(false)
-    {
-        fs::File::create(config_dir_path.join("saved_dirs")).ok();
+    let settings: app::Settings;
+    if config_path.exists() {
+        settings = app::settings::load_from_file(&config_path);
+    } else {
+        settings = app::Settings::default();
+        settings.save_to_file(&config_path);
     }
-    if !fs::exists(config_dir_path.join("saved_mic"))
-        .ok()
-        .unwrap_or(false)
-    {
-        fs::File::create(config_dir_path.join("saved_mic")).ok();
-    }
-    if !fs::exists(config_dir_path.join("saved_volume"))
-        .ok()
-        .unwrap_or(false)
-    {
-        fs::File::create(config_dir_path.join("saved_volume")).ok();
-    }
+
+    settings
 }
