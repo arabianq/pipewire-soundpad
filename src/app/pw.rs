@@ -1,39 +1,37 @@
+use std::collections::HashMap;
 use std::error::Error;
 use std::process::Command;
-use std::collections::HashMap;
-
 
 pub struct AudioDevice {
     pub nick: String,
-    pub name: String
+    pub name: String,
 }
-
 
 pub struct InputDevice {
     pub audio_device: AudioDevice,
     pub input_fl: String,
-    pub input_fr: String
+    pub input_fr: String,
 }
-
 
 pub struct OutputDevice {
     pub audio_device: AudioDevice,
     pub output_fl: String,
-    pub output_fr: String
+    pub output_fr: String,
 }
-
 
 impl OutputDevice {
     pub fn link(&self, input_device: &InputDevice) {
         Command::new("pw-link")
             .arg(&self.output_fl)
             .arg(&input_device.input_fl)
-            .status().ok();
+            .status()
+            .ok();
 
         Command::new("pw-link")
             .arg(&self.output_fr)
             .arg(&input_device.input_fr)
-            .status().ok();
+            .status()
+            .ok();
     }
 
     pub fn unlink(&self, input_device: &InputDevice) {
@@ -41,16 +39,17 @@ impl OutputDevice {
             .arg("--disconnect")
             .arg(&self.output_fl)
             .arg(&input_device.input_fl)
-            .status().ok();
+            .status()
+            .ok();
 
         Command::new("pw-link")
             .arg("--disconnect")
             .arg(&self.output_fr)
             .arg(&input_device.input_fr)
-            .status().ok();
+            .status()
+            .ok();
     }
 }
-
 
 fn get_pw_entries() -> Result<Vec<HashMap<String, String>>, Box<dyn Error>> {
     let output = Command::new("pw-cli")
@@ -67,7 +66,7 @@ fn get_pw_entries() -> Result<Vec<HashMap<String, String>>, Box<dyn Error>> {
         let line = line.trim();
 
         if line.is_empty() {
-            continue
+            continue;
         }
 
         if line.starts_with("id ") {
@@ -80,12 +79,18 @@ fn get_pw_entries() -> Result<Vec<HashMap<String, String>>, Box<dyn Error>> {
 
             let key = match parts.next() {
                 Some(k) => k.trim().to_string(),
-                None => continue
+                None => continue,
             };
 
             let value = match parts.next() {
-                Some(k) => k.trim().strip_prefix("\"").unwrap().strip_suffix("\"").unwrap().to_string(),
-                None => continue
+                Some(k) => k
+                    .trim()
+                    .strip_prefix("\"")
+                    .unwrap()
+                    .strip_suffix("\"")
+                    .unwrap()
+                    .to_string(),
+                None => continue,
             };
 
             current_entry.insert(key, value);
@@ -106,21 +111,24 @@ pub fn get_input_devices() -> Result<Vec<InputDevice>, Box<dyn Error>> {
 
     for entry in entries.iter() {
         let media_class = entry.get("media.class").map(String::as_str).unwrap_or("");
-        let nick = entry.get("node.nick").map(String::as_str)
-            .unwrap_or(entry.get("node.description").map(String::as_str)
-                .unwrap_or(entry.get("node.name").map(String::as_str).unwrap_or("")));
+        let nick = entry.get("node.nick").map(String::as_str).unwrap_or(
+            entry
+                .get("node.description")
+                .map(String::as_str)
+                .unwrap_or(entry.get("node.name").map(String::as_str).unwrap_or("")),
+        );
         let name = entry.get("node.name").map(String::as_str).unwrap_or("");
 
         if media_class.is_empty() {
-            continue
+            continue;
         }
 
         if !media_class.starts_with(&"Audio/Source") {
-            continue
+            continue;
         }
 
         if nick.is_empty() || name.is_empty() {
-            continue
+            continue;
         }
 
         let audio_device = AudioDevice {
@@ -131,7 +139,7 @@ pub fn get_input_devices() -> Result<Vec<InputDevice>, Box<dyn Error>> {
         let device = InputDevice {
             audio_device,
             input_fl: String::new(),
-            input_fr: String::new()
+            input_fr: String::new(),
         };
 
         input_devices.push(device);
@@ -171,21 +179,24 @@ pub fn get_output_devices() -> Result<Vec<OutputDevice>, Box<dyn Error>> {
 
     for entry in entries.iter() {
         let media_class = entry.get("media.class").map(String::as_str).unwrap_or("");
-        let nick = entry.get("node.nick").map(String::as_str)
-            .unwrap_or(entry.get("node.description").map(String::as_str)
-                .unwrap_or(entry.get("node.name").map(String::as_str).unwrap_or("")));
+        let nick = entry.get("node.nick").map(String::as_str).unwrap_or(
+            entry
+                .get("node.description")
+                .map(String::as_str)
+                .unwrap_or(entry.get("node.name").map(String::as_str).unwrap_or("")),
+        );
         let name = entry.get("node.name").map(String::as_str).unwrap_or("");
 
         if media_class.is_empty() {
-            continue
+            continue;
         }
 
         if !media_class.starts_with(&"Stream/Output/Audio") {
-            continue
+            continue;
         }
 
         if nick.is_empty() || name.is_empty() {
-            continue
+            continue;
         }
 
         let audio_device = AudioDevice {
@@ -196,7 +207,7 @@ pub fn get_output_devices() -> Result<Vec<OutputDevice>, Box<dyn Error>> {
         let device = OutputDevice {
             audio_device,
             output_fl: String::new(),
-            output_fr: String::new()
+            output_fr: String::new(),
         };
 
         output_devices.push(device);
