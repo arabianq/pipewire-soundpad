@@ -29,3 +29,15 @@ codegen-units = 1
 opt-level = "z"
 panic = "abort"
 
+[package.metadata.deb]
+assets = [
+    { source = "target/release/pwsp", dest = "usr/bin/", mode = "755" },
+    { source = "pwsp.desktop", dest = "usr/share/applications/pwsp.desktop", mode = "644" },
+]
+depends = "libX11"
+
+[package.metadata.generate-rpm]
+assets = [
+    { source = "target/release/pwsp", dest = "/usr/bin/pwsp", mode = "755" },
+    { source = "pwsp.desktop", dest = "/usr/share/applications/pwsp.desktop", mode = "644" }
+]
