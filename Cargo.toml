@@ -38,6 +38,6 @@ depends = "libX11"
 
 [package.metadata.generate-rpm]
 assets = [
-    { source = "target/release/pwsp", dest = "/usr/bin/pwsp", mode = "755" },
+    { source = "target/x86_64-unknown-linux-gnu/release/pwsp", dest = "/usr/bin/pwsp", mode = "755" },
     { source = "pwsp.desktop", dest = "/usr/share/applications/pwsp.desktop", mode = "644" }
 ]
