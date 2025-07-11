@@ -12,10 +12,10 @@ keywords = ["soundpad", "pipewire"]
 
 
 [dependencies]
-egui = "0.32.0"
-eframe = "0.32.0"
+egui = { version = "0.32.0", features = ["default", "default_fonts"] }
+eframe = { version = "0.32.0", features = ["default", "x11", "wayland", "default_fonts"] }
 egui_material_icons = "0.4.0"
-rfd = "0.15.3"
+rfd = { version = "0.15.3", features = ["xdg-portal"] }
 dirs = "6.0.0"
 rodio = { version = "0.20.1", default-features = false, features = ["symphonia-all"] }
 metadata = "0.1.10"
