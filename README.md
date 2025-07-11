@@ -16,6 +16,9 @@ This is a simple soundpad application written in Rust using egui for the GUI, pi
 *   **Persistent Configuration:** Saves the list of added directories and the selected microphone for future use.
 
 ## Installation
+You can download pre-build binary, .deb and .rpm packages from [releases page](https://github.com/arabianq/pipewire-soundpad/releases)
+
+## Installation (using cargo)
 
 1.  **Rust and Cargo:** Ensure you have Rust and Cargo installed. You can install them from [https://www.rust-lang.org/tools/install](https://www.rust-lang.org/tools/install).
 2.  **Dependencies:** This project requires PipeWire to be installed on your system.  The specific installation steps will depend on your distribution.
