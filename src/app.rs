@@ -9,7 +9,7 @@ use egui::{
 use egui_material_icons::icons;
 use metadata::media_file::MediaFileMetadata;
 use rfd::FileDialog;
-use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
+use rodio::{Decoder, OutputStream, OutputStreamBuilder, Sink};
 pub use settings::Settings;
 use std::{fs, path::PathBuf};
 
@@ -47,8 +47,7 @@ pub struct App {
 
     search_query: String,
 
-    _audio_stream: OutputStream,
-    _audio_stream_handle: OutputStreamHandle,
+    _audio_stream_handle: OutputStream,
     audio_sink: Sink,
 }
 
@@ -112,8 +111,8 @@ impl eframe::App for App {
 
 impl App {
     pub fn new(_cc: &CreationContext<'_>, settings: Settings) -> Self {
-        let (_audio_stream, _audio_stream_handle) = OutputStream::try_default().unwrap();
-        let audio_sink = Sink::try_new(&_audio_stream_handle).unwrap();
+        let _audio_stream_handle = OutputStreamBuilder::open_default_stream().unwrap();
+        let audio_sink = Sink::connect_new(_audio_stream_handle.mixer());
         audio_sink.pause();
 
         Self {
@@ -140,7 +139,6 @@ impl App {
 
             search_query: String::new(),
 
-            _audio_stream,
             _audio_stream_handle,
             audio_sink,
         }
