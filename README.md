@@ -16,9 +16,24 @@ This is a simple soundpad application written in Rust using egui for the GUI, pi
 *   **Persistent Configuration:** Saves the list of added directories and the selected microphone for future use.
 
 ## Installation
+
+### Fedora Linux
+```bash
+# Add my repository using DNF
+sudo dnf install https://files.arabianq.ru/repo/fedora/$(rpm -E %fedora)/noarch/arabianq-release.noarch.rpm
+
+# Update repo's cache
+sudo dnf makecache
+
+# Install PWSP
+sudo dnf install pwsp
+```
+
+### Other systems
+
 You can download pre-build binary, .deb and .rpm packages from [releases page](https://github.com/arabianq/pipewire-soundpad/releases)
 
-## Installation (using cargo)
+## Installation using cargo
 
 1.  **Rust and Cargo:** Ensure you have Rust and Cargo installed. You can install them from [https://www.rust-lang.org/tools/install](https://www.rust-lang.org/tools/install).
 2.  **Dependencies:** This project requires PipeWire to be installed on your system.  The specific installation steps will depend on your distribution.
