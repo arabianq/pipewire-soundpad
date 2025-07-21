@@ -2566,7 +2566,7 @@ checksum = "3eb8486b569e12e2c32ad3e204dbaba5e4b5b216e9367044f25f1dba42341773"
 
 [[package]]
 name = "pwsp"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "dirs",
  "eframe",
