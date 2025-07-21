@@ -1,6 +1,6 @@
 [package]
 name = "pwsp"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2024"
 authors = ["arabian"]
 description = "A simple soundpad application written in Rust using egui for the GUI, pipewire for audio input/output, and rodio for audio decoding."
