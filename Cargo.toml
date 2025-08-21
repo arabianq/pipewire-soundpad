@@ -12,15 +12,15 @@ keywords = ["soundpad", "pipewire"]
 
 
 [dependencies]
-egui = { version = "0.32.0", default-features = false, features = ["default_fonts"] }
-eframe = { version = "0.32.0", default-features = false, features = ["glow", "wayland", "x11", "default_fonts"] }
+egui = { version = "0.32.1", default-features = false, features = ["default_fonts"] }
+eframe = { version = "0.32.1", default-features = false, features = ["glow", "wayland", "x11", "default_fonts"] }
 egui_material_icons = "0.4.0"
 rfd = { version = "0.15.4", default-features = false, features = ["xdg-portal", "async-std"] }
 dirs = "6.0.0"
 rodio = { version = "0.21.1", default-features = false, features = ["symphonia-all", "playback"] }
 metadata = "0.1.10"
 serde = { version = "1.0.219", default-features = false, features = ["derive"] }
-serde_json = { version = "1.0.141", default-features = false }
+serde_json = { version = "1.0.143", default-features = false }
 
 [profile.release]
 strip = true
