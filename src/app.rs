@@ -89,8 +89,8 @@ impl eframe::App for App {
 
             // Handle changing player position
             if self.player_position != self.prev_player_position {
-                let mut target_pos = self.player_position - 0.5;
-                target_pos = target_pos.clamp(0f32, self.max_player_position);
+                let mut target_pos = self.player_position;
+                target_pos = target_pos.clamp(0.0, self.max_player_position - 0.1);
 
                 let target_pos_dur = core::time::Duration::from_secs_f32(target_pos);
                 self.audio_sink.try_seek(target_pos_dur).unwrap();
@@ -105,6 +105,10 @@ impl eframe::App for App {
             }
 
             self.prev_player_position = self.player_position;
+
+            if (self.max_player_position - self.player_position) <= 0.1 {
+                self.audio_sink.pause();
+            }
         });
     }
 }
@@ -391,7 +395,7 @@ impl App {
         }
 
         let file = fs::File::open(self.current_file.display().to_string()).unwrap();
-        let source = Decoder::new(file).unwrap();
+        let source = Decoder::try_from(file).unwrap();
 
         self.audio_sink.stop();
         self.audio_sink.play();
