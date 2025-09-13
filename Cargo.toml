@@ -1,6 +1,6 @@
 [package]
 name = "pwsp"
-version = "0.1.8"
+version = "1.0.0"
 edition = "2024"
 authors = ["arabian"]
 description = "A simple soundpad application written in Rust using egui for the GUI, pipewire for audio input/output, and rodio for audio decoding."
@@ -12,15 +12,6 @@ keywords = ["soundpad", "pipewire"]
 
 
 [dependencies]
-egui = { version = "0.32.3", default-features = false, features = ["default_fonts"] }
-eframe = { version = "0.32.3", default-features = false, features = ["glow", "wayland", "x11", "default_fonts"] }
-egui_material_icons = "0.4.0"
-rfd = { version = "0.15.4", default-features = false, features = ["xdg-portal", "async-std"] }
-dirs = "6.0.0"
-rodio = { version = "0.21.1", default-features = false, features = ["symphonia-all", "playback"] }
-metadata = "0.1.10"
-serde = { version = "1.0.219", default-features = false, features = ["derive"] }
-serde_json = { version = "1.0.143", default-features = false }
 
 [profile.release]
 strip = true
@@ -28,16 +19,3 @@ lto = true
 codegen-units = 1
 opt-level = "z"
 panic = "abort"
-
-[package.metadata.deb]
-assets = [
-    { source = "target/release/pwsp", dest = "usr/bin/", mode = "755" },
-    { source = "pwsp.desktop", dest = "usr/share/applications/pwsp.desktop", mode = "644" },
-]
-depends = "libx11-6"
-
-[package.metadata.generate-rpm]
-assets = [
-    { source = "target/x86_64-unknown-linux-gnu/release/pwsp", dest = "/usr/bin/pwsp", mode = "755" },
-    { source = "pwsp.desktop", dest = "/usr/share/applications/pwsp.desktop", mode = "644" }
-]
