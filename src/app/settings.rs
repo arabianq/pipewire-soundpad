@@ -1,7 +1,10 @@
 use serde::{Deserialize, Serialize};
-use std::fs;
-use std::io::{Read, Write};
-use std::path::PathBuf;
+
+use std::{
+    fs,
+    io::{Read, Write},
+    path::PathBuf,
+};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct Settings {

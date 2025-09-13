@@ -1,6 +1,4 @@
-use std::collections::HashMap;
-use std::error::Error;
-use std::process::Command;
+use std::{collections::HashMap, error::Error, process::Command};
 
 pub struct AudioDevice {
     pub nick: String,
