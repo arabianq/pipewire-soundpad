@@ -14,16 +14,13 @@ pub use settings::Settings;
 use std::{fs, path::PathBuf};
 
 #[derive(PartialEq)]
+#[derive(Default)]
 enum PlayerState {
     PLAYING,
+    #[default]
     PAUSED,
 }
 
-impl Default for PlayerState {
-    fn default() -> Self {
-        PlayerState::PAUSED
-    }
-}
 
 pub struct App {
     saved_settings: Settings,
@@ -330,9 +327,9 @@ impl App {
                 continue;
             }
 
-            if let Some(extension) = path.extension().and_then(|n| n.to_str()) {
-                if music_extensions.contains(&extension.to_lowercase().as_str()) {
-                    if path
+            if let Some(extension) = path.extension().and_then(|n| n.to_str())
+                && music_extensions.contains(&extension.to_lowercase().as_str())
+                    && path
                         .to_str()
                         .unwrap()
                         .to_string()
@@ -341,8 +338,6 @@ impl App {
                     {
                         music_files.push(path);
                     }
-                }
-            }
         }
         ui.vertical(|ui| {
             let search_entry = TextEdit::singleline(&mut self.search_query);

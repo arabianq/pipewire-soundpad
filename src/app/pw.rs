@@ -53,7 +53,7 @@ impl OutputDevice {
 
 fn get_pw_entries() -> Result<Vec<HashMap<String, String>>, Box<dyn Error>> {
     let output = Command::new("pw-cli")
-        .args(&["ls", "Node"])
+        .args(["ls", "Node"])
         .output()
         .expect("Failed to execute pw-cli ls Node");
 
@@ -123,7 +123,7 @@ pub fn get_input_devices() -> Result<Vec<InputDevice>, Box<dyn Error>> {
             continue;
         }
 
-        if !media_class.starts_with(&"Audio/Source") {
+        if !media_class.starts_with("Audio/Source") {
             continue;
         }
 
@@ -191,7 +191,7 @@ pub fn get_output_devices() -> Result<Vec<OutputDevice>, Box<dyn Error>> {
             continue;
         }
 
-        if !media_class.starts_with(&"Stream/Output/Audio") {
+        if !media_class.starts_with("Stream/Output/Audio") {
             continue;
         }
 
