@@ -1,26 +1,26 @@
 mod pw;
 pub mod settings;
 
+pub use settings::Settings;
+
 use eframe::{CreationContext, Frame, NativeOptions};
 use egui::{
     Button, CentralPanel, ComboBox, Context, Label, ScrollArea, Separator, Slider, TextEdit, Ui,
     Vec2,
 };
 use egui_material_icons::icons;
+
 use metadata::media_file::MediaFileMetadata;
 use rfd::FileDialog;
 use rodio::{Decoder, OutputStream, OutputStreamBuilder, Sink};
-pub use settings::Settings;
 use std::{fs, path::PathBuf};
 
-#[derive(PartialEq)]
-#[derive(Default)]
+#[derive(PartialEq, Default)]
 enum PlayerState {
     Playing,
     #[default]
     Paused,
 }
-
 
 pub struct App {
     saved_settings: Settings,
@@ -329,15 +329,15 @@ impl App {
 
             if let Some(extension) = path.extension().and_then(|n| n.to_str())
                 && music_extensions.contains(&extension.to_lowercase().as_str())
-                    && path
-                        .to_str()
-                        .unwrap()
-                        .to_string()
-                        .to_lowercase()
-                        .contains(self.search_query.as_str())
-                    {
-                        music_files.push(path);
-                    }
+                && path
+                    .to_str()
+                    .unwrap()
+                    .to_string()
+                    .to_lowercase()
+                    .contains(self.search_query.as_str())
+            {
+                music_files.push(path);
+            }
         }
         ui.vertical(|ui| {
             let search_entry = TextEdit::singleline(&mut self.search_query);

@@ -1,7 +1,6 @@
-use std::fs;
-
 mod app;
 
+use std::fs;
 fn main() -> Result<(), eframe::Error> {
     let settings = generate_settings();
     app::run(settings)
