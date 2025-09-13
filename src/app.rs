@@ -16,9 +16,9 @@ use std::{fs, path::PathBuf};
 #[derive(PartialEq)]
 #[derive(Default)]
 enum PlayerState {
-    PLAYING,
+    Playing,
     #[default]
-    PAUSED,
+    Paused,
 }
 
 
@@ -80,8 +80,8 @@ impl eframe::App for App {
 
             // Change player_state based on audio_sink state
             self.player_state = match self.audio_sink.is_paused() {
-                true => PlayerState::PAUSED,
-                false => PlayerState::PLAYING,
+                true => PlayerState::Paused,
+                false => PlayerState::Playing,
             };
 
             // Handle changing player position
@@ -95,7 +95,7 @@ impl eframe::App for App {
             }
 
             // Update UI when playing
-            if self.player_state == PlayerState::PLAYING {
+            if self.player_state == PlayerState::Playing {
                 ctx.request_repaint();
                 self.audio_sink.set_volume(self.volume);
                 self.player_position = self.audio_sink.get_pos().as_secs_f32();
@@ -124,7 +124,7 @@ impl App {
             max_player_position: 1.0,
             volume: settings.saved_volume,
 
-            player_state: PlayerState::PAUSED,
+            player_state: PlayerState::Paused,
 
             directories: settings.saved_dirs.clone(),
             directory_to_delete: None,
@@ -164,8 +164,8 @@ impl App {
         );
 
         let play_button_icon = match self.player_state {
-            PlayerState::PLAYING => icons::ICON_PAUSE,
-            PlayerState::PAUSED => icons::ICON_PLAY_ARROW,
+            PlayerState::Playing => icons::ICON_PAUSE,
+            PlayerState::Paused => icons::ICON_PLAY_ARROW,
         };
         let play_button = Button::new(play_button_icon).corner_radius(15.0);
 
@@ -197,10 +197,10 @@ impl App {
             if !self.current_file.display().to_string().is_empty() && play_button_response.clicked()
             {
                 match self.player_state {
-                    PlayerState::PLAYING => {
+                    PlayerState::Playing => {
                         self.audio_sink.pause();
                     }
-                    PlayerState::PAUSED => {
+                    PlayerState::Paused => {
                         self.audio_sink.play();
                     }
                 }
