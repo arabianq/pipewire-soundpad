@@ -3,15 +3,44 @@ name = "pwsp"
 version = "1.0.0"
 edition = "2024"
 authors = ["arabian"]
-description = "A simple soundpad application written in Rust using egui for the GUI, pipewire for audio input/output, and rodio for audio decoding."
+description = "PWSP lets you play audio files through your microphone. Has both CLI and GUI clients."
 readme = "README.md"
-homepage = "https://github.com/arabianq/pipewire-soundpad"
+homepage = "https://pwsp.arabianq.ru"
 repository = "https://github.com/arabianq/pipewire-soundpad"
 license = "MIT"
-keywords = ["soundpad", "pipewire"]
+keywords = ["soundpad", "pipewire", "linux", "cli", "gui"]
 
 
 [dependencies]
+tokio = { version = "1.47.1", features = ["full"] }
+futures = { version = "0.3.31", features = ["thread-pool"] }
+async-trait = "0.1.89"
+
+serde = { version = "1.0.226", features = ["derive"] }
+serde_json = "1.0.145"
+
+clap = { version = "4.5.48", default-features = false, features = ["std", "suggestions", "help", "usage", "error-context", "derive"] }
+dirs = "6.0.0"
+
+rodio = { version = "0.21.1", default-features = false, features = ["symphonia-all", "playback"] }
+pipewire = "0.8.0"
+rfd = "0.15.4"
+
+egui = { version = "0.32.3", default-features = false, features = ["default_fonts", "rayon"] }
+eframe = { version = "0.32.3", default-features = false, features = ["default_fonts", "glow", "x11", "wayland"] }
+egui_material_icons = "0.4.0"
+
+[[bin]]
+name = "pwsp-daemon"
+path = "src/bin/daemon.rs"
+
+[[bin]]
+name = "pwsp-cli"
+path = "src/bin/cli.rs"
+
+[[bin]]
+name = "pwsp-gui"
+path = "src/main.rs"
 
 [profile.release]
 strip = true
@@ -19,3 +48,23 @@ lto = true
 codegen-units = 1
 opt-level = "z"
 panic = "abort"
+
+[package.metadata.generate-rpm]
+assets = [
+    { source = "target/release/pwsp-daemon", dest = "/usr/bin/pwsp-daemon", mode = "755" },
+    { source = "target/release/pwsp-cli", dest = "/usr/bin/pwsp-cli", mode = "755" },
+    { source = "target/release/pwsp-gui", dest = "/usr/bin/pwsp-gui", mode = "755" },
+    { source = "pwsp-gui.desktop", dest = "/usr/share/applications/pwsp.desktop", mode = "644" },
+    { source = "icon.png", dest = "/usr/share/icons/hicolor/256x256/apps/pwsp.png", mode = "644" },
+    { source = "pwsp-daemon.service", dest = "/usr/lib/systemd/user/pwsp-daemon.service", mode = "644" },
+]
+
+[package.metadata.deb]
+assets = [
+    ["target/release/pwsp-daemon", "usr/bin/", "755"],
+    ["target/release/pwsp-cli", "usr/bin/", "755"],
+    ["target/release/pwsp-gui", "usr/bin/", "755"],
+    ["assets/pwsp-gui.desktop", "usr/share/applications/pwsp.desktop", "644"],
+    ["assets/icon.png", "usr/share/icons/hicolor/256x256/apps/pwsp.png", "644"],
+    ["assets/pwsp-daemon.service", "usr/lib/systemd/user/pwsp-daemon.service", "644"],
+]

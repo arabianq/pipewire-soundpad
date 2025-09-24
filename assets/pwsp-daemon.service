@@ -1,0 +1,10 @@
+[Unit]
+Description=Pipewire Soundpad Daemon
+
+[Service]
+ExecStart=/usr/bin/pwsp-daemon
+Restart=no
+RuntimeDirectory=pwsp
+
+[Install]
+WantedBy=default.target
