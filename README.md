@@ -69,6 +69,13 @@ Install PWSP:
 sudo dnf install pwsp
 ```
 
+## **Arch Linux**
+There is pwsp package in AUR.
+You can install it using yay, paru or any other AUR helper.
+```bash
+paru pwsp
+```
+
 ## **Installing using cargo**
 
 ```bash
