@@ -1,4 +1,4 @@
-name: Rust Release
+name: Release archive
 
 permissions:
   contents: write
@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag to attach assets to (e.g. v1.0.0)'
+        description: 'Tag to attach assets to (e.g. 1.0.0)'
         required: false
 
 jobs:
