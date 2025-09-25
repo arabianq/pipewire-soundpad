@@ -1,5 +1,9 @@
 name: Rust Release
 
+permissions:
+  contents: write
+  packages: write
+
 on:
   release:
     types: [created]
@@ -7,25 +11,14 @@ on:
     inputs:
       tag:
         description: 'Tag to attach assets to (e.g. v1.0.0)'
-        required: true
+        required: false
 
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          # если запускаешь вручную — укажи тег, иначе возьмётся github.ref
-          ref: ${{ github.event.inputs.tag || github.ref }}
-
-      - name: Setup Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-
-      - name: Install dependencies
+      - name: Install apt deps (jq/zip + dev-libs)
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -34,11 +27,71 @@ jobs:
             libclang-dev \
             libasound2-dev
 
+      - name: Determine tag to use
+        id: tag
+        run: |
+          set -euo pipefail
+
+          # приоритет 1: входной параметр workflow_dispatch
+          INPUT_TAG="${{ github.event.inputs.tag || '' }}"
+          if [ -n "$INPUT_TAG" ]; then
+            echo "Using input tag: $INPUT_TAG"
+            echo "tag=$INPUT_TAG" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # приоритет 2: если запущено событием release
+          EVENT_TAG="${{ github.event.release.tag_name || '' }}"
+          if [ -n "$EVENT_TAG" ]; then
+            echo "Using event tag: $EVENT_TAG"
+            echo "tag=$EVENT_TAG" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # приоритет 3: если GITHUB_REF — refs/tags/...
+          if [[ "${GITHUB_REF:-}" =~ ^refs/tags/(.+)$ ]]; then
+            echo "Using GITHUB_REF tag: ${BASH_REMATCH[1]}"
+            echo "tag=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # приоритет 4: пробуем получить последний релиз через API
+          echo "No tag in input/event/GITHUB_REF — querying latest release via API..."
+          LATEST_JSON=$(curl -sSf -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${{ github.repository }}/releases/latest" || true)
+          TAG_NAME=$(echo "$LATEST_JSON" | jq -r '.tag_name // empty')
+          if [ -n "$TAG_NAME" ]; then
+            echo "Found latest release tag: $TAG_NAME"
+            echo "tag=$TAG_NAME" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "No tag found"
+          echo "tag=" >> $GITHUB_OUTPUT
+
+      - name: Fail if no tag determined
+        if: ${{ steps.tag.outputs.tag == '' }}
+        run: |
+          echo "ERROR: No tag determined. Provide a tag when running manually or ensure a release exists."
+          exit 1
+
+      - name: Checkout code at tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.tag.outputs.tag || github.ref }}
+          fetch-depth: 0
+
+      - name: Setup Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
       - name: Extract all binary names
         id: cargo-meta
         run: |
+          set -euo pipefail
           BIN_NAMES=$(cargo metadata --no-deps --format-version 1 \
             | jq -r '.packages[0].targets[] | select(.kind[] | contains("bin")) | .name')
+          # сохраним построчно в выход
           echo "bin_names<<EOF" >> $GITHUB_OUTPUT
           echo "$BIN_NAMES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -49,38 +102,39 @@ jobs:
       - name: Package all binaries into one archive
         shell: bash
         run: |
-          TAG_NAME="${{ github.event.inputs.tag || github.ref_name }}"
-          ARCHIVE_NAME="pwsp-${TAG_NAME}-linux-x64.zip"
+          set -euo pipefail
+          TAG="${{ steps.tag.outputs.tag }}"
+          ARCHIVE_NAME="pwsp-${TAG}-linux-x64.zip"
           echo "Creating archive: $ARCHIVE_NAME"
 
-          # заполняем массив путей к файлам построчно
+          # читаем построчно список бинарников и формируем массив файлов
           FILES=()
           while IFS= read -r BIN; do
-            # игнорируем пустые строки на всякий случай
             [ -z "$BIN" ] && continue
             FILES+=("target/release/$BIN")
           done <<< "${{ steps.cargo-meta.outputs.bin_names }}"
 
           if [ "${#FILES[@]}" -eq 0 ]; then
-            echo "No binaries found in cargo metadata output." >&2
+            echo "Error: no binaries were discovered via cargo metadata." >&2
             exit 1
           fi
 
-          # проверим наличие файлов и выведем их
+          # проверим, что все бинарники действительно есть
           for f in "${FILES[@]}"; do
-            echo "Will add: $f"
             if [ ! -f "$f" ]; then
               echo "Error: expected binary not found: $f" >&2
               exit 1
             fi
+            echo "Will add: $f"
           done
 
-          # создаём zip, передавая массив как отдельные аргументы
+          # создаём архив с бинарниками внутри как просто pwsp-gui, pwsp-daemon, pwsp-cli
           zip -j "$ARCHIVE_NAME" "${FILES[@]}"
 
       - name: Upload release archive
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ steps.tag.outputs.tag }}
           files: |
             pwsp-*.zip
