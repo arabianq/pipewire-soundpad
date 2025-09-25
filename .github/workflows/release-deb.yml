@@ -93,10 +93,10 @@ jobs:
 
           cargo-deb
 
-      - name: Upload release archive
+      - name: Upload .deb(s) to release
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ steps.tag.outputs.tag }}
           files: |
-            *.zip
+            target/debian/*.deb
