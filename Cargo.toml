@@ -49,16 +49,6 @@ codegen-units = 1
 opt-level = "z"
 panic = "abort"
 
-[package.metadata.generate-rpm]
-assets = [
-    { source = "target/release/pwsp-daemon", dest = "/usr/bin/pwsp-daemon", mode = "755" },
-    { source = "target/release/pwsp-cli", dest = "/usr/bin/pwsp-cli", mode = "755" },
-    { source = "target/release/pwsp-gui", dest = "/usr/bin/pwsp-gui", mode = "755" },
-    { source = "assets/pwsp-gui.desktop", dest = "/usr/share/applications/pwsp.desktop", mode = "644" },
-    { source = "assets/icon.png", dest = "/usr/share/icons/hicolor/256x256/apps/pwsp.png", mode = "644" },
-    { source = "assets/pwsp-daemon.service", dest = "/usr/lib/systemd/user/pwsp-daemon.service", mode = "644" },
-]
-
 [package.metadata.deb]
 assets = [
     ["target/release/pwsp-daemon", "usr/bin/", "755"],
