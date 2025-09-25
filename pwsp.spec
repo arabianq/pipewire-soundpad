@@ -13,7 +13,7 @@ SourceLicense:  MIT
 License:        MIT
 
 URL:            https://github.com/arabianq/pipewire-soundpad
-Source:         https://github.com/arabianq/pipewire-soundpad/archive/refs/tags/v%{version}.tar.gz
+Source:         https://github.com/arabianq/pipewire-soundpad/archive/refs/tags/%{version}.tar.gz
 
 BuildRequires:  cargo-rpm-macros >= 26
 
