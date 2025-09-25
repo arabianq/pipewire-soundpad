@@ -22,8 +22,14 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Install helpers
-        run: sudo apt-get update && sudo apt-get install -y zip jq
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            zip jq \
+            libpipewire-0.3-dev \
+            libclang-dev \
+            libasound2-dev
 
       - name: Extract all binary names
         id: cargo-meta
