@@ -1,0 +1,49 @@
+name: Rust Release
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to attach assets to (e.g. v1.0.0)'
+        required: true
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Install helpers
+        run: sudo apt-get update && sudo apt-get install -y zip jq
+
+      - name: Extract all binary names
+        id: cargo-meta
+        run: |
+          BIN_NAMES=$(cargo metadata --no-deps --format-version 1 \
+            | jq -r '.packages[0].targets[] | select(.kind[] | contains("bin")) | .name')
+          echo "bin_names<<EOF" >> $GITHUB_OUTPUT
+          echo "$BIN_NAMES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Build all release binaries
+        run: cargo build --release --locked
+
+      - name: Package all binaries into one archive
+        run: |
+          ARCHIVE_NAME="pwsp-${{ github.ref_name }}-linux-x64.zip"
+          zip -j "$ARCHIVE_NAME" $(for BIN in ${{ steps.cargo-meta.outputs.bin_names }}; do echo "target/release/$BIN"; done)
+
+      - name: Upload release archive
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            pwsp-*.zip
