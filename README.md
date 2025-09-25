@@ -125,7 +125,7 @@ You can start the daemon from the terminal or enable the systemd service for aut
 ```
 
 * **Using systemd (recommended):**  
-  If you installed PWSP using .rpm or .deb packages, the systemd service is added automatically.
+  If you installed PWSP using prebuilt packages, the systemd service is added automatically.
     1. **Start the service:**
         ```bash  
         systemctl --user start pwsp-daemon
