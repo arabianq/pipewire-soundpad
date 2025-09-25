@@ -54,7 +54,7 @@ If you're using Fedora, you can install PWSP from a dedicated repository using D
 Add the repository:
 
 ```bash
-sudo dnf install https://files.arabianq.ru/repo/fedora/$(rpm -E %fedora)/noarch/arabianq-release.noarch.rpm
+sudo dnf copr enable arabianq/pwsp
 ```
 
 Update cache:
