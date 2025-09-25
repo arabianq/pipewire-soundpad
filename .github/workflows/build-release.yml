@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag to attach assets to (e.g. 1.0.0)'
+        description: 'Tag to attach assets to (e.g. v1.0.0)'
         required: true
 
 jobs:
@@ -16,6 +16,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          # если запускаешь вручную — укажи тег, иначе возьмётся github.ref
+          ref: ${{ github.event.inputs.tag || github.ref }}
 
       - name: Setup Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -44,12 +47,40 @@ jobs:
         run: cargo build --release --locked
 
       - name: Package all binaries into one archive
+        shell: bash
         run: |
-          ARCHIVE_NAME="pwsp-${{ github.ref_name }}-linux-x64.zip"
-          zip -j "$ARCHIVE_NAME" $(for BIN in ${{ steps.cargo-meta.outputs.bin_names }}; do echo "target/release/$BIN"; done)
+          TAG_NAME="${{ github.event.inputs.tag || github.ref_name }}"
+          ARCHIVE_NAME="pwsp-${TAG_NAME}-linux-x64.zip"
+          echo "Creating archive: $ARCHIVE_NAME"
+
+          # заполняем массив путей к файлам построчно
+          FILES=()
+          while IFS= read -r BIN; do
+            # игнорируем пустые строки на всякий случай
+            [ -z "$BIN" ] && continue
+            FILES+=("target/release/$BIN")
+          done <<< "${{ steps.cargo-meta.outputs.bin_names }}"
+
+          if [ "${#FILES[@]}" -eq 0 ]; then
+            echo "No binaries found in cargo metadata output." >&2
+            exit 1
+          fi
+
+          # проверим наличие файлов и выведем их
+          for f in "${FILES[@]}"; do
+            echo "Will add: $f"
+            if [ ! -f "$f" ]; then
+              echo "Error: expected binary not found: $f" >&2
+              exit 1
+            fi
+          done
+
+          # создаём zip, передавая массив как отдельные аргументы
+          zip -j "$ARCHIVE_NAME" "${FILES[@]}"
 
       - name: Upload release archive
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
           files: |
             pwsp-*.zip
