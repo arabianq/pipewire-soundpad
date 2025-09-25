@@ -9,11 +9,10 @@ Version:        1.0.0
 Release:        %autorelease
 Summary:        Lets you play audio files through your microphone
 
-SourceLicense:  MIT
 License:        MIT
 
 URL:            https://github.com/arabianq/pipewire-soundpad
-Source:         https://github.com/arabianq/pipewire-soundpad/archive/refs/tags/%{version}.tar.gz
+Source:         Source: %{name}-%{version}.tar.gz https://github.com/arabianq/pipewire-soundpad/archive/refs/tags/%{version}.tar.gz
 
 BuildRequires:  cargo-rpm-macros >= 26
 
