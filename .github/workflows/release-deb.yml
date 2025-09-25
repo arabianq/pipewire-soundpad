@@ -1,4 +1,4 @@
-name: Release archive
+name: Release deb
 
 permissions:
   contents: write
