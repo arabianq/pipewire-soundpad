@@ -26,7 +26,7 @@ GUI clients.}
 %description %{_description}
 
 %prep
-%autosetup -n pipewire-soundpad-v%{version} -p1
+%autosetup -n pipewire-soundpad-%{version} -p1
 
 %build
 cargo build --release --locked
