@@ -74,8 +74,10 @@ impl SoundpadGui {
                 RichText::new(
                     self.audio_player_state
                         .current_file_path
-                        .to_string_lossy()
-                        .to_string(),
+                        .file_stem()
+                        .unwrap_or_default()
+                        .to_str()
+                        .unwrap_or_default(),
                 )
                 .color(Color32::WHITE)
                 .family(FontFamily::Monospace),
