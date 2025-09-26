@@ -11,7 +11,7 @@ Summary:         Lets you play audio files through your microphone
 License:         MIT
 
 URL:             https://github.com/arabianq/pipewire-soundpad
-Source:          https://github.com/arabianq/pipewire-soundpad/archive/refs/tags/%{version}.tar.gz
+Source:          https://github.com/arabianq/pipewire-soundpad/archive/refs/tags/v%{version}.tar.gz
 
 BuildRequires: rust
 BuildRequires: cargo
@@ -26,7 +26,7 @@ GUI clients.}
 %description %{_description}
 
 %prep
-%autosetup -n pipewire-soundpad-%{version} -p1
+%autosetup -n pipewire-soundpad-v%{version} -p1
 
 %build
 cargo build --release --locked
