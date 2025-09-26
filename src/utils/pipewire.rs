@@ -1,6 +1,6 @@
 use crate::types::pipewire::{AudioDevice, DeviceType, Port, Terminate};
 use pipewire::{
-    context::Context, link::Link, main_loop::MainLoop, properties::properties,
+    context::ContextRc, link::Link, main_loop::MainLoopRc, properties::properties,
     registry::GlobalObject, spa::utils::dict::DictRef,
 };
 use std::{collections::HashMap, error::Error, thread};
@@ -77,7 +77,7 @@ async fn pw_get_global_objects_thread(
     main_sender: mpsc::Sender<(Option<AudioDevice>, Option<Port>)>,
     pw_receiver: pipewire::channel::Receiver<Terminate>,
 ) {
-    let main_loop = MainLoop::new(None).expect("Failed to initialize pipewire main loop");
+    let main_loop = MainLoopRc::new(None).expect("Failed to initialize pipewire main loop");
 
     // Stop main loop on Terminate message
     let _receiver = pw_receiver.attach(main_loop.loop_(), {
@@ -85,7 +85,7 @@ async fn pw_get_global_objects_thread(
         move |_| _main_loop.quit()
     });
 
-    let context = Context::new(&main_loop).expect("Failed to create pipewire context");
+    let context = ContextRc::new(&main_loop, None).expect("Failed to create pipewire context");
     let core = context
         .connect(None)
         .expect("Failed to connect to pipewire context");
@@ -216,8 +216,8 @@ pub fn create_virtual_mic() -> Result<pipewire::channel::Sender<Terminate>, Box<
     let (pw_sender, pw_receiver) = pipewire::channel::channel::<Terminate>();
 
     let _pw_thread = thread::spawn(move || {
-        let main_loop = MainLoop::new(None).expect("Failed to initialize pipewire main loop");
-        let context = Context::new(&main_loop).expect("Failed to create pipewire context");
+        let main_loop = MainLoopRc::new(None).expect("Failed to initialize pipewire main loop");
+        let context = ContextRc::new(&main_loop, None).expect("Failed to create pipewire context");
         let core = context
             .connect(None)
             .expect("Failed to connect to pipewire context");
@@ -257,8 +257,8 @@ pub fn create_link(
     let (pw_sender, pw_receiver) = pipewire::channel::channel::<Terminate>();
 
     let _pw_thread = thread::spawn(move || {
-        let main_loop = MainLoop::new(None).expect("Failed to initialize pipewire main loop");
-        let context = Context::new(&main_loop).expect("Failed to create pipewire context");
+        let main_loop = MainLoopRc::new(None).expect("Failed to initialize pipewire main loop");
+        let context = ContextRc::new(&main_loop, None).expect("Failed to create pipewire context");
         let core = context
             .connect(None)
             .expect("Failed to connect to pipewire context");
