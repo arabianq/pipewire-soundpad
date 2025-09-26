@@ -1,6 +1,7 @@
 use crate::gui::SoundpadGui;
 use egui::{
-    Button, Color32, ComboBox, FontFamily, Label, RichText, ScrollArea, Slider, TextEdit, Ui, Vec2,
+    AtomExt, Button, Color32, ComboBox, FontFamily, Label, RichText, ScrollArea, Slider, TextEdit,
+    Ui, Vec2,
 };
 use egui_material_icons::icons;
 use pwsp::types::audio_player::PlayerState;
@@ -188,7 +189,9 @@ impl SoundpadGui {
                             .map(|s| s.to_string_lossy().to_string())
                             .unwrap_or_else(|| path.to_string_lossy().to_string());
 
-                        let dir_button = Button::new(name).frame(false);
+                        let dir_button =
+                            Button::new(RichText::new(name).atom_max_width(area_size.x))
+                                .frame(false);
                         let dir_button_response = ui.add(dir_button);
                         if dir_button_response.clicked() {
                             self.app_state.current_dir = Some(path.clone());
