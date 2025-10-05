@@ -4,7 +4,7 @@ use std::{collections::HashSet, error::Error, fs, path::PathBuf};
 
 #[derive(Default, Clone, Serialize, Deserialize)]
 pub struct DaemonConfig {
-    pub default_input_id: Option<u32>,
+    pub default_input_name: Option<String>,
     pub default_volume: Option<f32>,
 }
 

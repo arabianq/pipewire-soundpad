@@ -80,8 +80,8 @@ impl Request {
         Request::new("seek", vec![("position", &position.to_string())])
     }
 
-    pub fn set_input(id: u32) -> Self {
-        Request::new("set_input", vec![("input_id", &id.to_string())])
+    pub fn set_input(name: &str) -> Self {
+        Request::new("set_input", vec![("input_name", name)])
     }
 }
 

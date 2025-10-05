@@ -287,7 +287,7 @@ impl SoundpadGui {
         ui.add_space(5.0);
         ui.horizontal_top(|ui| {
             // ---------- Microphone selection ----------
-            let mut mics: Vec<(&u32, &String)> =
+            let mut mics: Vec<(&String, &String)> =
                 self.audio_player_state.all_inputs.iter().collect();
             mics.sort_by_key(|(k, _)| *k);
 
@@ -301,8 +301,8 @@ impl SoundpadGui {
                         .unwrap_or(&String::new()),
                 )
                 .show_ui(ui, |ui| {
-                    for (index, device) in mics {
-                        ui.selectable_value(&mut selected_input, index.to_owned(), device);
+                    for (name, nick) in mics {
+                        ui.selectable_value(&mut selected_input, name.to_owned(), nick);
                     }
                 });
 

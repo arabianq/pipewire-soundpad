@@ -199,12 +199,12 @@ pub async fn get_all_devices() -> Result<(Vec<AudioDevice>, Vec<AudioDevice>), B
     }
 }
 
-pub async fn get_device(node_id: u32) -> Result<AudioDevice, Box<dyn Error>> {
+pub async fn get_device(device_name: &str) -> Result<AudioDevice, Box<dyn Error>> {
     let (mut input_devices, output_devices) = get_all_devices().await?;
     input_devices.extend(output_devices);
 
     for device in input_devices {
-        if device.id == node_id {
+        if device.name == device_name {
             return Ok(device);
         }
     }
