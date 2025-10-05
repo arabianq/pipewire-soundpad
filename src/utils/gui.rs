@@ -96,10 +96,8 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
                     .collect::<Vec<&str>>()
                     .first()
                     .unwrap()
-                    .to_string()
-                    .parse::<u32>()
-                    .unwrap_or_default(),
-                false => 0,
+                    .to_string(),
+                false => String::new(),
             };
             let all_inputs = match all_inputs_res.status {
                 true => all_inputs_res
@@ -111,14 +109,11 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
                         if entry.is_empty() {
                             return None;
                         }
-                        entry.split_once(" - ").and_then(|(k, v)| {
-                            k.trim()
-                                .parse::<u32>()
-                                .ok()
-                                .map(|key| (key, v.trim().to_string()))
-                        })
+                        entry
+                            .split_once(" - ")
+                            .map(|(k, v)| (k.trim().to_string(), v.trim().to_string()))
                     })
-                    .collect(),
+                    .collect::<HashMap<String, String>>(),
                 false => HashMap::new(),
             };
 

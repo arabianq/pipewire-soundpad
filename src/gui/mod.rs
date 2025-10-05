@@ -92,12 +92,12 @@ impl SoundpadGui {
         make_request_sync(Request::play(path.to_str().unwrap())).ok();
     }
 
-    pub fn set_input(&mut self, id: u32) {
-        make_request_sync(Request::set_input(id)).ok();
+    pub fn set_input(&mut self, name: String) {
+        make_request_sync(Request::set_input(&name)).ok();
 
         if self.config.save_input {
             let mut daemon_config = get_daemon_config();
-            daemon_config.default_input_id = Some(id);
+            daemon_config.default_input_name = Some(name);
             daemon_config.save_to_file().ok();
         }
     }

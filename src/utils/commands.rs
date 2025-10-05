@@ -44,13 +44,8 @@ pub fn parse_command(request: &Request) -> Option<Box<dyn Executable + Send>> {
         "get_input" => Some(Box::new(GetCurrentInputCommand {})),
         "get_inputs" => Some(Box::new(GetAllInputsCommand {})),
         "set_input" => {
-            let id = request
-                .args
-                .get("input_id")
-                .unwrap_or(&String::new())
-                .parse::<u32>()
-                .ok();
-            Some(Box::new(SetCurrentInputCommand { id }))
+            let name = Some(request.args.get("input_name").unwrap_or(&String::new())).cloned();
+            Some(Box::new(SetCurrentInputCommand { name }))
         }
         _ => None,
     }

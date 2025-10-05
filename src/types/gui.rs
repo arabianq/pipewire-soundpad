@@ -34,6 +34,6 @@ pub struct AudioPlayerState {
     pub new_position: Option<f32>,
     pub duration: f32,
 
-    pub current_input: u32,
-    pub all_inputs: HashMap<u32, String>,
+    pub current_input: String,
+    pub all_inputs: HashMap<String, String>,
 }

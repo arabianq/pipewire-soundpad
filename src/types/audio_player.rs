@@ -40,8 +40,8 @@ impl AudioPlayer {
         let daemon_config = get_daemon_config();
         let default_volume = daemon_config.default_volume.unwrap_or(1.0);
         let mut default_input_device: Option<AudioDevice> = None;
-        if let Some(id) = daemon_config.default_input_id
-            && let Ok(device) = get_device(id).await
+        if let Some(name) = daemon_config.default_input_name
+            && let Ok(device) = get_device(&name).await
             && device.device_type == DeviceType::Input
         {
             default_input_device = Some(device);
@@ -224,8 +224,8 @@ impl AudioPlayer {
         &self.current_file_path
     }
 
-    pub async fn set_current_input_device(&mut self, id: u32) -> Result<(), Box<dyn Error>> {
-        let input_device = get_device(id).await?;
+    pub async fn set_current_input_device(&mut self, name: &str) -> Result<(), Box<dyn Error>> {
+        let input_device = get_device(name).await?;
 
         if input_device.device_type != DeviceType::Input {
             return Err("Selected device is not an input device".into());

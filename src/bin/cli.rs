@@ -72,7 +72,7 @@ enum SetCommands {
     /// Playback position
     Position { position: f32 },
     /// Input
-    Input { id: u32 },
+    Input { name: String },
 }
 
 #[tokio::main]
@@ -102,7 +102,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         Commands::Set { parameter } => match parameter {
             SetCommands::Volume { volume } => Request::set_volume(volume),
             SetCommands::Position { position } => Request::seek(position),
-            SetCommands::Input { id } => Request::set_input(id),
+            SetCommands::Input { name } => Request::set_input(&name),
         },
     };
 

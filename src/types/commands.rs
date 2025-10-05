@@ -47,7 +47,7 @@ pub struct GetCurrentInputCommand {}
 pub struct GetAllInputsCommand {}
 
 pub struct SetCurrentInputCommand {
-    pub id: Option<u32>,
+    pub name: Option<String>,
 }
 
 #[async_trait]
@@ -192,7 +192,10 @@ impl Executable for GetCurrentInputCommand {
     async fn execute(&self) -> Response {
         let audio_player = get_audio_player().await.lock().await;
         if let Some(input_device) = &audio_player.current_input_device {
-            Response::new(true, format!("{} - {}", input_device.id, input_device.nick))
+            Response::new(
+                true,
+                format!("{} - {}", input_device.name, input_device.nick),
+            )
         } else {
             Response::new(false, "No input device selected")
         }
@@ -209,7 +212,7 @@ impl Executable for GetAllInputsCommand {
                 continue;
             }
 
-            let string = format!("{} - {}", device.id, device.nick);
+            let string = format!("{} - {}", device.name, device.nick);
             input_devices_strings.push(string);
         }
         let response_message = input_devices_strings.join("; ");
@@ -221,9 +224,9 @@ impl Executable for GetAllInputsCommand {
 #[async_trait]
 impl Executable for SetCurrentInputCommand {
     async fn execute(&self) -> Response {
-        if let Some(id) = self.id {
+        if let Some(name) = &self.name {
             let mut audio_player = get_audio_player().await.lock().await;
-            match audio_player.set_current_input_device(id).await {
+            match audio_player.set_current_input_device(name).await {
                 Ok(_) => Response::new(true, "Input device was set"),
                 Err(err) => Response::new(false, err.to_string()),
             }
