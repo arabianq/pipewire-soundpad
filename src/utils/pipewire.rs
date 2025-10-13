@@ -77,6 +77,8 @@ async fn pw_get_global_objects_thread(
     main_sender: mpsc::Sender<(Option<AudioDevice>, Option<Port>)>,
     pw_receiver: pipewire::channel::Receiver<Terminate>,
 ) {
+    pipewire::init();
+
     let main_loop = MainLoopRc::new(None).expect("Failed to initialize pipewire main loop");
 
     // Stop main loop on Terminate message
@@ -216,6 +218,8 @@ pub fn create_virtual_mic() -> Result<pipewire::channel::Sender<Terminate>, Box<
     let (pw_sender, pw_receiver) = pipewire::channel::channel::<Terminate>();
 
     let _pw_thread = thread::spawn(move || {
+        pipewire::init();
+
         let main_loop = MainLoopRc::new(None).expect("Failed to initialize pipewire main loop");
         let context = ContextRc::new(&main_loop, None).expect("Failed to create pipewire context");
         let core = context
@@ -257,6 +261,8 @@ pub fn create_link(
     let (pw_sender, pw_receiver) = pipewire::channel::channel::<Terminate>();
 
     let _pw_thread = thread::spawn(move || {
+        pipewire::init();
+
         let main_loop = MainLoopRc::new(None).expect("Failed to initialize pipewire main loop");
         let context = ContextRc::new(&main_loop, None).expect("Failed to create pipewire context");
         let core = context
