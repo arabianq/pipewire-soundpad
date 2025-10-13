@@ -1,5 +1,6 @@
 [Unit]
 Description=Pipewire Soundpad Daemon
+After=pipewire.service
 
 [Service]
 ExecStart=/usr/bin/pwsp-daemon
