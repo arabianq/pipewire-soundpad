@@ -3,6 +3,7 @@ Description=Pipewire Soundpad Daemon
 After=pipewire.service
 
 [Service]
+ExecStartPre=/usr/bin/sleep 10
 ExecStart=/usr/bin/pwsp-daemon
 Restart=no
 RuntimeDirectory=pwsp
