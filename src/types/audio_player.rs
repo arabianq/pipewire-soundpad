@@ -172,7 +172,11 @@ impl AudioPlayer {
         self.sink.get_pos().as_secs_f32()
     }
 
-    pub fn seek(&mut self, position: f32) -> Result<(), Box<dyn Error>> {
+    pub fn seek(&mut self, mut position: f32) -> Result<(), Box<dyn Error>> {
+        if position < 0.0 {
+            position = 0.0;
+        }
+
         match self.sink.try_seek(Duration::from_secs_f32(position)) {
             Ok(_) => Ok(()),
             Err(err) => Err(err.into()),
