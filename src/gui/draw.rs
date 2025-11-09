@@ -191,19 +191,26 @@ impl SoundpadGui {
                             .map(|s| s.to_string_lossy().to_string())
                             .unwrap_or_else(|| path.to_string_lossy().to_string());
 
+                        let mut dir_button_text = RichText::new(name.clone());
+                        if let Some(current_dir) = &self.app_state.current_dir {
+                            if current_dir.eq(path) {
+                                dir_button_text = dir_button_text.color(Color32::WHITE);
+                            }
+                        }
+
                         let dir_button =
-                            Button::new(RichText::new(name).atom_max_width(area_size.x))
-                                .frame(false);
+                            Button::new(dir_button_text.atom_max_width(area_size.x)).frame(false);
+
                         let dir_button_response = ui.add(dir_button);
                         if dir_button_response.clicked() {
-                            self.app_state.current_dir = Some(path.clone());
+                            self.open_dir(path);
                         }
 
                         let delete_dir_button = Button::new(icons::ICON_DELETE).frame(false);
                         let delete_dir_button_response =
                             ui.add_sized([18.0, 18.0], delete_dir_button);
                         if delete_dir_button_response.clicked() {
-                            self.remove_dir(path.clone());
+                            self.remove_dir(&path.clone());
                         }
                     });
                 }
@@ -226,10 +233,12 @@ impl SoundpadGui {
 
         ui.vertical(|ui| {
             ui.horizontal(|ui| {
-                ui.add_sized(
+                let search_field = ui.add_sized(
                     [ui.available_width(), 22.0],
                     TextEdit::singleline(&mut self.app_state.search_query).hint_text("Search..."),
                 );
+
+                self.app_state.search_field_id = Some(search_field.id);
             });
 
             ui.separator();
@@ -239,43 +248,49 @@ impl SoundpadGui {
                 ui.set_min_height(area_size.y);
 
                 ui.vertical(|ui| {
-                    if let Some(path) = self.app_state.current_dir.clone() {
-                        for entry in path.read_dir().unwrap() {
-                            let entry = entry.unwrap();
-                            let entry_path = entry.path();
+                    let mut files: Vec<PathBuf> = self.app_state.files.iter().cloned().collect();
+                    files.sort();
 
-                            if entry_path.is_dir() {
-                                continue;
+                    for entry_path in files {
+                        if entry_path.is_dir() {
+                            continue;
+                        }
+
+                        if !extensions
+                            .contains(&entry_path.extension().unwrap_or_default().to_str().unwrap())
+                        {
+                            continue;
+                        }
+
+                        let file_name = entry_path
+                            .file_name()
+                            .unwrap()
+                            .to_string_lossy()
+                            .to_string();
+
+                        let search_query = self
+                            .app_state
+                            .search_query
+                            .to_lowercase()
+                            .trim()
+                            .to_string();
+
+                        if !file_name.to_lowercase().contains(search_query.as_str()) {
+                            continue;
+                        }
+
+                        let mut file_button_text = RichText::new(file_name);
+                        if let Some(current_file) = &self.app_state.selected_file {
+                            if current_file.eq(&entry_path) {
+                                file_button_text = file_button_text.color(Color32::WHITE);
                             }
+                        }
 
-                            if !extensions.contains(
-                                &entry_path.extension().unwrap_or_default().to_str().unwrap(),
-                            ) {
-                                continue;
-                            }
-
-                            let file_name = entry_path
-                                .file_name()
-                                .unwrap()
-                                .to_string_lossy()
-                                .to_string();
-
-                            let search_query = self
-                                .app_state
-                                .search_query
-                                .to_lowercase()
-                                .trim()
-                                .to_string();
-
-                            if !file_name.to_lowercase().contains(search_query.as_str()) {
-                                continue;
-                            }
-
-                            let file_button = Button::new(file_name).frame(false);
-                            let file_button_response = ui.add(file_button);
-                            if file_button_response.clicked() {
-                                self.play_file(entry_path);
-                            }
+                        let file_button = Button::new(file_button_text).frame(false);
+                        let file_button_response = ui.add(file_button);
+                        if file_button_response.clicked() {
+                            self.play_file(&entry_path);
+                            self.app_state.selected_file = Some(entry_path);
                         }
                     }
                 });
