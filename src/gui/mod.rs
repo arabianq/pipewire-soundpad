@@ -77,10 +77,10 @@ impl SoundpadGui {
         }
     }
 
-    pub fn remove_dir(&mut self, path: PathBuf) {
-        self.app_state.dirs.remove(&path);
+    pub fn remove_dir(&mut self, path: &PathBuf) {
+        self.app_state.dirs.remove(path);
         if let Some(current_dir) = &self.app_state.current_dir
-            && current_dir == &path
+            && current_dir == path
         {
             self.app_state.current_dir = None;
         }
@@ -88,7 +88,17 @@ impl SoundpadGui {
         self.config.save_to_file().ok();
     }
 
-    pub fn play_file(&mut self, path: PathBuf) {
+    pub fn open_dir(&mut self, path: &PathBuf) {
+        self.app_state.current_dir = Some(path.clone());
+        self.app_state.files = path
+            .read_dir()
+            .unwrap()
+            .filter_map(|res| res.ok())
+            .map(|entry| entry.path())
+            .collect();
+    }
+
+    pub fn play_file(&mut self, path: &PathBuf) {
         make_request_sync(Request::play(path.to_str().unwrap())).ok();
     }
 

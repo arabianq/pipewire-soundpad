@@ -1,4 +1,7 @@
 use crate::types::audio_player::PlayerState;
+
+use egui::Id;
+
 use std::{
     collections::{HashMap, HashSet},
     path::PathBuf,
@@ -18,6 +21,12 @@ pub struct AppState {
 
     pub current_dir: Option<PathBuf>,
     pub dirs: HashSet<PathBuf>,
+
+    pub selected_file: Option<PathBuf>,
+    pub files: HashSet<PathBuf>,
+
+    pub search_field_id: Option<Id>,
+    pub force_focus_id: Option<Id>,
 }
 
 #[derive(Default, Debug, Clone)]
