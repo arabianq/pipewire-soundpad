@@ -5,6 +5,10 @@ use std::path::PathBuf;
 
 impl SoundpadGui {
     pub fn handle_input(&mut self, ctx: &Context) {
+        if ctx.memory(|reader| { reader.focused() }.is_some()) {
+            return;
+        }
+
         ctx.input(|i| {
             // Close app on espace
             if i.key_pressed(Key::Escape) {
