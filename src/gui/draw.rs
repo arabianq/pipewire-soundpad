@@ -115,7 +115,7 @@ impl SoundpadGui {
             let position_slider_width = ui.available_width()
                 - (30.0 * 3.0)
                 - default_slider_width
-                - (ui.spacing().item_spacing.x * 5.0);
+                - (ui.spacing().item_spacing.x * 6.0);
             ui.spacing_mut().slider_width = position_slider_width;
             let position_slider_response = ui.add_sized([30.0, 30.0], position_slider);
             if position_slider_response.drag_stopped() {
