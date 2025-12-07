@@ -164,6 +164,10 @@ pub async fn get_all_devices() -> Result<(Vec<AudioDevice>, Vec<AudioDevice>), B
                                 input_device.input_fl = Some(port.clone());
                                 input_device.input_fr = Some(port)
                             }
+                            "capture_MONO" => {
+                                input_device.input_fl = Some(port.clone());
+                                input_device.input_fr = Some(port);
+                            }
                             _ => {}
                         }
                     } else if output_devices.contains_key(&node_id) {
