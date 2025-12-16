@@ -7,6 +7,7 @@ pub fn parse_command(request: &Request) -> Option<Box<dyn Executable + Send>> {
         "ping" => Some(Box::new(PingCommand {})),
         "pause" => Some(Box::new(PauseCommand {})),
         "resume" => Some(Box::new(ResumeCommand {})),
+        "toggle_pause" => Some(Box::new(TogglePauseCommand {})),
         "stop" => Some(Box::new(StopCommand {})),
         "is_paused" => Some(Box::new(IsPausedCommand {})),
         "get_state" => Some(Box::new(GetStateCommand {})),

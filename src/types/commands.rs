@@ -1,5 +1,5 @@
 use crate::{
-    types::socket::Response,
+    types::{audio_player::PlayerState, socket::Response},
     utils::{daemon::get_audio_player, pipewire::get_all_devices},
 };
 use async_trait::async_trait;
@@ -15,6 +15,8 @@ pub struct PingCommand {}
 pub struct PauseCommand {}
 
 pub struct ResumeCommand {}
+
+pub struct TogglePauseCommand {}
 
 pub struct StopCommand {}
 
@@ -72,6 +74,25 @@ impl Executable for ResumeCommand {
         let mut audio_player = get_audio_player().await.lock().await;
         audio_player.resume();
         Response::new(true, "Audio was resumed")
+    }
+}
+
+#[async_trait]
+impl Executable for TogglePauseCommand {
+    async fn execute(&self) -> Response {
+        let mut audio_player = get_audio_player().await.lock().await;
+
+        if audio_player.get_state() == PlayerState::Stopped {
+            return Response::new(false, "Audio is not playing");
+        }
+
+        if audio_player.is_paused() {
+            audio_player.resume();
+            Response::new(true, "Audio was resumed")
+        } else {
+            audio_player.pause();
+            Response::new(true, "Audio was paused")
+        }
     }
 }
 

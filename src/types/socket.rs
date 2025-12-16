@@ -32,6 +32,10 @@ impl Request {
         Request::new("resume", vec![])
     }
 
+    pub fn toggle_pause() -> Self {
+        Request::new("toggle_pause", vec![])
+    }
+
     pub fn stop() -> Self {
         Request::new("stop", vec![])
     }

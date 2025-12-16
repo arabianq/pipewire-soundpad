@@ -14,17 +14,17 @@ struct Cli {
 
 #[derive(Subcommand, Debug)]
 enum Commands {
-    /// Perform an action (ping, pause, resume, stop, play)
+    /// Perform an action (ping, pause, resume, toggle-pause, stop, play)
     Action {
         #[clap(subcommand)]
         action: Actions,
     },
-    /// Get information from the player (is paused, volume, position, state)
+    /// Get information from the player (is paused, volume, position, duration, state, current-file-path, input, inputs)
     Get {
         #[clap(subcommand)]
         parameter: GetCommands,
     },
-    /// Set information in the player (volume, position)
+    /// Set information in the player (volume, position, input)
     Set {
         #[clap(subcommand)]
         parameter: SetCommands,
@@ -39,6 +39,8 @@ enum Actions {
     Pause,
     /// Resume audio playback
     Resume,
+    /// Toggle pause
+    TogglePause,
     /// Stop audio playback and clear the queue
     Stop,
     /// Play a file
@@ -51,11 +53,11 @@ enum GetCommands {
     IsPaused,
     /// Playback volume
     Volume,
-    /// Playback position
+    /// Playback position (in seconds)
     Position,
     /// Duration of the current file
     Duration,
-    /// Player state
+    /// Player state (Playing, Paused or Stopped)
     State,
     /// Current playing file path
     CurrentFilePath,
@@ -69,9 +71,9 @@ enum GetCommands {
 enum SetCommands {
     /// Playback volume
     Volume { volume: f32 },
-    /// Playback position
+    /// Playback position (in seconds)
     Position { position: f32 },
-    /// Input
+    /// Audio input id (see pwsp-cli get inputs)
     Input { name: String },
 }
 
@@ -86,6 +88,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             Actions::Ping => Request::ping(),
             Actions::Pause => Request::pause(),
             Actions::Resume => Request::resume(),
+            Actions::TogglePause => Request::toggle_pause(),
             Actions::Stop => Request::stop(),
             Actions::Play { file_path } => Request::play(file_path.to_str().unwrap()),
         },
