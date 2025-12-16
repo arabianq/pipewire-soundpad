@@ -223,10 +223,10 @@ impl SoundpadGui {
                 }
 
                 ui.horizontal(|ui| {
-                    let add_dir_button = Button::new(icons::ICON_ADD).frame(false);
-                    let add_dir_button_response = ui.add_sized([18.0, 18.0], add_dir_button);
-                    if add_dir_button_response.clicked() {
-                        self.add_dir();
+                    let add_dirs_button = Button::new(icons::ICON_ADD).frame(false);
+                    let add_dirs_button_response = ui.add_sized([18.0, 18.0], add_dirs_button);
+                    if add_dirs_button_response.clicked() {
+                        self.add_dirs();
                     }
                 });
 

@@ -79,10 +79,12 @@ impl SoundpadGui {
         }
     }
 
-    pub fn add_dir(&mut self) {
+    pub fn add_dirs(&mut self) {
         let file_dialog = FileDialog::new();
-        if let Some(path) = file_dialog.pick_folder() {
-            self.app_state.dirs.insert(path);
+        if let Some(paths) = file_dialog.pick_folders() {
+            for path in paths {
+                self.app_state.dirs.insert(path);
+            }
             self.config.dirs = self.app_state.dirs.clone();
             self.config.save_to_file().ok();
         }
