@@ -23,6 +23,10 @@ use std::{
     sync::{Arc, Mutex},
 };
 
+const SUPPORTED_EXTENSIONS: [&str; 11] = [
+    "mp3", "wav", "ogg", "flac", "mp4", "m4a", "aac", "mov", "mkv", "webm", "avi",
+];
+
 struct SoundpadGui {
     pub app_state: AppState,
     pub config: GuiConfig,
@@ -66,6 +70,13 @@ impl SoundpadGui {
             }
             PlayerState::Stopped => PlayerState::Stopped,
         };
+    }
+
+    pub fn open_file(&mut self) {
+        let file_dialog = FileDialog::new().add_filter("Audio File", &SUPPORTED_EXTENSIONS);
+        if let Some(path) = file_dialog.pick_file() {
+            self.play_file(&path);
+        }
     }
 
     pub fn add_dir(&mut self) {

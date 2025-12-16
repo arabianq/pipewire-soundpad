@@ -1,7 +1,7 @@
-use crate::gui::SoundpadGui;
+use crate::gui::{SUPPORTED_EXTENSIONS, SoundpadGui};
 use egui::{
-    AtomExt, Button, Color32, ComboBox, FontFamily, Label, RichText, ScrollArea, Slider, TextEdit,
-    Ui, Vec2,
+    Align, AtomExt, Button, Color32, ComboBox, FontFamily, Label, Layout, RichText, ScrollArea,
+    Slider, TextEdit, Ui, Vec2,
 };
 use egui_material_icons::icons;
 use pwsp::types::audio_player::PlayerState;
@@ -216,10 +216,18 @@ impl SoundpadGui {
                 }
 
                 ui.horizontal(|ui| {
-                    let add_dir_button = egui::Button::new(icons::ICON_ADD).frame(false);
+                    let add_dir_button = Button::new(icons::ICON_ADD).frame(false);
                     let add_dir_button_response = ui.add_sized([18.0, 18.0], add_dir_button);
                     if add_dir_button_response.clicked() {
                         self.add_dir();
+                    }
+                });
+
+                ui.with_layout(Layout::bottom_up(Align::Min), |ui| {
+                    let play_file_button = Button::new("Play file");
+                    let play_file_button_response = ui.add(play_file_button);
+                    if play_file_button_response.clicked() {
+                        self.open_file();
                     }
                 });
             });
@@ -227,10 +235,6 @@ impl SoundpadGui {
     }
 
     fn draw_files(&mut self, ui: &mut Ui, area_size: Vec2) {
-        let extensions = [
-            "mp3", "wav", "ogg", "flac", "mp4", "m4a", "aac", "mov", "mkv", "webm", "avi",
-        ];
-
         ui.vertical(|ui| {
             ui.horizontal(|ui| {
                 let search_field = ui.add_sized(
@@ -256,7 +260,7 @@ impl SoundpadGui {
                             continue;
                         }
 
-                        if !extensions
+                        if !SUPPORTED_EXTENSIONS
                             .contains(&entry_path.extension().unwrap_or_default().to_str().unwrap())
                         {
                             continue;
