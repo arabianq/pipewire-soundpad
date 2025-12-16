@@ -96,6 +96,7 @@ impl SoundpadGui {
             && current_dir == path
         {
             self.app_state.current_dir = None;
+            self.app_state.files.clear();
         }
         self.config.dirs = self.app_state.dirs.clone();
         self.config.save_to_file().ok();
