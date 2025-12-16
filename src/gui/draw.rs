@@ -187,6 +187,8 @@ impl SoundpadGui {
             ui.set_min_height(area_size.y);
 
             ScrollArea::vertical().id_salt(0).show(ui, |ui| {
+                ui.set_min_width(area_size.x);
+
                 let mut dirs: Vec<PathBuf> = self.app_state.dirs.iter().cloned().collect();
                 dirs.sort();
                 for path in dirs.iter() {
