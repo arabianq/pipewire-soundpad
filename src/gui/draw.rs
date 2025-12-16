@@ -48,10 +48,15 @@ impl SoundpadGui {
                 &mut self.config.save_scale_factor,
                 "Always remember UI scale factor",
             );
+            let pause_on_exit_response = ui.checkbox(
+                &mut self.config.pause_on_exit,
+                "Pause audio playback when the window is closed",
+            );
 
             if save_volume_response.changed()
                 || save_input_response.changed()
                 || save_scale_response.changed()
+                || pause_on_exit_response.changed()
             {
                 self.config.save_to_file().ok();
             }

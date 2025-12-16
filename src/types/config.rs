@@ -36,6 +36,7 @@ pub struct GuiConfig {
     pub save_volume: bool,
     pub save_input: bool,
     pub save_scale_factor: bool,
+    pub pause_on_exit: bool,
 
     pub dirs: HashSet<PathBuf>,
 }
@@ -48,6 +49,7 @@ impl Default for GuiConfig {
             save_volume: false,
             save_input: false,
             save_scale_factor: false,
+            pause_on_exit: false,
 
             dirs: HashSet::default(),
         }

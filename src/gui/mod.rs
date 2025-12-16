@@ -149,7 +149,13 @@ pub async fn run() -> Result<(), Box<dyn Error>> {
             Ok(Box::new(SoundpadGui::new(&cc.egui_ctx)))
         }),
     ) {
-        Ok(_) => Ok(()),
+        Ok(_) => {
+            let config = get_gui_config();
+            if config.pause_on_exit {
+                make_request_sync(Request::pause()).ok();
+            }
+            Ok(())
+        }
         Err(e) => Err(e.into()),
     }
 }
