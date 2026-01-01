@@ -33,6 +33,8 @@ pub struct AudioPlayer {
     pub duration: Option<f32>,
 
     pub current_file_path: Option<PathBuf>,
+
+    pub looped: bool,
 }
 
 impl AudioPlayer {
@@ -62,6 +64,8 @@ impl AudioPlayer {
             duration: None,
 
             current_file_path: None,
+
+            looped: false,
         };
 
         if default_input_device.is_some() {
@@ -222,7 +226,7 @@ impl AudioPlayer {
     }
 
     pub fn get_current_file_path(&mut self) -> &Option<PathBuf> {
-        if self.get_state() == PlayerState::Stopped {
+        if self.get_state() == PlayerState::Stopped && !self.looped {
             self.current_file_path = None;
         }
         &self.current_file_path

@@ -126,5 +126,22 @@ async fn commands_loop(listener: UnixListener) -> Result<(), Box<dyn Error>> {
 }
 
 async fn player_loop() {
-    loop {}
+    loop {
+        let mut audio_player = get_audio_player().await.lock().await;
+
+        // Start playback again if loop is enabled
+        let should_play = audio_player.get_state() == PlayerState::Stopped
+            && audio_player.current_file_path.is_some()
+            && audio_player.looped;
+
+        if should_play {
+            let file_path = audio_player.current_file_path.clone().unwrap();
+            audio_player
+                .play(&file_path)
+                .await
+                .expect("Something went wrong while trying to play the file");
+        }
+
+        sleep(Duration::from_millis(100)).await;
+    }
 }
