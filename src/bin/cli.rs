@@ -65,6 +65,8 @@ enum GetCommands {
     Input,
     /// All audio inputs
     Inputs,
+    /// Is loop enabled (true or false)
+    Loop,
 }
 
 #[derive(Subcommand, Debug)]
@@ -75,6 +77,8 @@ enum SetCommands {
     Position { position: f32 },
     /// Audio input id (see pwsp-cli get inputs)
     Input { name: String },
+    /// Enable or disable loop (true or false)
+    Loop { enabled: String },
 }
 
 #[tokio::main]
@@ -101,11 +105,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
             GetCommands::CurrentFilePath => Request::get_current_file_path(),
             GetCommands::Input => Request::get_input(),
             GetCommands::Inputs => Request::get_inputs(),
+            GetCommands::Loop => Request::get_loop(),
         },
         Commands::Set { parameter } => match parameter {
             SetCommands::Volume { volume } => Request::set_volume(volume),
             SetCommands::Position { position } => Request::seek(position),
             SetCommands::Input { name } => Request::set_input(&name),
+            SetCommands::Loop { enabled } => Request::set_loop(&enabled),
         },
     };
 

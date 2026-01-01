@@ -87,6 +87,14 @@ impl Request {
     pub fn set_input(name: &str) -> Self {
         Request::new("set_input", vec![("input_name", name)])
     }
+
+    pub fn get_loop() -> Self {
+        Request::new("get_loop", vec![])
+    }
+
+    pub fn set_loop(enabled: &str) -> Self {
+        Request::new("set_loop", vec![("enabled", enabled)])
+    }
 }
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]

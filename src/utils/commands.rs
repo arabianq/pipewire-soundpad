@@ -48,6 +48,16 @@ pub fn parse_command(request: &Request) -> Option<Box<dyn Executable + Send>> {
             let name = Some(request.args.get("input_name").unwrap_or(&String::new())).cloned();
             Some(Box::new(SetCurrentInputCommand { name }))
         }
+        "get_loop" => Some(Box::new(GetLoopCommand {})),
+        "set_loop" => {
+            let enabled = request
+                .args
+                .get("enabled")
+                .unwrap_or(&String::new())
+                .parse::<bool>()
+                .ok();
+            Some(Box::new(SetLoopCommand { enabled }))
+        }
         _ => None,
     }
 }

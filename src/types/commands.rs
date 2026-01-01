@@ -52,6 +52,12 @@ pub struct SetCurrentInputCommand {
     pub name: Option<String>,
 }
 
+pub struct GetLoopCommand {}
+
+pub struct SetLoopCommand {
+    pub enabled: Option<bool>,
+}
+
 #[async_trait]
 impl Executable for PingCommand {
     async fn execute(&self) -> Response {
@@ -253,6 +259,29 @@ impl Executable for SetCurrentInputCommand {
             }
         } else {
             Response::new(false, "Invalid index value")
+        }
+    }
+}
+
+#[async_trait]
+impl Executable for GetLoopCommand {
+    async fn execute(&self) -> Response {
+        let audio_player = get_audio_player().await.lock().await;
+        Response::new(true, audio_player.looped.to_string())
+    }
+}
+
+#[async_trait]
+impl Executable for SetLoopCommand {
+    async fn execute(&self) -> Response {
+        let mut audio_player = get_audio_player().await.lock().await;
+
+        match self.enabled {
+            Some(enabled) => {
+                audio_player.looped = enabled;
+                Response::new(true, format!("Loop was set to {}", enabled))
+            }
+            None => Response::new(false, "Invalid enabled value"),
         }
     }
 }
