@@ -1,5 +1,8 @@
 use pwsp::{
-    types::socket::{Request, Response},
+    types::{
+        audio_player::PlayerState,
+        socket::{Request, Response},
+    },
     utils::{
         commands::parse_command,
         daemon::{
@@ -9,10 +12,11 @@ use pwsp::{
         pipewire::create_virtual_mic,
     },
 };
-use std::{error::Error, fs};
+use std::{error::Error, fs, time::Duration};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::UnixListener,
+    time::sleep,
 };
 
 #[tokio::main]
@@ -44,6 +48,32 @@ async fn main() -> Result<(), Box<dyn Error>> {
         socket_path.to_str().unwrap_or_default()
     );
 
+    let commands_loop_handle = tokio::spawn(async {
+        commands_loop(listener).await.ok();
+    });
+
+    let player_loop_handle = tokio::spawn(async {
+        player_loop().await;
+    });
+
+    loop {
+        if commands_loop_handle.is_finished() {
+            eprint!("Commands loop was finished, stopping program...");
+            player_loop_handle.abort();
+            break;
+        }
+
+        if player_loop_handle.is_finished() {
+            eprint!("Audio Player loop was finished, stopping program...");
+            commands_loop_handle.abort();
+            break;
+        }
+    }
+
+    Ok(())
+}
+
+async fn commands_loop(listener: UnixListener) -> Result<(), Box<dyn Error>> {
     loop {
         let (mut stream, _addr) = listener.accept().await?;
 
@@ -93,4 +123,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
             // ---------- Send response (end) ----------
         });
     }
+}
+
+async fn player_loop() {
+    loop {}
 }
