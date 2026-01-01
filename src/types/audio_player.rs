@@ -147,7 +147,7 @@ impl AudioPlayer {
         self.sink.is_paused()
     }
 
-    pub fn get_state(&mut self) -> PlayerState {
+    pub fn get_state(&self) -> PlayerState {
         if self.sink.len() == 0 {
             return PlayerState::Stopped;
         }
@@ -164,7 +164,7 @@ impl AudioPlayer {
         self.sink.set_volume(volume);
     }
 
-    pub fn get_position(&mut self) -> f32 {
+    pub fn get_position(&self) -> f32 {
         if self.get_state() == PlayerState::Stopped {
             return 0.0;
         }
