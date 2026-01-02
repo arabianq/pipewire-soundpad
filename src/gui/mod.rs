@@ -56,20 +56,24 @@ impl SoundpadGui {
     }
 
     pub fn play_toggle(&mut self) {
-        let mut guard = self.audio_player_state_shared.lock().unwrap();
-        guard.state = match guard.state {
-            PlayerState::Playing => {
-                make_request_sync(Request::pause()).ok();
-                guard.new_state = Some(PlayerState::Paused);
-                PlayerState::Paused
+        let (new_state, request) = {
+            let guard = self.audio_player_state_shared.lock().unwrap();
+            match guard.state {
+                PlayerState::Playing => (Some(PlayerState::Paused), Some(Request::pause())),
+                PlayerState::Paused => (Some(PlayerState::Playing), Some(Request::resume())),
+                PlayerState::Stopped => (None, None),
             }
-            PlayerState::Paused => {
-                make_request_sync(Request::resume()).ok();
-                guard.new_state = Some(PlayerState::Playing);
-                PlayerState::Playing
-            }
-            PlayerState::Stopped => PlayerState::Stopped,
         };
+
+        if let Some(req) = request {
+            make_request_sync(req).ok();
+        }
+
+        if let Some(state) = new_state {
+            let mut guard = self.audio_player_state_shared.lock().unwrap();
+            guard.new_state = Some(state.clone());
+            guard.state = state;
+        }
     }
 
     pub fn open_file(&mut self) {
