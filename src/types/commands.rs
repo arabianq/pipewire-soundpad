@@ -123,7 +123,7 @@ impl Executable for IsPausedCommand {
 #[async_trait]
 impl Executable for GetStateCommand {
     async fn execute(&self) -> Response {
-        let mut audio_player = get_audio_player().await.lock().await;
+        let audio_player = get_audio_player().await.lock().await;
         let state = audio_player.get_state();
         Response::new(true, serde_json::to_string(&state).unwrap())
     }
@@ -154,7 +154,7 @@ impl Executable for SetVolumeCommand {
 #[async_trait]
 impl Executable for GetPositionCommand {
     async fn execute(&self) -> Response {
-        let mut audio_player = get_audio_player().await.lock().await;
+        let audio_player = get_audio_player().await.lock().await;
         let position = audio_player.get_position();
         Response::new(true, position.to_string())
     }
