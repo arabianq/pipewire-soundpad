@@ -56,17 +56,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
         player_loop().await;
     });
 
-    loop {
-        if commands_loop_handle.is_finished() {
+    tokio::select! {
+        _ = commands_loop_handle => {
             eprint!("Commands loop was finished, stopping program...");
-            player_loop_handle.abort();
-            break;
         }
-
-        if player_loop_handle.is_finished() {
+        _ = player_loop_handle => {
             eprint!("Audio Player loop was finished, stopping program...");
-            commands_loop_handle.abort();
-            break;
         }
     }
 
