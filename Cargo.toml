@@ -13,7 +13,6 @@ keywords = ["soundpad", "pipewire", "linux", "cli", "gui"]
 
 [dependencies]
 tokio = { version = "1.48.0", features = ["full"] }
-futures = { version = "0.3.31", features = ["thread-pool"] }
 async-trait = "0.1.89"
 
 serde = { version = "1.0.228", features = ["derive"] }

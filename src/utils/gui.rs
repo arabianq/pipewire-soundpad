@@ -24,7 +24,9 @@ pub fn get_gui_config() -> GuiConfig {
 }
 
 pub fn make_request_sync(request: Request) -> Result<Response, Box<dyn Error>> {
-    futures::executor::block_on(make_request(request))
+    tokio::task::block_in_place(|| {
+        tokio::runtime::Handle::current().block_on(make_request(request))
+    })
 }
 
 pub fn format_time_pair(position: f32, duration: f32) -> String {
