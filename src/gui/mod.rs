@@ -131,10 +131,7 @@ impl SoundpadGui {
     }
 
     pub fn toggle_loop(&mut self) {
-        make_request_sync(Request::set_loop(
-            &(!self.audio_player_state.looped).to_string(),
-        ))
-        .ok();
+        make_request_sync(Request::toggle_loop()).ok();
     }
 }
 
