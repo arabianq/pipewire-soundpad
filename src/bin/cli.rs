@@ -45,6 +45,8 @@ enum Actions {
     Stop,
     /// Play a file
     Play { file_path: PathBuf },
+    /// Toggle loop
+    ToggleLoop,
 }
 
 #[derive(Subcommand, Debug)]
@@ -95,6 +97,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             Actions::TogglePause => Request::toggle_pause(),
             Actions::Stop => Request::stop(),
             Actions::Play { file_path } => Request::play(file_path.to_str().unwrap()),
+            Actions::ToggleLoop => Request::toggle_loop(),
         },
         Commands::Get { parameter } => match parameter {
             GetCommands::IsPaused => Request::get_is_paused(),

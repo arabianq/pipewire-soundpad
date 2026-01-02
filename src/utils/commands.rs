@@ -58,6 +58,7 @@ pub fn parse_command(request: &Request) -> Option<Box<dyn Executable + Send>> {
                 .ok();
             Some(Box::new(SetLoopCommand { enabled }))
         }
+        "toggle_loop" => Some(Box::new(ToggleLoopCommand {})),
         _ => None,
     }
 }

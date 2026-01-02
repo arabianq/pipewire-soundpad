@@ -58,6 +58,8 @@ pub struct SetLoopCommand {
     pub enabled: Option<bool>,
 }
 
+pub struct ToggleLoopCommand {}
+
 #[async_trait]
 impl Executable for PingCommand {
     async fn execute(&self) -> Response {
@@ -283,5 +285,14 @@ impl Executable for SetLoopCommand {
             }
             None => Response::new(false, "Invalid enabled value"),
         }
+    }
+}
+
+#[async_trait]
+impl Executable for ToggleLoopCommand {
+    async fn execute(&self) -> Response {
+        let mut audio_player = get_audio_player().await.lock().await;
+        audio_player.looped = !audio_player.looped;
+        Response::new(true, format!("Loop was set to {}", audio_player.looped))
     }
 }

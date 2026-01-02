@@ -95,6 +95,10 @@ impl Request {
     pub fn set_loop(enabled: &str) -> Self {
         Request::new("set_loop", vec![("enabled", enabled)])
     }
+
+    pub fn toggle_loop() -> Self {
+        Request::new("toggle_loop", vec![])
+    }
 }
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
