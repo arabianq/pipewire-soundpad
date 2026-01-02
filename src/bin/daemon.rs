@@ -94,7 +94,6 @@ async fn commands_loop(listener: UnixListener) -> Result<(), Box<dyn Error>> {
             }
 
             let request: Request = serde_json::from_slice(&buffer).unwrap();
-            println!("Received request: {:?}", request);
             // ---------- Read request (end) ----------
 
             // ---------- Generate response (start) ----------
@@ -119,7 +118,6 @@ async fn commands_loop(listener: UnixListener) -> Result<(), Box<dyn Error>> {
                 eprintln!("Failed to write response to client!");
                 return;
             }
-            println!("Sent response: {:?}", response);
             // ---------- Send response (end) ----------
         });
     }
