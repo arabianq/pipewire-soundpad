@@ -130,7 +130,7 @@ impl SoundpadGui {
                 0.0..=self.audio_player_state.duration,
             )
             .show_value(false)
-            .step_by(1.0);
+            .step_by(0.01);
 
             let default_slider_width = ui.spacing().slider_width;
             let position_slider_width = ui.available_width()
