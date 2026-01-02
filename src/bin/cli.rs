@@ -115,7 +115,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
         },
     };
 
-    let response = make_request(request).await?;
+    let response = make_request(request)
+        .await
+        .map_err(|e| e as Box<dyn Error>)?;
     println!("{} : {}", response.status, response.message);
 
     Ok(())

@@ -124,7 +124,7 @@ pub async fn wait_for_daemon() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub async fn make_request(request: Request) -> Result<Response, Box<dyn Error>> {
+pub async fn make_request(request: Request) -> Result<Response, Box<dyn Error + Send + Sync>> {
     let socket_path = get_runtime_dir().join("daemon.sock");
     let mut stream = UnixStream::connect(socket_path).await?;
 
