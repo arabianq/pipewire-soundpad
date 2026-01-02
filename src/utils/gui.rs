@@ -53,6 +53,7 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
             let duration_req = Request::get_duration();
             let current_input_req = Request::get_input();
             let all_inputs_req = Request::get_inputs();
+            let looped_req = Request::get_loop();
 
             let state_res = make_request(state_req).await.unwrap_or_default();
             let file_path_res = make_request(file_path_req).await.unwrap_or_default();
@@ -62,6 +63,7 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
             let duration_res = make_request(duration_req).await.unwrap_or_default();
             let current_input_res = make_request(current_input_req).await.unwrap_or_default();
             let all_inputs_res = make_request(all_inputs_req).await.unwrap_or_default();
+            let looped_res = make_request(looped_req).await.unwrap_or_default();
 
             let state = match state_res.status {
                 true => serde_json::from_str::<PlayerState>(&state_res.message).unwrap(),
@@ -116,6 +118,10 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
                     .collect::<HashMap<String, String>>(),
                 false => HashMap::new(),
             };
+            let looped = match looped_res.status {
+                true => looped_res.message.parse::<bool>().unwrap_or_default(),
+                false => false,
+            };
 
             {
                 let mut guard = audio_player_state_shared.lock().unwrap();
@@ -146,6 +152,7 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
                 guard.duration = if duration > 0.0 { duration } else { 1.0 };
                 guard.current_input = current_input;
                 guard.all_inputs = all_inputs;
+                guard.looped = looped;
             }
 
             sleep(sleep_duration).await;

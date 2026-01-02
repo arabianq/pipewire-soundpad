@@ -108,6 +108,22 @@ impl SoundpadGui {
             }
             // --------------------------------
 
+            // ---------- Loop Button ----------
+            let loop_button = Button::new(
+                RichText::new(match self.audio_player_state.looped {
+                    true => icons::ICON_REPEAT_ONE,
+                    false => icons::ICON_REPEAT,
+                })
+                .size(18.0),
+            )
+            .frame(false);
+
+            let loop_button_response = ui.add_sized([15.0, 30.0], loop_button);
+            if loop_button_response.clicked() {
+                self.toggle_loop();
+            }
+            // --------------------------------
+
             // ---------- Position Slider ----------
             let position_slider = Slider::new(
                 &mut self.app_state.position_slider_value,
@@ -150,7 +166,7 @@ impl SoundpadGui {
                 icons::ICON_VOLUME_DOWN
             };
             let volume_icon = Label::new(RichText::new(volume_icon).size(18.0));
-            ui.add_sized([30.0, 25.0], volume_icon);
+            ui.add_sized([30.0, 30.0], volume_icon);
             // --------------------------------
 
             // ---------- Volume Slider ----------

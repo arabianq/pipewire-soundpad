@@ -36,6 +36,7 @@ pub struct AudioPlayerState {
     pub current_file_path: PathBuf,
 
     pub is_paused: bool,
+    pub looped: bool,
 
     pub volume: f32,
     pub new_volume: Option<f32>,

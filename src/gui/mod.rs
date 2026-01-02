@@ -125,6 +125,13 @@ impl SoundpadGui {
             daemon_config.save_to_file().ok();
         }
     }
+
+    pub fn toggle_loop(&mut self) {
+        make_request_sync(Request::set_loop(
+            &(!self.audio_player_state.looped).to_string(),
+        ))
+        .ok();
+    }
 }
 
 pub async fn run() -> Result<(), Box<dyn Error>> {
