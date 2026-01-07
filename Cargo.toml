@@ -23,7 +23,7 @@ dirs = "6.0.0"
 
 rodio = { version = "0.21.1", default-features = false, features = ["symphonia-all", "playback"] }
 pipewire = "0.9.2"
-rfd = "0.16.0"
+rfd = { version = "0.17.1", default-features = false, features = ["xdg-portal"]}
 
 egui = { version = "0.33.3", default-features = false, features = ["default_fonts", "rayon"] }
 eframe = { version = "0.33.3", default-features = false, features = ["default_fonts", "glow", "x11", "wayland"] }
