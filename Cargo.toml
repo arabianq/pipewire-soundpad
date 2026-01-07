@@ -16,7 +16,7 @@ tokio = { version = "1.49.0", features = ["full"] }
 async-trait = "0.1.89"
 
 serde = { version = "1.0.228", features = ["derive"] }
-serde_json = "1.0.148"
+serde_json = "1.0.149"
 
 clap = { version = "4.5.53", default-features = false, features = ["std", "suggestions", "help", "usage", "error-context", "derive"] }
 dirs = "6.0.0"
