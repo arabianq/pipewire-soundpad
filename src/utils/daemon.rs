@@ -47,7 +47,7 @@ pub async fn link_player_to_virtual_mic() -> Result<(), Box<dyn Error>> {
     }
 
     if pwsp_daemon_output.is_none() {
-        println!("Could not find pwsp-daemon output device, skipping device linking");
+        eprintln!("Could not find pwsp-daemon output device, skipping device linking");
         return Ok(());
     }
 
@@ -60,7 +60,7 @@ pub async fn link_player_to_virtual_mic() -> Result<(), Box<dyn Error>> {
     }
 
     if pwsp_daemon_input.is_none() {
-        println!("Could not find pwsp-daemon input device, skipping device linking");
+        eprintln!("Could not find pwsp-daemon input device, skipping device linking");
         return Ok(());
     }
 

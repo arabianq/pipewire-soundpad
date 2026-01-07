@@ -79,7 +79,7 @@ impl AudioPlayer {
         if let Some(sender) = &self.input_link_sender {
             match sender.send(Terminate {}) {
                 Ok(_) => println!("Sent terminate signal to link thread"),
-                Err(_) => println!("Failed to send terminate signal to link thread"),
+                Err(_) => eprintln!("Failed to send terminate signal to link thread"),
             }
         }
     }
@@ -88,7 +88,7 @@ impl AudioPlayer {
         self.abort_link_thread();
 
         if self.current_input_device.is_none() {
-            println!("No input device selected, skipping device linking");
+            eprintln!("No input device selected, skipping device linking");
             return Ok(());
         }
 
@@ -103,7 +103,7 @@ impl AudioPlayer {
         }
 
         if pwsp_daemon_input.is_none() {
-            println!("Could not find pwsp-daemon input device, skipping device linking");
+            eprintln!("Could not find pwsp-daemon input device, skipping device linking");
             return Ok(());
         }
 
@@ -111,19 +111,19 @@ impl AudioPlayer {
         let current_input_device = self.current_input_device.clone().unwrap();
 
         let Some(output_fl) = current_input_device.output_fl.clone() else {
-            println!("Failed to get pwsp-daemon output_fl");
+            eprintln!("Failed to get pwsp-daemon output_fl");
             return Ok(());
         };
         let Some(output_fr) = current_input_device.output_fr.clone() else {
-            println!("Failed to get pwsp-daemon output_fr");
+            eprintln!("Failed to get pwsp-daemon output_fr");
             return Ok(());
         };
         let Some(input_fl) = pwsp_daemon_input.input_fl.clone() else {
-            println!("Failed to get pwsp-daemon input_fl");
+            eprintln!("Failed to get pwsp-daemon input_fl");
             return Ok(());
         };
         let Some(input_fr) = pwsp_daemon_input.input_fr.clone() else {
-            println!("Failed to get pwsp-daemon input_fr");
+            eprintln!("Failed to get pwsp-daemon input_fr");
             return Ok(());
         };
 
