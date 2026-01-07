@@ -108,24 +108,25 @@ impl AudioPlayer {
         }
 
         let pwsp_daemon_input = pwsp_daemon_input.unwrap();
-
         let current_input_device = self.current_input_device.clone().unwrap();
-        let output_fl = current_input_device
-            .clone()
-            .output_fl
-            .expect("Failed to get pwsp-daemon output_fl");
-        let output_fr = current_input_device
-            .clone()
-            .output_fr
-            .expect("Failed to get pwsp-daemon output_fl");
-        let input_fl = pwsp_daemon_input
-            .clone()
-            .input_fl
-            .expect("Failed to get pwsp-daemon input_fl");
-        let input_fr = pwsp_daemon_input
-            .clone()
-            .input_fr
-            .expect("Failed to get pwsp-daemon input_fr");
+
+        let Some(output_fl) = current_input_device.output_fl.clone() else {
+            println!("Failed to get pwsp-daemon output_fl");
+            return Ok(());
+        };
+        let Some(output_fr) = current_input_device.output_fr.clone() else {
+            println!("Failed to get pwsp-daemon output_fr");
+            return Ok(());
+        };
+        let Some(input_fl) = pwsp_daemon_input.input_fl.clone() else {
+            println!("Failed to get pwsp-daemon input_fl");
+            return Ok(());
+        };
+        let Some(input_fr) = pwsp_daemon_input.input_fr.clone() else {
+            println!("Failed to get pwsp-daemon input_fr");
+            return Ok(());
+        };
+
         self.input_link_sender = Some(create_link(output_fl, output_fr, input_fl, input_fr)?);
 
         Ok(())
