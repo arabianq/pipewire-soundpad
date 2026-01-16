@@ -165,8 +165,8 @@ pub async fn get_all_devices() -> Result<(Vec<AudioDevice>, Vec<AudioDevice>), B
                                 input_device.input_fr = Some(port)
                             }
                             "capture_MONO" => {
-                                input_device.input_fl = Some(port.clone());
-                                input_device.input_fr = Some(port);
+                                input_device.output_fl = Some(port.clone());
+                                input_device.output_fr = Some(port);
                             }
                             _ => {}
                         }
