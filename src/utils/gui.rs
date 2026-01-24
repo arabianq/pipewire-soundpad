@@ -139,26 +139,7 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
                     None => state,
                 };
                 guard.tracks = tracks.clone();
-                if let Some(last_track) = tracks.last() {
-                    guard.current_file_path = last_track.path.clone();
-                    guard.position = last_track.position;
-                    guard.duration = last_track.duration.unwrap_or(1.0);
-                    guard.looped = last_track.looped;
-                } else {
-                    guard.current_file_path = PathBuf::new();
-                    guard.position = 0.0;
-                    guard.duration = 1.0;
-                    guard.looped = false;
-                }
 
-                guard.is_paused = is_paused;
-                guard.volume = match guard.new_volume {
-                    Some(new_volume) => {
-                        guard.new_volume = None;
-                        new_volume
-                    }
-                    None => volume,
-                };
                 guard.current_input = current_input;
                 guard.all_inputs = all_inputs;
             }

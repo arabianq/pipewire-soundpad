@@ -43,17 +43,6 @@ pub struct AudioPlayerState {
 
     pub tracks: Vec<TrackInfo>,
 
-    pub current_file_path: PathBuf,
-
-    pub is_paused: bool,
-    pub looped: bool,
-
-    pub volume: f32,
-    pub new_volume: Option<f32>,
-    pub position: f32,
-    pub new_position: Option<f32>,
-    pub duration: f32,
-
     pub current_input: String,
     pub all_inputs: HashMap<String, String>,
 }
