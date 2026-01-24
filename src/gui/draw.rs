@@ -390,7 +390,18 @@ impl SoundpadGui {
                         let file_button = Button::new(file_button_text).frame(false);
                         let file_button_response = ui.add(file_button);
                         if file_button_response.clicked() {
-                            self.play_file(&entry_path, ui.input(|i| i.modifiers.ctrl));
+                            ui.input(|i| {
+                                if i.modifiers.ctrl {
+                                    self.play_file(&entry_path, true);
+                                } else if i.modifiers.shift
+                                    && let Some(last_track) = self.audio_player_state.tracks.last()
+                                {
+                                    self.stop(Some(last_track.id));
+                                    self.play_file(&entry_path, true);
+                                } else {
+                                    self.play_file(&entry_path, false);
+                                }
+                            });
                             self.app_state.selected_file = Some(entry_path);
                         }
                     }
