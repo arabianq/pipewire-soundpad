@@ -18,6 +18,18 @@ enum TrackAction {
 }
 
 impl SoundpadGui {
+    fn get_volume_icon(volume: f32) -> &'static str {
+        if volume > 0.7 {
+            icons::ICON_VOLUME_UP
+        } else if volume <= 0.0 {
+            icons::ICON_VOLUME_OFF
+        } else if volume < 0.3 {
+            icons::ICON_VOLUME_MUTE
+        } else {
+            icons::ICON_VOLUME_DOWN
+        }
+    }
+
     pub fn draw_waiting_for_daemon(&mut self, ui: &mut Ui) {
         ui.centered_and_justified(|ui| {
             ui.label(
@@ -215,17 +227,10 @@ impl SoundpadGui {
             // --------------------------------
 
             // ---------- Volume Icon ----------
-            let volume_icon = if track.volume > 0.7 {
-                icons::ICON_VOLUME_UP
-            } else if track.volume == 0.0 {
-                icons::ICON_VOLUME_OFF
-            } else if track.volume < 0.3 {
-                icons::ICON_VOLUME_MUTE
-            } else {
-                icons::ICON_VOLUME_DOWN
-            };
-            let volume_icon = Label::new(RichText::new(volume_icon).size(18.0));
-            ui.add_sized([30.0, 30.0], volume_icon);
+            let volume_icon = Self::get_volume_icon(track.volume);
+            let volume_label = Label::new(RichText::new(volume_icon).size(18.0));
+            ui.add_sized([30.0, 30.0], volume_label)
+                .on_hover_text(format!("Volume: {:.0}%", track.volume * 100.0));
             // --------------------------------
 
             // ---------- Volume Slider ----------
@@ -396,7 +401,7 @@ impl SoundpadGui {
 
     fn draw_footer(&mut self, ui: &mut Ui) {
         ui.add_space(5.0);
-        ui.horizontal_top(|ui| {
+        ui.horizontal(|ui| {
             // ---------- Microphone selection ----------
             let mut mics: Vec<(&String, &String)> =
                 self.audio_player_state.all_inputs.iter().collect();
@@ -405,6 +410,7 @@ impl SoundpadGui {
             let mut selected_input = self.audio_player_state.current_input.to_owned();
             let prev_input = selected_input.to_owned();
             ComboBox::from_label("Choose microphone")
+                .height(30.0)
                 .selected_text(
                     self.audio_player_state
                         .all_inputs
@@ -422,10 +428,40 @@ impl SoundpadGui {
             }
             // --------------------------------
 
+            // ---------- Master Volume Slider ----------
+            let volume_icon = Self::get_volume_icon(self.audio_player_state.volume);
+            let volume_label = Label::new(RichText::new(volume_icon).size(18.0));
+            ui.add_sized([18.0, 18.0], volume_label)
+                .on_hover_text(format!(
+                    "Master Volume: {:.0}%",
+                    self.audio_player_state.volume * 100.0
+                ));
+
+            let should_update_volume = !self.app_state.volume_dragged
+                && self
+                    .app_state
+                    .ignore_volume_update_until
+                    .map(|t| Instant::now() > t)
+                    .unwrap_or(true);
+
+            if should_update_volume {
+                self.app_state.volume_slider_value = self.audio_player_state.volume;
+            }
+
+            let volume_slider = Slider::new(&mut self.app_state.volume_slider_value, 0.0..=1.0)
+                .show_value(false)
+                .step_by(0.01);
+            let volume_slider_response = ui.add_sized([150.0, 18.0], volume_slider);
+            if volume_slider_response.drag_stopped() {
+                self.app_state.volume_dragged = true;
+            }
+            // ------------------------------------------
+
             ui.add_space(ui.available_width() - 18.0 - ui.spacing().item_spacing.x);
 
             // ---------- Settings button ----------
-            let settings_button = Button::new(icons::ICON_SETTINGS).frame(false);
+            let settings_button =
+                Button::new(icons::ICON_SETTINGS.atom_size(Vec2::new(18.0, 18.0))).frame(false);
             let settings_button_response = ui.add_sized([18.0, 18.0], settings_button);
             if settings_button_response.clicked() {
                 self.app_state.show_settings = true;

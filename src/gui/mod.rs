@@ -17,9 +17,9 @@ use pwsp::{
     },
 };
 use rfd::FileDialog;
-use std::path::PathBuf;
 use std::{
     error::Error,
+    path::PathBuf,
     sync::{Arc, Mutex},
 };
 
