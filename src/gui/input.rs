@@ -33,6 +33,11 @@ impl SoundpadGui {
                     self.play_toggle();
                 }
 
+                // Stop all audio tracks on backspace
+                if i.key_pressed(Key::Backspace) {
+                    self.stop(None);
+                }
+
                 // Focus search field
                 if i.key_pressed(Key::Slash) && self.app_state.search_field_id.is_some() {
                     self.app_state.force_focus_id = self.app_state.search_field_id;
