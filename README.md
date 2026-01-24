@@ -35,8 +35,8 @@ three main components:
     * Creating and managing virtual audio devices.
     * Linking these devices within the PipeWire graph.
     * Handling all audio playback.
-* **pwsp-gui**: This is the graphical user interface. It acts as a client that communicates with pwsp-daemon via a *
-  *UnixSocket**. This is how you interact with your sound collection, control playback, and configure settings.
+* **pwsp-gui**: This is the graphical user interface. It acts as a client that communicates with pwsp-daemon via a
+  **UnixSocket**. This is how you interact with your sound collection, control playback, and configure settings.
 * **pwsp-cli**: This is the command-line interface, also acting as a client. It provides a way to control the daemon
   without a GUI, allowing for scripting or quick command-based actions.
 
@@ -44,10 +44,10 @@ three main components:
 
 ## **Pre-built Packages**
 
-You can download pre-built binaries, .deb and .rpm packages from
+You can download pre-built binaries and .deb packages from
 the [releases page](https://github.com/arabianq/pipewire-soundpad/releases).
 
-## **Fedora Linux**
+## **Fedora Linux (and derivatives)**
 
 If you're using Fedora, you can install PWSP from a dedicated repository using DNF.
 
@@ -137,12 +137,12 @@ You can start the daemon from the terminal or enable the systemd service for aut
 
 ### **Using the GUI**
 
-1. **Add Sounds**: Click the **"Add Directory"** button and select a folder containing your audio files. The application
+1. **Add Sounds**: Click the **"+"** button and select a folder containing your audio files. The application
    will automatically list all supported files.
-2. **Select Microphone**: In the main application window, select your **physical microphone**. PWSP will automatically
+2. **Select Microphone**: In the main application window, select your microphone. PWSP will automatically
    create a virtual microphone and feed it sound from two sources: **your microphone** and the **audio files**.
 3. **Playback**: Click on a file in the list to load it, then use the **"Play"** and **"Pause"** buttons to control
-   playback.
+   playback. You can also play single file once using **"Play File"** button.
 
 ### **Using the CLI**
 
