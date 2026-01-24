@@ -315,7 +315,8 @@ impl AudioPlayer {
     }
 
     pub fn get_tracks(&self) -> Vec<TrackInfo> {
-        self.tracks
+        let mut tracks: Vec<_> = self
+            .tracks
             .values()
             .map(|sound| TrackInfo {
                 id: sound.id,
@@ -326,7 +327,9 @@ impl AudioPlayer {
                 looped: sound.looped,
                 paused: sound.sink.is_paused(),
             })
-            .collect()
+            .collect();
+        tracks.sort_by_key(|t| t.id);
+        tracks
     }
 
     pub async fn update(&mut self) {
