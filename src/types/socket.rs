@@ -24,24 +24,54 @@ impl Request {
         Request::new("ping", vec![])
     }
 
-    pub fn pause() -> Self {
-        Request::new("pause", vec![])
+    pub fn pause(id: Option<u32>) -> Self {
+        let mut args = vec![];
+        let id_str;
+        if let Some(id) = id {
+            id_str = id.to_string();
+            args.push(("id", id_str.as_str()));
+        }
+        Request::new("pause", args)
     }
 
-    pub fn resume() -> Self {
-        Request::new("resume", vec![])
+    pub fn resume(id: Option<u32>) -> Self {
+        let mut args = vec![];
+        let id_str;
+        if let Some(id) = id {
+            id_str = id.to_string();
+            args.push(("id", id_str.as_str()));
+        }
+        Request::new("resume", args)
     }
 
-    pub fn toggle_pause() -> Self {
-        Request::new("toggle_pause", vec![])
+    pub fn toggle_pause(id: Option<u32>) -> Self {
+        let mut args = vec![];
+        let id_str;
+        if let Some(id) = id {
+            id_str = id.to_string();
+            args.push(("id", id_str.as_str()));
+        }
+        Request::new("toggle_pause", args)
     }
 
-    pub fn stop() -> Self {
-        Request::new("stop", vec![])
+    pub fn stop(id: Option<u32>) -> Self {
+        let mut args = vec![];
+        let id_str;
+        if let Some(id) = id {
+            id_str = id.to_string();
+            args.push(("id", id_str.as_str()));
+        }
+        Request::new("stop", args)
     }
 
-    pub fn play(file_path: &str) -> Self {
-        Request::new("play", vec![("file_path", file_path)])
+    pub fn play(file_path: &str, concurrent: bool) -> Self {
+        Request::new(
+            "play",
+            vec![
+                ("file_path", file_path),
+                ("concurrent", &concurrent.to_string()),
+            ],
+        )
     }
 
     pub fn get_is_paused() -> Self {
@@ -52,20 +82,32 @@ impl Request {
         Request::new("get_volume", vec![])
     }
 
-    pub fn get_position() -> Self {
-        Request::new("get_position", vec![])
+    pub fn get_position(id: Option<u32>) -> Self {
+        let mut args = vec![];
+        let id_str;
+        if let Some(id) = id {
+            id_str = id.to_string();
+            args.push(("id", id_str.as_str()));
+        }
+        Request::new("get_position", args)
     }
 
-    pub fn get_duration() -> Self {
-        Request::new("get_duration", vec![])
+    pub fn get_duration(id: Option<u32>) -> Self {
+        let mut args = vec![];
+        let id_str;
+        if let Some(id) = id {
+            id_str = id.to_string();
+            args.push(("id", id_str.as_str()));
+        }
+        Request::new("get_duration", args)
     }
 
     pub fn get_state() -> Self {
         Request::new("get_state", vec![])
     }
 
-    pub fn get_current_file_path() -> Self {
-        Request::new("get_current_file_path", vec![])
+    pub fn get_tracks() -> Self {
+        Request::new("get_tracks", vec![])
     }
 
     pub fn get_input() -> Self {
@@ -76,28 +118,42 @@ impl Request {
         Request::new("get_inputs", vec![])
     }
 
-    pub fn set_volume(volume: f32) -> Self {
-        Request::new("set_volume", vec![("volume", &volume.to_string())])
+    pub fn set_volume(volume: f32, id: Option<u32>) -> Self {
+        let mut args = vec![("volume".to_string(), volume.to_string())];
+        if let Some(id) = id {
+            args.push(("id".to_string(), id.to_string()));
+        }
+        Request::new("set_volume".to_string(), args)
     }
 
-    pub fn seek(position: f32) -> Self {
-        Request::new("seek", vec![("position", &position.to_string())])
+    pub fn seek(position: f32, id: Option<u32>) -> Self {
+        let mut args = vec![("position".to_string(), position.to_string())];
+        if let Some(id) = id {
+            args.push(("id".to_string(), id.to_string()));
+        }
+        Request::new("seek".to_string(), args)
     }
 
     pub fn set_input(name: &str) -> Self {
         Request::new("set_input", vec![("input_name", name)])
     }
 
-    pub fn get_loop() -> Self {
-        Request::new("get_loop", vec![])
+    pub fn set_loop(enabled: &str, id: Option<u32>) -> Self {
+        let mut args = vec![("enabled".to_string(), enabled.to_string())];
+        if let Some(id) = id {
+            args.push(("id".to_string(), id.to_string()));
+        }
+        Request::new("set_loop".to_string(), args)
     }
 
-    pub fn set_loop(enabled: &str) -> Self {
-        Request::new("set_loop", vec![("enabled", enabled)])
-    }
-
-    pub fn toggle_loop() -> Self {
-        Request::new("toggle_loop", vec![])
+    pub fn toggle_loop(id: Option<u32>) -> Self {
+        let mut args = vec![];
+        let id_str;
+        if let Some(id) = id {
+            id_str = id.to_string();
+            args.push(("id", id_str.as_str()));
+        }
+        Request::new("toggle_loop", args)
     }
 }
 

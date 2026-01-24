@@ -21,7 +21,10 @@ impl SoundpadGui {
             }
 
             if i.key_pressed(Key::Enter) && self.app_state.selected_file.is_some() {
-                self.play_file(&self.app_state.selected_file.clone().unwrap());
+                self.play_file(
+                    &self.app_state.selected_file.clone().unwrap(),
+                    i.modifiers.ctrl,
+                );
             }
 
             if !self.app_state.show_settings {

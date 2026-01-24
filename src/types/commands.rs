@@ -12,13 +12,21 @@ pub trait Executable {
 
 pub struct PingCommand {}
 
-pub struct PauseCommand {}
+pub struct PauseCommand {
+    pub id: Option<u32>,
+}
 
-pub struct ResumeCommand {}
+pub struct ResumeCommand {
+    pub id: Option<u32>,
+}
 
-pub struct TogglePauseCommand {}
+pub struct TogglePauseCommand {
+    pub id: Option<u32>,
+}
 
-pub struct StopCommand {}
+pub struct StopCommand {
+    pub id: Option<u32>,
+}
 
 pub struct IsPausedCommand {}
 
@@ -28,21 +36,28 @@ pub struct GetVolumeCommand {}
 
 pub struct SetVolumeCommand {
     pub volume: Option<f32>,
+    pub id: Option<u32>,
 }
 
-pub struct GetPositionCommand {}
+pub struct GetPositionCommand {
+    pub id: Option<u32>,
+}
 
 pub struct SeekCommand {
     pub position: Option<f32>,
+    pub id: Option<u32>,
 }
 
-pub struct GetDurationCommand {}
+pub struct GetDurationCommand {
+    pub id: Option<u32>,
+}
 
 pub struct PlayCommand {
     pub file_path: Option<PathBuf>,
+    pub concurrent: Option<bool>,
 }
 
-pub struct GetCurrentFilePathCommand {}
+pub struct GetTracksCommand {}
 
 pub struct GetCurrentInputCommand {}
 
@@ -52,13 +67,14 @@ pub struct SetCurrentInputCommand {
     pub name: Option<String>,
 }
 
-pub struct GetLoopCommand {}
-
 pub struct SetLoopCommand {
     pub enabled: Option<bool>,
+    pub id: Option<u32>,
 }
 
-pub struct ToggleLoopCommand {}
+pub struct ToggleLoopCommand {
+    pub id: Option<u32>,
+}
 
 #[async_trait]
 impl Executable for PingCommand {
@@ -71,7 +87,7 @@ impl Executable for PingCommand {
 impl Executable for PauseCommand {
     async fn execute(&self) -> Response {
         let mut audio_player = get_audio_player().await.lock().await;
-        audio_player.pause();
+        audio_player.pause(self.id);
         Response::new(true, "Audio was paused")
     }
 }
@@ -80,7 +96,7 @@ impl Executable for PauseCommand {
 impl Executable for ResumeCommand {
     async fn execute(&self) -> Response {
         let mut audio_player = get_audio_player().await.lock().await;
-        audio_player.resume();
+        audio_player.resume(self.id);
         Response::new(true, "Audio was resumed")
     }
 }
@@ -94,12 +110,31 @@ impl Executable for TogglePauseCommand {
             return Response::new(false, "Audio is not playing");
         }
 
-        if audio_player.is_paused() {
-            audio_player.resume();
-            Response::new(true, "Audio was resumed")
+        // This logic is a bit tricky with multiple tracks.
+        // If ID is provided, toggle that track.
+        // If not, toggle global pause state?
+        // For now, let's just use pause/resume based on global state if no ID.
+
+        if let Some(id) = self.id {
+            if let Some(track) = audio_player.tracks.get(&id) {
+                if track.sink.is_paused() {
+                    audio_player.resume(Some(id));
+                    Response::new(true, "Audio was resumed")
+                } else {
+                    audio_player.pause(Some(id));
+                    Response::new(true, "Audio was paused")
+                }
+            } else {
+                Response::new(false, "Track not found")
+            }
         } else {
-            audio_player.pause();
-            Response::new(true, "Audio was paused")
+            if audio_player.is_paused() {
+                audio_player.resume(None);
+                Response::new(true, "Audio was resumed")
+            } else {
+                audio_player.pause(None);
+                Response::new(true, "Audio was paused")
+            }
         }
     }
 }
@@ -108,7 +143,7 @@ impl Executable for TogglePauseCommand {
 impl Executable for StopCommand {
     async fn execute(&self) -> Response {
         let mut audio_player = get_audio_player().await.lock().await;
-        audio_player.stop();
+        audio_player.stop(self.id);
         Response::new(true, "Audio was stopped")
     }
 }
@@ -145,7 +180,7 @@ impl Executable for SetVolumeCommand {
     async fn execute(&self) -> Response {
         if let Some(volume) = self.volume {
             let mut audio_player = get_audio_player().await.lock().await;
-            audio_player.set_volume(volume);
+            audio_player.set_volume(volume, self.id);
             Response::new(true, format!("Audio volume was set to {}", volume))
         } else {
             Response::new(false, "Invalid volume value")
@@ -157,7 +192,7 @@ impl Executable for SetVolumeCommand {
 impl Executable for GetPositionCommand {
     async fn execute(&self) -> Response {
         let audio_player = get_audio_player().await.lock().await;
-        let position = audio_player.get_position();
+        let position = audio_player.get_position(self.id);
         Response::new(true, position.to_string())
     }
 }
@@ -167,7 +202,7 @@ impl Executable for SeekCommand {
     async fn execute(&self) -> Response {
         if let Some(position) = self.position {
             let mut audio_player = get_audio_player().await.lock().await;
-            match audio_player.seek(position) {
+            match audio_player.seek(position, self.id) {
                 Ok(_) => Response::new(true, format!("Audio position was set to {}", position)),
                 Err(err) => Response::new(false, err.to_string()),
             }
@@ -181,7 +216,7 @@ impl Executable for SeekCommand {
 impl Executable for GetDurationCommand {
     async fn execute(&self) -> Response {
         let mut audio_player = get_audio_player().await.lock().await;
-        match audio_player.get_duration() {
+        match audio_player.get_duration(self.id) {
             Ok(duration) => Response::new(true, duration.to_string()),
             Err(err) => Response::new(false, err.to_string()),
         }
@@ -193,8 +228,11 @@ impl Executable for PlayCommand {
     async fn execute(&self) -> Response {
         if let Some(file_path) = &self.file_path {
             let mut audio_player = get_audio_player().await.lock().await;
-            match audio_player.play(file_path).await {
-                Ok(_) => Response::new(true, format!("Now playing {}", file_path.display())),
+            match audio_player
+                .play(file_path, self.concurrent.unwrap_or(false))
+                .await
+            {
+                Ok(id) => Response::new(true, id.to_string()),
                 Err(err) => Response::new(false, err.to_string()),
             }
         } else {
@@ -204,15 +242,11 @@ impl Executable for PlayCommand {
 }
 
 #[async_trait]
-impl Executable for GetCurrentFilePathCommand {
+impl Executable for GetTracksCommand {
     async fn execute(&self) -> Response {
-        let mut audio_player = get_audio_player().await.lock().await;
-        let current_file_path = audio_player.get_current_file_path();
-        if let Some(current_file_path) = current_file_path {
-            Response::new(true, current_file_path.to_str().unwrap())
-        } else {
-            Response::new(false, "No file is playing")
-        }
+        let audio_player = get_audio_player().await.lock().await;
+        let tracks = audio_player.get_tracks();
+        Response::new(true, serde_json::to_string(&tracks).unwrap())
     }
 }
 
@@ -266,21 +300,13 @@ impl Executable for SetCurrentInputCommand {
 }
 
 #[async_trait]
-impl Executable for GetLoopCommand {
-    async fn execute(&self) -> Response {
-        let audio_player = get_audio_player().await.lock().await;
-        Response::new(true, audio_player.looped.to_string())
-    }
-}
-
-#[async_trait]
 impl Executable for SetLoopCommand {
     async fn execute(&self) -> Response {
         let mut audio_player = get_audio_player().await.lock().await;
 
         match self.enabled {
             Some(enabled) => {
-                audio_player.looped = enabled;
+                audio_player.set_loop(enabled, self.id);
                 Response::new(true, format!("Loop was set to {}", enabled))
             }
             None => Response::new(false, "Invalid enabled value"),
@@ -292,7 +318,19 @@ impl Executable for SetLoopCommand {
 impl Executable for ToggleLoopCommand {
     async fn execute(&self) -> Response {
         let mut audio_player = get_audio_player().await.lock().await;
-        audio_player.looped = !audio_player.looped;
-        Response::new(true, format!("Loop was set to {}", audio_player.looped))
+        if let Some(id) = self.id {
+            if let Some(track) = audio_player.tracks.get_mut(&id) {
+                track.looped = !track.looped;
+                Response::new(true, format!("Loop was set to {}", track.looped))
+            } else {
+                Response::new(false, "Track not found")
+            }
+        } else {
+            // Toggle all?
+            for track in audio_player.tracks.values_mut() {
+                track.looped = !track.looped;
+            }
+            Response::new(true, "Loop toggled for all tracks")
+        }
     }
 }

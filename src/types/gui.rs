@@ -1,21 +1,28 @@
-use crate::types::audio_player::PlayerState;
+use crate::types::audio_player::{PlayerState, TrackInfo};
 
 use egui::Id;
 
 use std::{
     collections::{HashMap, HashSet},
     path::PathBuf,
+    time::Instant,
 };
+
+#[derive(Default, Debug)]
+pub struct TrackUiState {
+    pub position_slider_value: f32,
+    pub volume_slider_value: f32,
+    pub position_dragged: bool,
+    pub volume_dragged: bool,
+    pub ignore_position_update_until: Option<Instant>,
+    pub ignore_volume_update_until: Option<Instant>,
+}
 
 #[derive(Default, Debug)]
 pub struct AppState {
     pub search_query: String,
 
-    pub position_slider_value: f32,
-    pub volume_slider_value: f32,
-
-    pub position_dragged: bool,
-    pub volume_dragged: bool,
+    pub track_ui_states: HashMap<u32, TrackUiState>,
 
     pub show_settings: bool,
 
@@ -33,6 +40,9 @@ pub struct AppState {
 pub struct AudioPlayerState {
     pub state: PlayerState,
     pub new_state: Option<PlayerState>,
+
+    pub tracks: Vec<TrackInfo>,
+
     pub current_file_path: PathBuf,
 
     pub is_paused: bool,
