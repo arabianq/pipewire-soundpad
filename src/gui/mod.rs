@@ -13,13 +13,13 @@ use pwsp::{
     },
     utils::{
         daemon::get_daemon_config,
-        gui::{get_gui_config, make_request_sync, start_app_state_thread},
+        gui::{get_gui_config, make_request_async, make_request_sync, start_app_state_thread},
     },
 };
 use rfd::FileDialog;
-use std::path::PathBuf;
 use std::{
     error::Error,
+    path::PathBuf,
     sync::{Arc, Mutex},
 };
 
@@ -59,14 +59,14 @@ impl SoundpadGui {
         let (new_state, request) = {
             let guard = self.audio_player_state_shared.lock().unwrap();
             match guard.state {
-                PlayerState::Playing => (Some(PlayerState::Paused), Some(Request::pause())),
-                PlayerState::Paused => (Some(PlayerState::Playing), Some(Request::resume())),
+                PlayerState::Playing => (Some(PlayerState::Paused), Some(Request::pause(None))),
+                PlayerState::Paused => (Some(PlayerState::Playing), Some(Request::resume(None))),
                 PlayerState::Stopped => (None, None),
             }
         };
 
         if let Some(req) = request {
-            make_request_sync(req).ok();
+            make_request_async(req);
         }
 
         if let Some(state) = new_state {
@@ -79,7 +79,7 @@ impl SoundpadGui {
     pub fn open_file(&mut self) {
         let file_dialog = FileDialog::new().add_filter("Audio File", &SUPPORTED_EXTENSIONS);
         if let Some(path) = file_dialog.pick_file() {
-            self.play_file(&path);
+            self.play_file(&path, false);
         }
     }
 
@@ -116,12 +116,12 @@ impl SoundpadGui {
             .collect();
     }
 
-    pub fn play_file(&mut self, path: &PathBuf) {
-        make_request_sync(Request::play(path.to_str().unwrap())).ok();
+    pub fn play_file(&mut self, path: &PathBuf, concurrent: bool) {
+        make_request_async(Request::play(path.to_str().unwrap(), concurrent));
     }
 
     pub fn set_input(&mut self, name: String) {
-        make_request_sync(Request::set_input(&name)).ok();
+        make_request_async(Request::set_input(&name));
 
         if self.config.save_input {
             let mut daemon_config = get_daemon_config();
@@ -130,8 +130,20 @@ impl SoundpadGui {
         }
     }
 
-    pub fn toggle_loop(&mut self) {
-        make_request_sync(Request::toggle_loop()).ok();
+    pub fn toggle_loop(&mut self, id: Option<u32>) {
+        make_request_async(Request::toggle_loop(id));
+    }
+
+    pub fn pause(&mut self, id: Option<u32>) {
+        make_request_async(Request::pause(id));
+    }
+
+    pub fn resume(&mut self, id: Option<u32>) {
+        make_request_async(Request::resume(id));
+    }
+
+    pub fn stop(&mut self, id: Option<u32>) {
+        make_request_async(Request::stop(id));
     }
 }
 
@@ -163,7 +175,7 @@ pub async fn run() -> Result<(), Box<dyn Error>> {
         Ok(_) => {
             let config = get_gui_config();
             if config.pause_on_exit {
-                make_request_sync(Request::pause()).ok();
+                make_request_sync(Request::pause(None)).ok();
             }
             Ok(())
         }

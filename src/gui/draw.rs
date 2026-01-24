@@ -4,11 +4,32 @@ use egui::{
     Slider, TextEdit, Ui, Vec2,
 };
 use egui_material_icons::icons;
-use pwsp::types::audio_player::PlayerState;
+use pwsp::types::audio_player::TrackInfo;
 use pwsp::utils::gui::format_time_pair;
-use std::{error::Error, path::PathBuf};
+use std::{error::Error, path::PathBuf, time::Instant};
+
+use pwsp::types::gui::AppState;
+
+enum TrackAction {
+    Pause(u32),
+    Resume(u32),
+    ToggleLoop(u32),
+    Stop(u32),
+}
 
 impl SoundpadGui {
+    fn get_volume_icon(volume: f32) -> &'static str {
+        if volume > 0.7 {
+            icons::ICON_VOLUME_UP
+        } else if volume <= 0.0 {
+            icons::ICON_VOLUME_OFF
+        } else if volume < 0.3 {
+            icons::ICON_VOLUME_MUTE
+        } else {
+            icons::ICON_VOLUME_DOWN
+        }
+    }
+
     pub fn draw_waiting_for_daemon(&mut self, ui: &mut Ui) {
         ui.centered_and_justified(|ui| {
             ui.label(
@@ -74,11 +95,24 @@ impl SoundpadGui {
 
     fn draw_header(&mut self, ui: &mut Ui) {
         ui.vertical_centered_justified(|ui| {
-            // Current file name
+            self.draw_controls(ui);
+        });
+    }
+
+    fn draw_controls(&mut self, ui: &mut Ui) {
+        if self.audio_player_state.tracks.is_empty() {
+            ui.label("No tracks playing");
+            return;
+        }
+
+        let tracks = self.audio_player_state.tracks.clone();
+        let mut action = None;
+
+        for track in tracks {
             ui.label(
                 RichText::new(
-                    self.audio_player_state
-                        .current_file_path
+                    track
+                        .path
                         .file_stem()
                         .unwrap_or_default()
                         .to_str()
@@ -87,32 +121,76 @@ impl SoundpadGui {
                 .color(Color32::WHITE)
                 .family(FontFamily::Monospace),
             );
-            // Media controls
-            self.draw_controls(ui);
+            if let Some(act) = Self::draw_track_control(ui, &mut self.app_state, &track) {
+                action = Some(act);
+            }
             ui.separator();
-        });
+        }
+
+        if let Some(action) = action {
+            match action {
+                TrackAction::Pause(id) => self.pause(Some(id)),
+                TrackAction::Resume(id) => self.resume(Some(id)),
+                TrackAction::ToggleLoop(id) => self.toggle_loop(Some(id)),
+                TrackAction::Stop(id) => self.stop(Some(id)),
+            }
+        }
     }
 
-    fn draw_controls(&mut self, ui: &mut Ui) {
+    fn draw_track_control(
+        ui: &mut Ui,
+        app_state: &mut AppState,
+        track: &TrackInfo,
+    ) -> Option<TrackAction> {
+        let ui_state = app_state.track_ui_states.entry(track.id).or_default();
+
+        let should_update_position = !ui_state.position_dragged
+            && ui_state
+                .ignore_position_update_until
+                .map(|t| Instant::now() > t)
+                .unwrap_or(true);
+
+        if should_update_position {
+            ui_state.position_slider_value = track.position;
+        }
+
+        let should_update_volume = !ui_state.volume_dragged
+            && ui_state
+                .ignore_volume_update_until
+                .map(|t| Instant::now() > t)
+                .unwrap_or(true);
+
+        if should_update_volume {
+            ui_state.volume_slider_value = track.volume;
+        }
+
+        let mut action = None;
+
         ui.horizontal_top(|ui| {
             // ---------- Play Button ----------
-            let play_button = Button::new(match self.audio_player_state.state {
-                PlayerState::Playing => icons::ICON_PAUSE,
-                PlayerState::Paused | PlayerState::Stopped => icons::ICON_PLAY_ARROW,
+            let play_button = Button::new(if track.paused {
+                icons::ICON_PLAY_ARROW
+            } else {
+                icons::ICON_PAUSE
             })
             .corner_radius(15.0);
 
             let play_button_response = ui.add_sized([30.0, 30.0], play_button);
             if play_button_response.clicked() {
-                self.play_toggle();
+                if track.paused {
+                    action = Some(TrackAction::Resume(track.id));
+                } else {
+                    action = Some(TrackAction::Pause(track.id));
+                }
             }
             // --------------------------------
 
             // ---------- Loop Button ----------
             let loop_button = Button::new(
-                RichText::new(match self.audio_player_state.looped {
-                    true => icons::ICON_REPEAT_ONE,
-                    false => icons::ICON_REPEAT,
+                RichText::new(if track.looped {
+                    icons::ICON_REPEAT_ONE
+                } else {
+                    icons::ICON_REPEAT
                 })
                 .size(18.0),
             )
@@ -120,17 +198,15 @@ impl SoundpadGui {
 
             let loop_button_response = ui.add_sized([15.0, 30.0], loop_button);
             if loop_button_response.clicked() {
-                self.toggle_loop();
+                action = Some(TrackAction::ToggleLoop(track.id));
             }
             // --------------------------------
 
             // ---------- Position Slider ----------
-            let position_slider = Slider::new(
-                &mut self.app_state.position_slider_value,
-                0.0..=self.audio_player_state.duration,
-            )
-            .show_value(false)
-            .step_by(0.01);
+            let duration = track.duration.unwrap_or(1.0);
+            let position_slider = Slider::new(&mut ui_state.position_slider_value, 0.0..=duration)
+                .show_value(false)
+                .step_by(0.01);
 
             let default_slider_width = ui.spacing().slider_width;
             let position_slider_width = ui.available_width()
@@ -140,49 +216,47 @@ impl SoundpadGui {
             ui.spacing_mut().slider_width = position_slider_width;
             let position_slider_response = ui.add_sized([30.0, 30.0], position_slider);
             if position_slider_response.drag_stopped() {
-                self.app_state.position_dragged = true;
+                ui_state.position_dragged = true;
             }
             // --------------------------------
 
             // ---------- Time Label ----------
-            let time_label = Label::new(
-                RichText::new(format_time_pair(
-                    self.audio_player_state.position,
-                    self.audio_player_state.duration,
-                ))
-                .monospace(),
-            );
+            let time_label =
+                Label::new(RichText::new(format_time_pair(track.position, duration)).monospace());
             ui.add_sized([30.0, 30.0], time_label);
             // --------------------------------
 
             // ---------- Volume Icon ----------
-            let volume_icon = if self.audio_player_state.volume > 0.7 {
-                icons::ICON_VOLUME_UP
-            } else if self.audio_player_state.volume == 0.0 {
-                icons::ICON_VOLUME_OFF
-            } else if self.audio_player_state.volume < 0.3 {
-                icons::ICON_VOLUME_MUTE
-            } else {
-                icons::ICON_VOLUME_DOWN
-            };
-            let volume_icon = Label::new(RichText::new(volume_icon).size(18.0));
-            ui.add_sized([30.0, 30.0], volume_icon);
+            let volume_icon = Self::get_volume_icon(track.volume);
+            let volume_label = Label::new(RichText::new(volume_icon).size(18.0));
+            ui.add_sized([30.0, 30.0], volume_label)
+                .on_hover_text(format!("Volume: {:.0}%", track.volume * 100.0));
             // --------------------------------
 
             // ---------- Volume Slider ----------
-            let volume_slider = Slider::new(&mut self.app_state.volume_slider_value, 0.0..=1.0)
+            let volume_slider = Slider::new(&mut ui_state.volume_slider_value, 0.0..=1.0)
                 .show_value(false)
                 .step_by(0.01);
 
-            ui.spacing_mut().slider_width = default_slider_width;
+            ui.spacing_mut().slider_width = default_slider_width - 30.0;
             ui.spacing_mut().item_spacing.x = 0.0;
 
             let volume_slider_response = ui.add_sized([30.0, 30.0], volume_slider);
             if volume_slider_response.drag_stopped() {
-                self.app_state.volume_dragged = true;
+                ui_state.volume_dragged = true;
+            }
+            // --------------------------------
+
+            // ---------- Stop Button ---------
+            let stop_button = Button::new(icons::ICON_CLOSE).frame(false);
+            let stop_button_response = ui.add_sized([30.0, 30.0], stop_button);
+            if stop_button_response.clicked() {
+                action = Some(TrackAction::Stop(track.id));
             }
             // --------------------------------
         });
+
+        action
     }
 
     fn draw_body(&mut self, ui: &mut Ui) {
@@ -316,7 +390,18 @@ impl SoundpadGui {
                         let file_button = Button::new(file_button_text).frame(false);
                         let file_button_response = ui.add(file_button);
                         if file_button_response.clicked() {
-                            self.play_file(&entry_path);
+                            ui.input(|i| {
+                                if i.modifiers.ctrl {
+                                    self.play_file(&entry_path, true);
+                                } else if i.modifiers.shift
+                                    && let Some(last_track) = self.audio_player_state.tracks.last()
+                                {
+                                    self.stop(Some(last_track.id));
+                                    self.play_file(&entry_path, true);
+                                } else {
+                                    self.play_file(&entry_path, false);
+                                }
+                            });
                             self.app_state.selected_file = Some(entry_path);
                         }
                     }
@@ -327,7 +412,7 @@ impl SoundpadGui {
 
     fn draw_footer(&mut self, ui: &mut Ui) {
         ui.add_space(5.0);
-        ui.horizontal_top(|ui| {
+        ui.horizontal(|ui| {
             // ---------- Microphone selection ----------
             let mut mics: Vec<(&String, &String)> =
                 self.audio_player_state.all_inputs.iter().collect();
@@ -336,6 +421,7 @@ impl SoundpadGui {
             let mut selected_input = self.audio_player_state.current_input.to_owned();
             let prev_input = selected_input.to_owned();
             ComboBox::from_label("Choose microphone")
+                .height(30.0)
                 .selected_text(
                     self.audio_player_state
                         .all_inputs
@@ -353,10 +439,40 @@ impl SoundpadGui {
             }
             // --------------------------------
 
+            // ---------- Master Volume Slider ----------
+            let volume_icon = Self::get_volume_icon(self.audio_player_state.volume);
+            let volume_label = Label::new(RichText::new(volume_icon).size(18.0));
+            ui.add_sized([18.0, 18.0], volume_label)
+                .on_hover_text(format!(
+                    "Master Volume: {:.0}%",
+                    self.audio_player_state.volume * 100.0
+                ));
+
+            let should_update_volume = !self.app_state.volume_dragged
+                && self
+                    .app_state
+                    .ignore_volume_update_until
+                    .map(|t| Instant::now() > t)
+                    .unwrap_or(true);
+
+            if should_update_volume {
+                self.app_state.volume_slider_value = self.audio_player_state.volume;
+            }
+
+            let volume_slider = Slider::new(&mut self.app_state.volume_slider_value, 0.0..=1.0)
+                .show_value(false)
+                .step_by(0.01);
+            let volume_slider_response = ui.add_sized([150.0, 18.0], volume_slider);
+            if volume_slider_response.drag_stopped() {
+                self.app_state.volume_dragged = true;
+            }
+            // ------------------------------------------
+
             ui.add_space(ui.available_width() - 18.0 - ui.spacing().item_spacing.x);
 
             // ---------- Settings button ----------
-            let settings_button = Button::new(icons::ICON_SETTINGS).frame(false);
+            let settings_button =
+                Button::new(icons::ICON_SETTINGS.atom_size(Vec2::new(18.0, 18.0))).frame(false);
             let settings_button_response = ui.add_sized([18.0, 18.0], settings_button);
             if settings_button_response.clicked() {
                 self.app_state.show_settings = true;

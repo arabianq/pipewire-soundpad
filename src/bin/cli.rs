@@ -36,17 +36,36 @@ enum Actions {
     /// Ping the daemon
     Ping,
     /// Pause audio playback
-    Pause,
+    Pause {
+        #[clap(short, long)]
+        id: Option<u32>,
+    },
     /// Resume audio playback
-    Resume,
+    Resume {
+        #[clap(short, long)]
+        id: Option<u32>,
+    },
     /// Toggle pause
-    TogglePause,
+    TogglePause {
+        #[clap(short, long)]
+        id: Option<u32>,
+    },
     /// Stop audio playback and clear the queue
-    Stop,
+    Stop {
+        #[clap(short, long)]
+        id: Option<u32>,
+    },
     /// Play a file
-    Play { file_path: PathBuf },
+    Play {
+        file_path: PathBuf,
+        #[clap(short, long)]
+        concurrent: bool,
+    },
     /// Toggle loop
-    ToggleLoop,
+    ToggleLoop {
+        #[clap(short, long)]
+        id: Option<u32>,
+    },
 }
 
 #[derive(Subcommand, Debug)]
@@ -56,31 +75,47 @@ enum GetCommands {
     /// Playback volume
     Volume,
     /// Playback position (in seconds)
-    Position,
+    Position {
+        #[clap(short, long)]
+        id: Option<u32>,
+    },
     /// Duration of the current file
-    Duration,
+    Duration {
+        #[clap(short, long)]
+        id: Option<u32>,
+    },
     /// Player state (Playing, Paused or Stopped)
     State,
-    /// Current playing file path
-    CurrentFilePath,
+    /// Get all playing tracks
+    Tracks,
     /// Current audio input
     Input,
     /// All audio inputs
     Inputs,
-    /// Is loop enabled (true or false)
-    Loop,
 }
 
 #[derive(Subcommand, Debug)]
 enum SetCommands {
     /// Playback volume
-    Volume { volume: f32 },
+    Volume {
+        volume: f32,
+        #[clap(short, long)]
+        id: Option<u32>,
+    },
     /// Playback position (in seconds)
-    Position { position: f32 },
+    Position {
+        position: f32,
+        #[clap(short, long)]
+        id: Option<u32>,
+    },
     /// Audio input id (see pwsp-cli get inputs)
     Input { name: String },
     /// Enable or disable loop (true or false)
-    Loop { enabled: String },
+    Loop {
+        enabled: String,
+        #[clap(short, long)]
+        id: Option<u32>,
+    },
 }
 
 #[tokio::main]
@@ -92,29 +127,31 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let request = match cli.command {
         Commands::Action { action } => match action {
             Actions::Ping => Request::ping(),
-            Actions::Pause => Request::pause(),
-            Actions::Resume => Request::resume(),
-            Actions::TogglePause => Request::toggle_pause(),
-            Actions::Stop => Request::stop(),
-            Actions::Play { file_path } => Request::play(file_path.to_str().unwrap()),
-            Actions::ToggleLoop => Request::toggle_loop(),
+            Actions::Pause { id } => Request::pause(id),
+            Actions::Resume { id } => Request::resume(id),
+            Actions::TogglePause { id } => Request::toggle_pause(id),
+            Actions::Stop { id } => Request::stop(id),
+            Actions::Play {
+                file_path,
+                concurrent,
+            } => Request::play(file_path.to_str().unwrap(), concurrent),
+            Actions::ToggleLoop { id } => Request::toggle_loop(id),
         },
         Commands::Get { parameter } => match parameter {
             GetCommands::IsPaused => Request::get_is_paused(),
             GetCommands::Volume => Request::get_volume(),
-            GetCommands::Position => Request::get_position(),
-            GetCommands::Duration => Request::get_duration(),
+            GetCommands::Position { id } => Request::get_position(id),
+            GetCommands::Duration { id } => Request::get_duration(id),
             GetCommands::State => Request::get_state(),
-            GetCommands::CurrentFilePath => Request::get_current_file_path(),
+            GetCommands::Tracks => Request::get_tracks(),
             GetCommands::Input => Request::get_input(),
             GetCommands::Inputs => Request::get_inputs(),
-            GetCommands::Loop => Request::get_loop(),
         },
         Commands::Set { parameter } => match parameter {
-            SetCommands::Volume { volume } => Request::set_volume(volume),
-            SetCommands::Position { position } => Request::seek(position),
+            SetCommands::Volume { volume, id } => Request::set_volume(volume, id),
+            SetCommands::Position { position, id } => Request::seek(position, id),
             SetCommands::Input { name } => Request::set_input(&name),
-            SetCommands::Loop { enabled } => Request::set_loop(&enabled),
+            SetCommands::Loop { enabled, id } => Request::set_loop(&enabled, id),
         },
     };
 

@@ -21,13 +21,28 @@ impl SoundpadGui {
             }
 
             if i.key_pressed(Key::Enter) && self.app_state.selected_file.is_some() {
-                self.play_file(&self.app_state.selected_file.clone().unwrap());
+                let path = &self.app_state.selected_file.clone().unwrap();
+                if i.modifiers.ctrl {
+                    self.play_file(path, true);
+                } else if i.modifiers.shift
+                    && let Some(last_track) = self.audio_player_state.tracks.last()
+                {
+                    self.stop(Some(last_track.id));
+                    self.play_file(path, true);
+                } else {
+                    self.play_file(path, false);
+                }
             }
 
             if !self.app_state.show_settings {
                 // Pause / resume audio on space
                 if i.key_pressed(Key::Space) {
                     self.play_toggle();
+                }
+
+                // Stop all audio tracks on backspace
+                if i.key_pressed(Key::Backspace) {
+                    self.stop(None);
                 }
 
                 // Focus search field
