@@ -3,10 +3,7 @@ use eframe::{App, Frame as EFrame};
 use egui::{CentralPanel, Context};
 use pwsp::{
     types::socket::Request,
-    utils::{
-        daemon::{get_daemon_config, is_daemon_running},
-        gui::make_request_sync,
-    },
+    utils::{daemon::get_daemon_config, gui::make_request_async},
 };
 use std::time::{Duration, Instant};
 
@@ -26,33 +23,32 @@ impl App for SoundpadGui {
         }
 
         for (id, pos) in seek_requests {
-            make_request_sync(Request::seek(pos, Some(id))).ok();
+            make_request_async(Request::seek(pos, Some(id)));
             if let Some(ui_state) = self.app_state.track_ui_states.get_mut(&id) {
                 ui_state.position_dragged = false;
                 ui_state.ignore_position_update_until =
-                    Some(Instant::now() + Duration::from_millis(200));
+                    Some(Instant::now() + Duration::from_millis(300));
             }
         }
 
         for (id, vol) in volume_requests {
-            make_request_sync(Request::set_volume(vol, Some(id))).ok();
+            make_request_async(Request::set_volume(vol, Some(id)));
             if let Some(ui_state) = self.app_state.track_ui_states.get_mut(&id) {
                 ui_state.volume_dragged = false;
                 ui_state.ignore_volume_update_until =
-                    Some(Instant::now() + Duration::from_millis(200));
+                    Some(Instant::now() + Duration::from_millis(300));
             }
         }
 
         if self.app_state.volume_dragged {
-            make_request_sync(Request::set_volume(
+            make_request_async(Request::set_volume(
                 self.app_state.volume_slider_value,
                 None,
-            ))
-            .ok();
+            ));
 
             self.app_state.volume_dragged = false;
             self.app_state.ignore_volume_update_until =
-                Some(Instant::now() + Duration::from_millis(200));
+                Some(Instant::now() + Duration::from_millis(300));
 
             if self.config.save_volume {
                 let mut daemon_config = get_daemon_config();
@@ -79,7 +75,7 @@ impl App for SoundpadGui {
         self.handle_input(ctx);
 
         CentralPanel::default().show(ctx, |ui| {
-            if !is_daemon_running().unwrap() {
+            if !self.audio_player_state.is_daemon_running {
                 self.draw_waiting_for_daemon(ui);
                 return;
             }

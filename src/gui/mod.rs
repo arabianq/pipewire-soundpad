@@ -13,7 +13,7 @@ use pwsp::{
     },
     utils::{
         daemon::get_daemon_config,
-        gui::{get_gui_config, make_request_sync, start_app_state_thread},
+        gui::{get_gui_config, make_request_async, make_request_sync, start_app_state_thread},
     },
 };
 use rfd::FileDialog;
@@ -66,7 +66,7 @@ impl SoundpadGui {
         };
 
         if let Some(req) = request {
-            make_request_sync(req).ok();
+            make_request_async(req);
         }
 
         if let Some(state) = new_state {
@@ -117,11 +117,11 @@ impl SoundpadGui {
     }
 
     pub fn play_file(&mut self, path: &PathBuf, concurrent: bool) {
-        make_request_sync(Request::play(path.to_str().unwrap(), concurrent)).ok();
+        make_request_async(Request::play(path.to_str().unwrap(), concurrent));
     }
 
     pub fn set_input(&mut self, name: String) {
-        make_request_sync(Request::set_input(&name)).ok();
+        make_request_async(Request::set_input(&name));
 
         if self.config.save_input {
             let mut daemon_config = get_daemon_config();
@@ -131,19 +131,19 @@ impl SoundpadGui {
     }
 
     pub fn toggle_loop(&mut self, id: Option<u32>) {
-        make_request_sync(Request::toggle_loop(id)).ok();
+        make_request_async(Request::toggle_loop(id));
     }
 
     pub fn pause(&mut self, id: Option<u32>) {
-        make_request_sync(Request::pause(id)).ok();
+        make_request_async(Request::pause(id));
     }
 
     pub fn resume(&mut self, id: Option<u32>) {
-        make_request_sync(Request::resume(id)).ok();
+        make_request_async(Request::resume(id));
     }
 
     pub fn stop(&mut self, id: Option<u32>) {
-        make_request_sync(Request::stop(id)).ok();
+        make_request_async(Request::stop(id));
     }
 }
 

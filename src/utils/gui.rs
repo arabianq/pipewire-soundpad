@@ -5,7 +5,7 @@ use crate::{
         gui::AudioPlayerState,
         socket::{Request, Response},
     },
-    utils::daemon::{make_request, wait_for_daemon},
+    utils::daemon::{is_daemon_running, make_request},
 };
 use std::{
     collections::HashMap,
@@ -30,6 +30,12 @@ pub fn make_request_sync(request: Request) -> Result<Response, Box<dyn Error>> {
     })
 }
 
+pub fn make_request_async(request: Request) {
+    tokio::spawn(async move {
+        make_request(request).await.ok();
+    });
+}
+
 pub fn format_time_pair(position: f32, duration: f32) -> String {
     fn format_time(seconds: f32) -> String {
         let total_seconds = seconds.round() as u32;
@@ -46,7 +52,16 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
         let sleep_duration = Duration::from_secs_f32(1.0 / 60.0);
 
         loop {
-            wait_for_daemon().await.ok();
+            let is_running = is_daemon_running().unwrap_or(false);
+
+            if !is_running {
+                {
+                    let mut guard = audio_player_state_shared.lock().unwrap();
+                    guard.is_daemon_running = false;
+                }
+                sleep(Duration::from_millis(500)).await;
+                continue;
+            }
 
             let state_req = Request::get_state();
             let tracks_req = Request::get_tracks();
@@ -128,6 +143,7 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
                 guard.volume = volume;
                 guard.current_input = current_input;
                 guard.all_inputs = all_inputs;
+                guard.is_daemon_running = true;
             }
 
             sleep(sleep_duration).await;

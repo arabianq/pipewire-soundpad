@@ -54,4 +54,6 @@ pub struct AudioPlayerState {
 
     pub current_input: String,
     pub all_inputs: HashMap<String, String>,
+
+    pub is_daemon_running: bool,
 }
