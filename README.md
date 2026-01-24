@@ -173,6 +173,29 @@ pwsp-cli --help
       pwsp-cli set position 20
       ```
 
+### **Hotkeys & Controls**
+
+#### **Keyboard Shortcuts**
+
+| Key                      | Action                                               |
+| :----------------------- | :--------------------------------------------------- |
+| **Esc**                  | Close application                                    |
+| **Space**                | Pause / Resume audio                                 |
+| **Backspace**            | Stop all audio tracks                                |
+| **Enter**                | Play selected file (stops all other tracks)          |
+| **Ctrl + Enter**         | Add selected file to playback (plays simultaneously) |
+| **Shift + Enter**        | Replace the last added track with the selected one   |
+| **I**                    | Open / Close settings                                |
+| **/**                    | Focus search field                                   |
+| **Ctrl + ↑ / ↓**         | Navigate through files                               |
+| **Ctrl + Shift + ↑ / ↓** | Navigate through directories                         |
+
+#### **Mouse Controls**
+
+* **Left Click**: Play track (stops all other tracks).
+* **Ctrl + Left Click**: Add track (plays simultaneously with current tracks).
+* **Shift + Left Click**: Replace the last added track with the selected one.
+
 # **🤝 Contributing**
 
 Contributions are welcome\! If you have ideas for improvements or find a bug, feel free to create
