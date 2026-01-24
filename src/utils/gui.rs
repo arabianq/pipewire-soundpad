@@ -10,7 +10,6 @@ use crate::{
 use std::{
     collections::HashMap,
     error::Error,
-    path::PathBuf,
     sync::{Arc, Mutex},
 };
 use tokio::time::{Duration, sleep};
@@ -51,31 +50,18 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
 
             let state_req = Request::get_state();
             let tracks_req = Request::get_tracks();
-            let is_paused_req = Request::get_is_paused();
-            let volume_req = Request::get_volume();
             let current_input_req = Request::get_input();
             let all_inputs_req = Request::get_inputs();
 
-            let (
-                state_res,
-                tracks_res,
-                is_paused_res,
-                volume_res,
-                current_input_res,
-                all_inputs_res,
-            ) = tokio::join!(
+            let (state_res, tracks_res, current_input_res, all_inputs_res) = tokio::join!(
                 make_request(state_req),
                 make_request(tracks_req),
-                make_request(is_paused_req),
-                make_request(volume_req),
                 make_request(current_input_req),
                 make_request(all_inputs_req),
             );
 
             let state_res = state_res.unwrap_or_default();
             let tracks_res = tracks_res.unwrap_or_default();
-            let is_paused_res = is_paused_res.unwrap_or_default();
-            let volume_res = volume_res.unwrap_or_default();
             let current_input_res = current_input_res.unwrap_or_default();
             let all_inputs_res = all_inputs_res.unwrap_or_default();
 
@@ -91,14 +77,6 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
                 false => vec![],
             };
 
-            let is_paused = match is_paused_res.status {
-                true => is_paused_res.message == "true",
-                false => false,
-            };
-            let volume = match volume_res.status {
-                true => volume_res.message.parse::<f32>().unwrap(),
-                false => 0.0,
-            };
             let current_input = match current_input_res.status {
                 true => current_input_res
                     .message
