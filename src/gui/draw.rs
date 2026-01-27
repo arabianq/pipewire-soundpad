@@ -356,12 +356,17 @@ impl SoundpadGui {
     fn draw_files(&mut self, ui: &mut Ui, area_size: Vec2) {
         ui.vertical(|ui| {
             ui.horizontal(|ui| {
-                let search_field = ui.add_sized(
+                let search_field_response = ui.add_sized(
                     [ui.available_width(), 22.0],
                     TextEdit::singleline(&mut self.app_state.search_query).hint_text("Search..."),
                 );
 
-                self.app_state.search_field_id = Some(search_field.id);
+                if self.app_state.force_focus_search {
+                    search_field_response.request_focus();
+                    self.app_state.force_focus_search = false;
+                }
+
+                self.app_state.search_field_id = Some(search_field_response.id);
             });
 
             ui.separator();

@@ -86,13 +86,6 @@ impl App for SoundpadGui {
             }
 
             self.draw(ui).ok();
-
-            if let Some(force_focus_id) = self.app_state.force_focus_id {
-                ui.memory_mut(|reder| {
-                    reder.request_focus(force_focus_id);
-                });
-                self.app_state.force_focus_id = None;
-            }
         });
 
         ctx.request_repaint_after_secs(1.0 / 60.0);

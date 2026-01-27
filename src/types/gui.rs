@@ -28,8 +28,11 @@ pub struct AppState {
 
     pub show_settings: bool,
     pub volume_dragged: bool,
+    pub force_focus_search: bool,
 
     pub volume_slider_value: f32,
+
+    pub search_field_id: Option<Id>,
 
     pub ignore_volume_update_until: Option<Instant>,
 
@@ -38,9 +41,6 @@ pub struct AppState {
 
     pub selected_file: Option<PathBuf>,
     pub files: HashSet<PathBuf>,
-
-    pub search_field_id: Option<Id>,
-    pub force_focus_id: Option<Id>,
 }
 
 #[derive(Default, Debug, Clone)]
