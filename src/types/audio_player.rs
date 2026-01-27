@@ -289,8 +289,6 @@ impl AudioPlayer {
 
                 self.tracks.insert(id, sound);
 
-                self.link_devices().await?;
-
                 Ok(id)
             }
             Err(err) => Err(err.into()),
