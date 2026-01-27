@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, error::Error, fs, path::PathBuf};
 
 #[derive(Default, Clone, Serialize, Deserialize)]
+#[serde(default)]
 pub struct DaemonConfig {
     pub default_input_name: Option<String>,
     pub default_volume: Option<f32>,
@@ -30,6 +31,7 @@ impl DaemonConfig {
 }
 
 #[derive(Clone, Serialize, Deserialize)]
+#[serde(default)]
 pub struct GuiConfig {
     pub scale_factor: f32,
 
