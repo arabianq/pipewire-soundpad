@@ -2,10 +2,9 @@ use crate::{
     types::{
         audio_player::AudioPlayer,
         config::DaemonConfig,
-        pipewire::AudioDevice,
         socket::{Request, Response},
     },
-    utils::pipewire::{create_link, get_all_devices},
+    utils::pipewire::{create_link, get_device},
 };
 use std::path::PathBuf;
 use std::{error::Error, fs};
@@ -36,36 +35,21 @@ pub fn get_daemon_config() -> DaemonConfig {
 }
 
 pub async fn link_player_to_virtual_mic() -> Result<(), Box<dyn Error>> {
-    let (input_devices, output_devices) = get_all_devices().await?;
-
-    let mut pwsp_daemon_output: Option<AudioDevice> = None;
-    for output_device in output_devices {
-        if output_device.name == "alsa_playback.pwsp-daemon" {
-            pwsp_daemon_output = Some(output_device);
-            break;
-        }
-    }
-
-    if pwsp_daemon_output.is_none() {
-        eprintln!("Could not find pwsp-daemon output device, skipping device linking");
+    let pwsp_daemon_output;
+    if let Ok(device) = get_device("alsa_playback.pwsp-daemon").await {
+        pwsp_daemon_output = device;
+    } else {
+        eprintln!("Could not find alsa_playback.pwsp-daemon device, skipping device linking");
         return Ok(());
     }
 
-    let mut pwsp_daemon_input: Option<AudioDevice> = None;
-    for input_device in input_devices {
-        if input_device.name == "pwsp-virtual-mic" {
-            pwsp_daemon_input = Some(input_device);
-            break;
-        }
-    }
-
-    if pwsp_daemon_input.is_none() {
-        eprintln!("Could not find pwsp-daemon input device, skipping device linking");
+    let pwsp_daemon_input;
+    if let Ok(device) = get_device("pwsp-virtual-mic").await {
+        pwsp_daemon_input = device;
+    } else {
+        eprintln!("Could not find pwsp-virtual-mic device, skipping device linking");
         return Ok(());
     }
-
-    let pwsp_daemon_output = pwsp_daemon_output.unwrap();
-    let pwsp_daemon_input = pwsp_daemon_input.unwrap();
 
     let output_fl = pwsp_daemon_output
         .clone()
