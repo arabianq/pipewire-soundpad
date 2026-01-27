@@ -145,6 +145,47 @@ impl SoundpadGui {
     pub fn stop(&mut self, id: Option<u32>) {
         make_request_async(Request::stop(id));
     }
+
+    pub fn get_filtered_files(&self) -> Vec<PathBuf> {
+        let mut files: Vec<PathBuf> = self.app_state.files.iter().cloned().collect();
+        files.sort();
+
+        let search_query = self.app_state.search_query.to_lowercase();
+        let search_query = search_query.trim();
+
+        files
+            .into_iter()
+            .filter(|entry_path| {
+                if entry_path.is_dir() {
+                    return false;
+                }
+
+                if !SUPPORTED_EXTENSIONS.contains(
+                    &entry_path
+                        .extension()
+                        .unwrap_or_default()
+                        .to_str()
+                        .unwrap_or_default(),
+                ) {
+                    return false;
+                }
+
+                if !search_query.is_empty() {
+                    let file_name = entry_path
+                        .file_name()
+                        .unwrap_or_default()
+                        .to_string_lossy()
+                        .to_string();
+
+                    if !file_name.to_lowercase().contains(search_query) {
+                        return false;
+                    }
+                }
+
+                true
+            })
+            .collect()
+    }
 }
 
 pub async fn run() -> Result<(), Box<dyn Error>> {

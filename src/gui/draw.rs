@@ -1,4 +1,4 @@
-use crate::gui::{SUPPORTED_EXTENSIONS, SoundpadGui};
+use crate::gui::SoundpadGui;
 use egui::{
     Align, AtomExt, Button, CollapsingHeader, Color32, ComboBox, CursorIcon, FontFamily, Label,
     Layout, RichText, ScrollArea, Sense, Slider, TextEdit, Ui, Vec2,
@@ -376,36 +376,14 @@ impl SoundpadGui {
                 ui.set_min_height(area_size.y);
 
                 ui.vertical(|ui| {
-                    let mut files: Vec<PathBuf> = self.app_state.files.iter().cloned().collect();
-                    files.sort();
+                    let files = self.get_filtered_files();
 
                     for entry_path in files {
-                        if entry_path.is_dir() {
-                            continue;
-                        }
-
-                        if !SUPPORTED_EXTENSIONS
-                            .contains(&entry_path.extension().unwrap_or_default().to_str().unwrap())
-                        {
-                            continue;
-                        }
-
                         let file_name = entry_path
                             .file_name()
                             .unwrap()
                             .to_string_lossy()
                             .to_string();
-
-                        let search_query = self
-                            .app_state
-                            .search_query
-                            .to_lowercase()
-                            .trim()
-                            .to_string();
-
-                        if !file_name.to_lowercase().contains(search_query.as_str()) {
-                            continue;
-                        }
 
                         let mut file_button_text = RichText::new(file_name);
                         if let Some(current_file) = &self.app_state.selected_file {
