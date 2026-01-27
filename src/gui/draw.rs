@@ -1,7 +1,7 @@
 use crate::gui::{SUPPORTED_EXTENSIONS, SoundpadGui};
 use egui::{
-    Align, AtomExt, Button, Color32, ComboBox, FontFamily, Label, Layout, RichText, ScrollArea,
-    Slider, TextEdit, Ui, Vec2,
+    Align, AtomExt, Button, Color32, ComboBox, CursorIcon, FontFamily, Label, Layout, RichText,
+    ScrollArea, Sense, Slider, TextEdit, Ui, Vec2,
 };
 use egui_material_icons::icons;
 use pwsp::types::audio_player::TrackInfo;
@@ -260,11 +260,34 @@ impl SoundpadGui {
     }
 
     fn draw_body(&mut self, ui: &mut Ui) {
-        let dirs_size = Vec2::new(ui.available_width() / 4.0, ui.available_height() - 40.0);
+        let left_panel_width = (ui.available_width() / 4.0 + self.config.vertical_separator_width)
+            .max(100.0)
+            .min(ui.available_width() - 100.0);
+        let dirs_size = Vec2::new(left_panel_width, ui.available_height() - 40.0);
 
         ui.horizontal(|ui| {
             self.draw_dirs(ui, dirs_size);
-            ui.separator();
+
+            let (rect, response) = ui.allocate_at_least(
+                Vec2::new(ui.spacing().item_spacing.x, ui.available_height()),
+                Sense::click_and_drag(),
+            );
+
+            if ui.is_rect_visible(rect) {
+                let stroke = ui.visuals().widgets.noninteractive.bg_stroke;
+                ui.painter().vline(rect.center().x, rect.y_range(), stroke);
+            }
+
+            let vertical_separator_response =
+                response.on_hover_and_drag_cursor(CursorIcon::ResizeHorizontal);
+
+            if vertical_separator_response.dragged() {
+                self.config.vertical_separator_width += vertical_separator_response.drag_delta().x;
+            }
+
+            if vertical_separator_response.drag_stopped() {
+                self.config.save_to_file().ok();
+            }
 
             let files_size = Vec2::new(ui.available_width(), ui.available_height() - 40.0);
             self.draw_files(ui, files_size);
