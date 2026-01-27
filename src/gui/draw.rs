@@ -1,7 +1,7 @@
 use crate::gui::{SUPPORTED_EXTENSIONS, SoundpadGui};
 use egui::{
-    Align, AtomExt, Button, Color32, ComboBox, CursorIcon, FontFamily, Label, Layout, RichText,
-    ScrollArea, Sense, Slider, TextEdit, Ui, Vec2,
+    Align, AtomExt, Button, CollapsingHeader, Color32, ComboBox, CursorIcon, FontFamily, Label,
+    Layout, RichText, ScrollArea, Sense, Slider, TextEdit, Ui, Vec2,
 };
 use egui_material_icons::icons;
 use pwsp::types::audio_player::TrackInfo;
@@ -95,46 +95,45 @@ impl SoundpadGui {
 
     fn draw_header(&mut self, ui: &mut Ui) {
         ui.vertical_centered_justified(|ui| {
-            self.draw_controls(ui);
-        });
-    }
+            if self.audio_player_state.tracks.is_empty() {
+                ui.label("No tracks playing");
+                return;
+            }
 
-    fn draw_controls(&mut self, ui: &mut Ui) {
-        if self.audio_player_state.tracks.is_empty() {
-            ui.label("No tracks playing");
-            return;
-        }
+            let tracks = self.audio_player_state.tracks.clone();
+            let mut action = None;
 
-        let tracks = self.audio_player_state.tracks.clone();
-        let mut action = None;
-
-        for track in tracks {
-            ui.label(
-                RichText::new(
-                    track
-                        .path
-                        .file_stem()
-                        .unwrap_or_default()
-                        .to_str()
-                        .unwrap_or_default(),
+            for track in tracks {
+                CollapsingHeader::new(
+                    RichText::new(
+                        track
+                            .path
+                            .file_stem()
+                            .unwrap_or_default()
+                            .to_str()
+                            .unwrap_or_default(),
+                    )
+                    .color(Color32::WHITE)
+                    .family(FontFamily::Monospace),
                 )
-                .color(Color32::WHITE)
-                .family(FontFamily::Monospace),
-            );
-            if let Some(act) = Self::draw_track_control(ui, &mut self.app_state, &track) {
-                action = Some(act);
+                .default_open(true)
+                .show(ui, |ui| {
+                    if let Some(act) = Self::draw_track_control(ui, &mut self.app_state, &track) {
+                        action = Some(act);
+                    }
+                });
+                ui.separator();
             }
-            ui.separator();
-        }
 
-        if let Some(action) = action {
-            match action {
-                TrackAction::Pause(id) => self.pause(Some(id)),
-                TrackAction::Resume(id) => self.resume(Some(id)),
-                TrackAction::ToggleLoop(id) => self.toggle_loop(Some(id)),
-                TrackAction::Stop(id) => self.stop(Some(id)),
+            if let Some(action) = action {
+                match action {
+                    TrackAction::Pause(id) => self.pause(Some(id)),
+                    TrackAction::Resume(id) => self.resume(Some(id)),
+                    TrackAction::ToggleLoop(id) => self.toggle_loop(Some(id)),
+                    TrackAction::Stop(id) => self.stop(Some(id)),
+                }
             }
-        }
+        });
     }
 
     fn draw_track_control(
