@@ -34,6 +34,15 @@ pub struct TrackInfo {
     pub paused: bool,
 }
 
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+pub struct FullState {
+    pub state: PlayerState,
+    pub tracks: Vec<TrackInfo>,
+    pub volume: f32,
+    pub current_input: String,
+    pub all_inputs: HashMap<String, String>,
+}
+
 pub struct PlayingSound {
     pub id: u32,
     pub sink: Sink,

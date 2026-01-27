@@ -92,6 +92,8 @@ enum GetCommands {
     Input,
     /// All audio inputs
     Inputs,
+    /// Full player state
+    FullState,
 }
 
 #[derive(Subcommand, Debug)]
@@ -146,6 +148,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             GetCommands::Tracks => Request::get_tracks(),
             GetCommands::Input => Request::get_input(),
             GetCommands::Inputs => Request::get_inputs(),
+            GetCommands::FullState => Request::get_full_state(),
         },
         Commands::Set { parameter } => match parameter {
             SetCommands::Volume { volume, id } => Request::set_volume(volume, id),

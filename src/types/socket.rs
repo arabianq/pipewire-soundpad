@@ -155,6 +155,10 @@ impl Request {
         }
         Request::new("toggle_loop", args)
     }
+
+    pub fn get_full_state() -> Self {
+        Request::new("get_full_state", vec![])
+    }
 }
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]

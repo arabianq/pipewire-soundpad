@@ -1,12 +1,15 @@
 use crate::{
-    types::{audio_player::PlayerState, socket::Response},
+    types::{
+        audio_player::{FullState, PlayerState},
+        socket::Response,
+    },
     utils::{
         daemon::get_audio_player,
         pipewire::{get_all_devices, get_device},
     },
 };
 use async_trait::async_trait;
-use std::path::PathBuf;
+use std::{collections::HashMap, path::PathBuf};
 
 #[async_trait]
 pub trait Executable {
@@ -78,6 +81,8 @@ pub struct SetLoopCommand {
 pub struct ToggleLoopCommand {
     pub id: Option<u32>,
 }
+
+pub struct GetFullStateCommand {}
 
 #[async_trait]
 impl Executable for PingCommand {
@@ -339,5 +344,39 @@ impl Executable for ToggleLoopCommand {
             }
             Response::new(true, "Loop toggled for all tracks")
         }
+    }
+}
+
+#[async_trait]
+impl Executable for GetFullStateCommand {
+    async fn execute(&self) -> Response {
+        let (input_devices, _output_devices) = get_all_devices().await.unwrap();
+        let mut all_inputs = HashMap::new();
+        let mut current_input_nick = String::new();
+
+        let audio_player = get_audio_player().await.lock().await;
+        for device in input_devices {
+            if device.name == "pwsp-virtual-mic" {
+                continue;
+            }
+
+            if let Some(current_input_name) = &audio_player.input_device_name {
+                if device.name == *current_input_name {
+                    current_input_nick = format!("{} - {}", device.name, device.nick);
+                }
+            }
+
+            all_inputs.insert(device.name, device.nick);
+        }
+
+        let full_state = FullState {
+            state: audio_player.get_state(),
+            tracks: audio_player.get_tracks(),
+            volume: audio_player.volume,
+            current_input: current_input_nick,
+            all_inputs,
+        };
+
+        Response::new(true, serde_json::to_string(&full_state).unwrap())
     }
 }

@@ -1,6 +1,6 @@
 use crate::{
     types::{
-        audio_player::{PlayerState, TrackInfo},
+        audio_player::FullState,
         config::GuiConfig,
         gui::AudioPlayerState,
         socket::{Request, Response},
@@ -8,7 +8,6 @@ use crate::{
     utils::daemon::{is_daemon_running, make_request},
 };
 use std::{
-    collections::HashMap,
     error::Error,
     sync::{Arc, Mutex},
 };
@@ -63,73 +62,13 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
                 continue;
             }
 
-            let state_req = Request::get_state();
-            let tracks_req = Request::get_tracks();
-            let volume_req = Request::get_volume();
-            let current_input_req = Request::get_input();
-            let all_inputs_req = Request::get_inputs();
+            let full_state_req = Request::get_full_state();
+            let full_state_res = make_request(full_state_req).await.unwrap_or_default();
 
-            let (state_res, tracks_res, volume_res, current_input_res, all_inputs_res) = tokio::join!(
-                make_request(state_req),
-                make_request(tracks_req),
-                make_request(volume_req),
-                make_request(current_input_req),
-                make_request(all_inputs_req),
-            );
+            if full_state_res.status {
+                let full_state: FullState =
+                    serde_json::from_str(&full_state_res.message).unwrap_or_default();
 
-            let state_res = state_res.unwrap_or_default();
-            let tracks_res = tracks_res.unwrap_or_default();
-            let volume_res = volume_res.unwrap_or_default();
-            let current_input_res = current_input_res.unwrap_or_default();
-            let all_inputs_res = all_inputs_res.unwrap_or_default();
-
-            let state = match state_res.status {
-                true => serde_json::from_str::<PlayerState>(&state_res.message).unwrap(),
-                false => PlayerState::default(),
-            };
-
-            let tracks = match tracks_res.status {
-                true => {
-                    serde_json::from_str::<Vec<TrackInfo>>(&tracks_res.message).unwrap_or_default()
-                }
-                false => vec![],
-            };
-
-            let volume = match volume_res.status {
-                true => volume_res.message.parse::<f32>().unwrap(),
-                false => 0.0,
-            };
-
-            let current_input = match current_input_res.status {
-                true => current_input_res
-                    .message
-                    .as_str()
-                    .split(" - ")
-                    .collect::<Vec<&str>>()
-                    .first()
-                    .unwrap()
-                    .to_string(),
-                false => String::new(),
-            };
-            let all_inputs = match all_inputs_res.status {
-                true => all_inputs_res
-                    .message
-                    .as_str()
-                    .split(';')
-                    .filter_map(|entry| {
-                        let entry = entry.trim();
-                        if entry.is_empty() {
-                            return None;
-                        }
-                        entry
-                            .split_once(" - ")
-                            .map(|(k, v)| (k.trim().to_string(), v.trim().to_string()))
-                    })
-                    .collect::<HashMap<String, String>>(),
-                false => HashMap::new(),
-            };
-
-            {
                 let mut guard = audio_player_state_shared.lock().unwrap();
 
                 guard.state = match guard.new_state.clone() {
@@ -137,12 +76,17 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
                         guard.new_state = None;
                         new_state
                     }
-                    None => state,
+                    None => full_state.state,
                 };
-                guard.tracks = tracks.clone();
-                guard.volume = volume;
-                guard.current_input = current_input;
-                guard.all_inputs = all_inputs;
+                guard.tracks = full_state.tracks;
+                guard.volume = full_state.volume;
+                guard.current_input = full_state
+                    .current_input
+                    .split(" - ")
+                    .next()
+                    .unwrap_or_default()
+                    .to_string();
+                guard.all_inputs = full_state.all_inputs;
                 guard.is_daemon_running = true;
             }
 
