@@ -1,8 +1,8 @@
 use crate::{
-    types::pipewire::{AudioDevice, DeviceType, Terminate},
+    types::pipewire::{DeviceType, Terminate},
     utils::{
         daemon::get_daemon_config,
-        pipewire::{create_link, get_all_devices, get_device},
+        pipewire::{create_link, get_device},
     },
 };
 use rodio::{Decoder, OutputStream, OutputStreamBuilder, Sink, Source};
@@ -49,7 +49,7 @@ pub struct AudioPlayer {
     pub next_id: u32,
 
     input_link_sender: Option<pipewire::channel::Sender<Terminate>>,
-    pub current_input_device: Option<AudioDevice>,
+    pub input_device_name: Option<String>,
 
     pub volume: f32, // Master volume
 }
@@ -58,13 +58,6 @@ impl AudioPlayer {
     pub async fn new() -> Result<Self, Box<dyn Error>> {
         let daemon_config = get_daemon_config();
         let default_volume = daemon_config.default_volume.unwrap_or(1.0);
-        let mut default_input_device: Option<AudioDevice> = None;
-        if let Some(name) = daemon_config.default_input_name
-            && let Ok(device) = get_device(&name).await
-            && device.device_type == DeviceType::Input
-        {
-            default_input_device = Some(device);
-        }
 
         let stream_handle = OutputStreamBuilder::open_default_stream()?;
 
@@ -74,12 +67,12 @@ impl AudioPlayer {
             next_id: 1,
 
             input_link_sender: None,
-            current_input_device: default_input_device.clone(),
+            input_device_name: daemon_config.default_input_name.clone(),
 
             volume: default_volume,
         };
 
-        if default_input_device.is_some() {
+        if audio_player.input_device_name.is_some() {
             audio_player.link_devices().await?;
         }
 
@@ -89,7 +82,10 @@ impl AudioPlayer {
     fn abort_link_thread(&mut self) {
         if let Some(sender) = &self.input_link_sender {
             match sender.send(Terminate {}) {
-                Ok(_) => println!("Sent terminate signal to link thread"),
+                Ok(_) => {
+                    println!("Sent terminate signal to link thread");
+                    self.input_link_sender = None;
+                }
                 Err(_) => eprintln!("Failed to send terminate signal to link thread"),
             }
         }
@@ -98,42 +94,43 @@ impl AudioPlayer {
     async fn link_devices(&mut self) -> Result<(), Box<dyn Error>> {
         self.abort_link_thread();
 
-        if self.current_input_device.is_none() {
+        let input_device;
+        if let Some(input_device_name) = &self.input_device_name {
+            if let Ok(device) = get_device(input_device_name).await {
+                input_device = device;
+            } else {
+                eprintln!(
+                    "Could not find selected input device {}, skipping device linking",
+                    input_device_name
+                );
+                return Ok(());
+            }
+        } else {
             eprintln!("No input device selected, skipping device linking");
             return Ok(());
         }
 
-        let (input_devices, _) = get_all_devices().await?;
-
-        let mut pwsp_daemon_input: Option<AudioDevice> = None;
-        for input_device in input_devices {
-            if input_device.name == "pwsp-virtual-mic" {
-                pwsp_daemon_input = Some(input_device);
-                break;
-            }
-        }
-
-        if pwsp_daemon_input.is_none() {
-            eprintln!("Could not find pwsp-daemon input device, skipping device linking");
+        let daemon_input;
+        if let Ok(device) = get_device("pwsp-virtual-mic").await {
+            daemon_input = device;
+        } else {
+            eprintln!("Could not find pwsp-virtual-mic device, skipping device linking");
             return Ok(());
         }
 
-        let pwsp_daemon_input = pwsp_daemon_input.unwrap();
-        let current_input_device = self.current_input_device.clone().unwrap();
-
-        let Some(output_fl) = current_input_device.output_fl.clone() else {
+        let Some(output_fl) = input_device.output_fl.clone() else {
             eprintln!("Failed to get pwsp-daemon output_fl");
             return Ok(());
         };
-        let Some(output_fr) = current_input_device.output_fr.clone() else {
+        let Some(output_fr) = input_device.output_fr.clone() else {
             eprintln!("Failed to get pwsp-daemon output_fr");
             return Ok(());
         };
-        let Some(input_fl) = pwsp_daemon_input.input_fl.clone() else {
+        let Some(input_fl) = daemon_input.input_fl.clone() else {
             eprintln!("Failed to get pwsp-daemon input_fl");
             return Ok(());
         };
-        let Some(input_fr) = pwsp_daemon_input.input_fr.clone() else {
+        let Some(input_fr) = daemon_input.input_fr.clone() else {
             eprintln!("Failed to get pwsp-daemon input_fr");
             return Ok(());
         };
@@ -333,6 +330,23 @@ impl AudioPlayer {
     }
 
     pub async fn update(&mut self) {
+        if let Some(input_device_name) = &self.input_device_name {
+            // Unlink devices if selected input device was removed
+            if self.input_link_sender.is_some() && get_device(input_device_name).await.is_err() {
+                // Selected input device was removed
+                eprintln!(
+                    "Selected input device {} was removed, unlinking devices",
+                    input_device_name
+                );
+                self.abort_link_thread();
+            }
+            // Link devices if not linked
+            else if self.input_link_sender.is_none() {
+                self.link_devices().await.ok();
+            }
+        }
+
+        // Handle looped sounds
         let mut restarts = vec![];
 
         for (id, sound) in &self.tracks {
@@ -363,7 +377,7 @@ impl AudioPlayer {
             return Err("Selected device is not an input device".into());
         }
 
-        self.current_input_device = Some(input_device);
+        self.input_device_name = Some(name.to_string());
 
         self.link_devices().await?;
 

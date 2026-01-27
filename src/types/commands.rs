@@ -1,6 +1,9 @@
 use crate::{
     types::{audio_player::PlayerState, socket::Response},
-    utils::{daemon::get_audio_player, pipewire::get_all_devices},
+    utils::{
+        daemon::get_audio_player,
+        pipewire::{get_all_devices, get_device},
+    },
 };
 use async_trait::async_trait;
 use std::path::PathBuf;
@@ -254,11 +257,15 @@ impl Executable for GetTracksCommand {
 impl Executable for GetCurrentInputCommand {
     async fn execute(&self) -> Response {
         let audio_player = get_audio_player().await.lock().await;
-        if let Some(input_device) = &audio_player.current_input_device {
-            Response::new(
-                true,
-                format!("{} - {}", input_device.name, input_device.nick),
-            )
+        if let Some(input_device_name) = &audio_player.input_device_name {
+            if let Ok(input_device) = get_device(input_device_name).await {
+                Response::new(
+                    true,
+                    format!("{} - {}", input_device.name, input_device.nick),
+                )
+            } else {
+                Response::new(false, "Failed to get current input device")
+            }
         } else {
             Response::new(false, "No input device selected")
         }
