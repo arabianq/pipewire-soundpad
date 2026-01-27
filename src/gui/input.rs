@@ -1,5 +1,5 @@
 use crate::gui::SoundpadGui;
-use egui::{Context, Id, Key, Modifiers};
+use egui::{Context, Key, Modifiers};
 
 use std::path::PathBuf;
 
@@ -14,11 +14,6 @@ impl SoundpadGui {
 
     pub fn handle_input(&mut self, ctx: &Context) {
         let modifiers = self.modifiers(ctx);
-
-        // Close app on espace
-        if self.key_pressed(ctx, Key::Escape) {
-            std::process::exit(0);
-        }
 
         // Open/close settings
         if self.key_pressed(ctx, Key::I) {
