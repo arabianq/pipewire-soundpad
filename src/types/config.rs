@@ -1,6 +1,6 @@
 use crate::utils::config::get_config_path;
 use serde::{Deserialize, Serialize};
-use std::{collections::HashSet, error::Error, fs, path::PathBuf};
+use std::{error::Error, fs, path::PathBuf};
 
 #[derive(Default, Clone, Serialize, Deserialize)]
 #[serde(default)]
@@ -41,7 +41,7 @@ pub struct GuiConfig {
     pub save_scale_factor: bool,
     pub pause_on_exit: bool,
 
-    pub dirs: HashSet<PathBuf>,
+    pub dirs: Vec<PathBuf>,
 }
 
 impl Default for GuiConfig {
@@ -55,7 +55,7 @@ impl Default for GuiConfig {
             save_scale_factor: false,
             pause_on_exit: false,
 
-            dirs: HashSet::default(),
+            dirs: vec![],
         }
     }
 }

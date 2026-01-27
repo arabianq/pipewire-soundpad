@@ -37,7 +37,7 @@ pub struct AppState {
     pub ignore_volume_update_until: Option<Instant>,
 
     pub current_dir: Option<PathBuf>,
-    pub dirs: HashSet<PathBuf>,
+    pub dirs: Vec<PathBuf>,
 
     pub selected_file: Option<PathBuf>,
     pub files: HashSet<PathBuf>,

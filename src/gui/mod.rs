@@ -4,6 +4,7 @@ mod update;
 
 use eframe::{HardwareAcceleration, NativeOptions, icon_data::from_png_bytes, run_native};
 use egui::{Context, Vec2, ViewportBuilder};
+use itertools::Itertools;
 use pwsp::{
     types::{
         audio_player::PlayerState,
@@ -87,15 +88,16 @@ impl SoundpadGui {
         let file_dialog = FileDialog::new();
         if let Some(paths) = file_dialog.pick_folders() {
             for path in paths {
-                self.app_state.dirs.insert(path);
+                self.app_state.dirs.push(path);
             }
+            self.app_state.dirs = self.app_state.dirs.iter().unique().cloned().collect();
             self.config.dirs = self.app_state.dirs.clone();
             self.config.save_to_file().ok();
         }
     }
 
     pub fn remove_dir(&mut self, path: &PathBuf) {
-        self.app_state.dirs.remove(path);
+        self.app_state.dirs.retain(|x| x != path);
         if let Some(current_dir) = &self.app_state.current_dir
             && current_dir == path
         {

@@ -3,10 +3,11 @@ use egui::{
     Align, AtomExt, Button, CollapsingHeader, Color32, ComboBox, CursorIcon, FontFamily, Label,
     Layout, RichText, ScrollArea, Sense, Slider, TextEdit, Ui, Vec2,
 };
+use egui_dnd::dnd;
 use egui_material_icons::icons;
 use pwsp::types::audio_player::TrackInfo;
 use pwsp::utils::gui::format_time_pair;
-use std::{error::Error, path::PathBuf, time::Instant};
+use std::{error::Error, time::Instant};
 
 use pwsp::types::gui::AppState;
 
@@ -301,10 +302,14 @@ impl SoundpadGui {
             ScrollArea::vertical().id_salt(0).show(ui, |ui| {
                 ui.set_min_width(area_size.x);
 
-                let mut dirs: Vec<PathBuf> = self.app_state.dirs.iter().cloned().collect();
-                dirs.sort();
-                for path in dirs.iter() {
+                let mut dirs = self.app_state.dirs.clone();
+
+                dnd(ui, "dnd_directories").show_vec(&mut dirs, |ui, item, handle, _state| {
+                    let path = item.clone();
                     ui.horizontal(|ui| {
+                        handle.ui(ui, |ui| {
+                            ui.label(icons::ICON_DRAG_INDICATOR);
+                        });
                         let name = path
                             .file_name()
                             .map(|s| s.to_string_lossy().to_string())
@@ -312,7 +317,7 @@ impl SoundpadGui {
 
                         let mut dir_button_text = RichText::new(name.clone());
                         if let Some(current_dir) = &self.app_state.current_dir {
-                            if current_dir.eq(path) {
+                            if current_dir.eq(&path) {
                                 dir_button_text = dir_button_text.color(Color32::WHITE);
                             }
                         }
@@ -322,7 +327,7 @@ impl SoundpadGui {
 
                         let dir_button_response = ui.add(dir_button);
                         if dir_button_response.clicked() {
-                            self.open_dir(path);
+                            self.open_dir(&path);
                         }
 
                         let delete_dir_button = Button::new(icons::ICON_DELETE).frame(false);
@@ -332,7 +337,8 @@ impl SoundpadGui {
                             self.remove_dir(&path.clone());
                         }
                     });
-                }
+                });
+                self.app_state.dirs = dirs;
 
                 ui.horizontal(|ui| {
                     let add_dirs_button = Button::new(icons::ICON_ADD).frame(false);

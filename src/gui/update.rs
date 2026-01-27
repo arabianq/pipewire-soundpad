@@ -9,6 +9,13 @@ use std::time::{Duration, Instant};
 
 impl App for SoundpadGui {
     fn update(&mut self, ctx: &Context, _frame: &mut EFrame) {
+        // Save directories if changed
+        if !self.config.dirs.eq(&self.app_state.dirs) {
+            self.config.dirs = self.app_state.dirs.clone();
+            self.config.save_to_file().ok();
+        }
+
+        // Seek and volume requests
         let mut seek_requests = vec![];
         let mut volume_requests = vec![];
 
@@ -57,11 +64,13 @@ impl App for SoundpadGui {
             }
         }
 
+        // Sync audio player state
         {
             let guard = self.audio_player_state_shared.lock().unwrap();
             self.audio_player_state = guard.clone();
         }
 
+        // Handle scale factor changes
         let old_scale_factor = self.config.scale_factor;
         let new_scale_factor = ctx.zoom_factor().clamp(0.5, 2.0);
 
@@ -72,8 +81,10 @@ impl App for SoundpadGui {
             self.config.save_to_file().ok();
         }
 
+        // Handle input
         self.handle_input(ctx);
 
+        // Draw UI
         CentralPanel::default().show(ctx, |ui| {
             if !self.audio_player_state.is_daemon_running {
                 self.draw_waiting_for_daemon(ui);
@@ -88,6 +99,7 @@ impl App for SoundpadGui {
             self.draw(ui).ok();
         });
 
+        // Request repaint
         ctx.request_repaint_after_secs(1.0 / 60.0);
     }
 }
