@@ -83,23 +83,21 @@ impl SoundpadGui {
 
                     self.open_dir(&dirs[new_dir_index as usize]);
                 } else if self.app_state.current_dir.is_some() {
-                    let mut files: Vec<PathBuf> = self.app_state.files.iter().cloned().collect();
-                    files.sort();
+                    let files = self.get_filtered_files();
 
-                    let current_files_index: i64;
-                    if let Some(selected_file) = &self.app_state.selected_file {
-                        if let Some(index) = files.iter().position(|x| x == selected_file) {
-                            current_files_index = index as i64;
-                        } else {
-                            current_files_index = -1;
-                        }
-                    } else {
-                        current_files_index = -1;
+                    if files.is_empty() {
+                        return;
                     }
 
-                    let mut new_files_index: i64;
+                    let current_files_index = self
+                        .app_state
+                        .selected_file
+                        .as_ref()
+                        .and_then(|f| files.iter().position(|x| x == f))
+                        .map(|i| i as i64)
+                        .unwrap_or(-1);
 
-                    new_files_index =
+                    let mut new_files_index =
                         current_files_index - arrow_up_pressed as i64 + arrow_down_pressed as i64;
 
                     if new_files_index < 0 {
