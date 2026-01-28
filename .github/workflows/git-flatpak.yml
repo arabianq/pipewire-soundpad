@@ -1,4 +1,4 @@
-name: Flatpak CI
+name: Git Flatpak
 
 on:
     push:
