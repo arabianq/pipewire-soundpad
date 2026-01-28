@@ -38,6 +38,7 @@ pub struct AppState {
 
     pub current_dir: Option<PathBuf>,
     pub dirs: Vec<PathBuf>,
+    pub dirs_to_remove: HashSet<PathBuf>,
 
     pub selected_file: Option<PathBuf>,
     pub files: HashSet<PathBuf>,

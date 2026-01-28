@@ -337,7 +337,7 @@ impl SoundpadGui {
                         let delete_dir_button_response =
                             ui.add_sized([18.0, 18.0], delete_dir_button);
                         if delete_dir_button_response.clicked() {
-                            self.remove_dir(&path.clone());
+                            self.app_state.dirs_to_remove.insert(path.clone());
                         }
                     });
                 });

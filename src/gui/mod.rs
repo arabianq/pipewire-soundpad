@@ -96,18 +96,6 @@ impl SoundpadGui {
         }
     }
 
-    pub fn remove_dir(&mut self, path: &PathBuf) {
-        self.app_state.dirs.retain(|x| x != path);
-        if let Some(current_dir) = &self.app_state.current_dir
-            && current_dir == path
-        {
-            self.app_state.current_dir = None;
-            self.app_state.files.clear();
-        }
-        self.config.dirs = self.app_state.dirs.clone();
-        self.config.save_to_file().ok();
-    }
-
     pub fn open_dir(&mut self, path: &PathBuf) {
         self.app_state.current_dir = Some(path.clone());
         match path.read_dir() {

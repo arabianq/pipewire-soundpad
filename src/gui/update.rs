@@ -9,6 +9,17 @@ use std::time::{Duration, Instant};
 
 impl App for SoundpadGui {
     fn update(&mut self, ctx: &Context, _frame: &mut EFrame) {
+        // Remove directories
+        for path in self.app_state.dirs_to_remove.drain() {
+            self.app_state.dirs.retain(|x| x != &path);
+            if let Some(current_dir) = &self.app_state.current_dir
+                && current_dir == &path
+            {
+                self.app_state.current_dir = None;
+                self.app_state.files.clear();
+            }
+        }
+
         // Save directories if changed
         if !self.config.dirs.eq(&self.app_state.dirs) {
             self.config.dirs = self.app_state.dirs.clone();
