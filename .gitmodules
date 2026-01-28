@@ -1,0 +1,3 @@
+[submodule "packages/aur"]
+	path = packages/aur
+	url = ssh://aur@aur.archlinux.org/pwsp.git
