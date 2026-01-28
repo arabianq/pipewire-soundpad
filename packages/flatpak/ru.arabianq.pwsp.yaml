@@ -45,9 +45,3 @@ modules:
     sources:
       - type: dir
         path: .
-      - type: file
-        path: packages/flatpak/pwsp-wrapper.sh
-      - type: file
-        path: packages/flatpak/ru.arabianq.pwsp.desktop
-      - type: file
-        path: packages/flatpak/ru.arabianq.pwsp.metainfo.xml
