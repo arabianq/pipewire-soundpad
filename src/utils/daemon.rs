@@ -36,7 +36,7 @@ pub fn get_daemon_config() -> DaemonConfig {
 
 pub async fn link_player_to_virtual_mic() -> Result<(), Box<dyn Error>> {
     let pwsp_daemon_output;
-    if let Ok(device) = get_device("alsa_playback.pwsp-daemon").await {
+    if let Ok(device) = get_device("pwsp-daemon").await {
         pwsp_daemon_output = device;
     } else {
         eprintln!("Could not find alsa_playback.pwsp-daemon device, skipping device linking");

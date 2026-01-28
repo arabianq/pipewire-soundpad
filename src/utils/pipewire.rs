@@ -210,7 +210,11 @@ pub async fn get_device(device_name: &str) -> Result<AudioDevice, Box<dyn Error>
     input_devices.extend(output_devices);
 
     for device in input_devices {
-        if device.name == device_name {
+        if device.name == device_name
+            || device.nick == device_name
+            || device.name.contains(device_name)
+            || device.nick.contains(device_name)
+        {
             return Ok(device);
         }
     }
