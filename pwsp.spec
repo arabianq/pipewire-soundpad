@@ -4,7 +4,7 @@
 %global cargo_install_lib 0
 
 Name:            pwsp
-Version:         1.4.0
+Version:         1.5.0
 Release:         %autorelease
 Summary:         Lets you play audio files through your microphone
 
