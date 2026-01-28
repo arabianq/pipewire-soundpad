@@ -1,0 +1,84 @@
+name: Git archive
+
+permissions:
+  contents: write
+  packages: write
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install apt deps (jq/zip + dev-libs)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            zip jq \
+            libpipewire-0.3-dev \
+            libclang-dev \
+            libasound2-dev
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Extract all binary names
+        id: cargo-meta
+        run: |
+          set -euo pipefail
+          BIN_NAMES=$(cargo metadata --no-deps --format-version 1 \
+            | jq -r '.packages[0].targets[] | select(.kind[] | contains("bin")) | .name')
+          # сохраним построчно в выход
+          echo "bin_names<<EOF" >> $GITHUB_OUTPUT
+          echo "$BIN_NAMES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Build all release binaries
+        run: cargo build --release --locked
+
+      - name: Package all binaries into one archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          COMMIT_SHA="${{ github.sha }}"
+          ARCHIVE_NAME="pwsp-${COMMIT_SHA}-linux-x64.zip"
+          echo "Creating archive: $ARCHIVE_NAME"
+
+          FILES=()
+          while IFS= read -r BIN; do
+            [ -z "$BIN" ] && continue
+            FILES+=("target/release/$BIN")
+          done <<< "${{ steps.cargo-meta.outputs.bin_names }}"
+
+          if [ "${#FILES[@]}" -eq 0 ]; then
+            echo "Error: no binaries were discovered via cargo metadata." >&2
+            exit 1
+          fi
+
+          for f in "${FILES[@]}"; do
+            if [ ! -f "$f" ]; then
+              echo "Error: expected binary not found: $f" >&2
+              exit 1
+            fi
+            echo "Will add: $f"
+          done
+
+          zip -j "$ARCHIVE_NAME" "${FILES[@]}"
+
+      - name: Upload archive as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: archive
+          path: pwsp-*.zip
+          retention-days: 7

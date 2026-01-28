@@ -32,7 +32,6 @@ jobs:
         run: |
           set -euo pipefail
 
-          # приоритет 1: входной параметр workflow_dispatch
           INPUT_TAG="${{ github.event.inputs.tag || '' }}"
           if [ -n "$INPUT_TAG" ]; then
             echo "Using input tag: $INPUT_TAG"
@@ -40,7 +39,6 @@ jobs:
             exit 0
           fi
 
-          # приоритет 2: если запущено событием release
           EVENT_TAG="${{ github.event.release.tag_name || '' }}"
           if [ -n "$EVENT_TAG" ]; then
             echo "Using event tag: $EVENT_TAG"
@@ -48,14 +46,12 @@ jobs:
             exit 0
           fi
 
-          # приоритет 3: если GITHUB_REF — refs/tags/...
           if [[ "${GITHUB_REF:-}" =~ ^refs/tags/(.+)$ ]]; then
             echo "Using GITHUB_REF tag: ${BASH_REMATCH[1]}"
             echo "tag=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
             exit 0
           fi
 
-          # приоритет 4: пробуем получить последний релиз через API
           echo "No tag in input/event/GITHUB_REF — querying latest release via API..."
           LATEST_JSON=$(curl -sSf -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${{ github.repository }}/releases/latest" || true)
           TAG_NAME=$(echo "$LATEST_JSON" | jq -r '.tag_name // empty')
@@ -91,7 +87,6 @@ jobs:
           set -euo pipefail
           BIN_NAMES=$(cargo metadata --no-deps --format-version 1 \
             | jq -r '.packages[0].targets[] | select(.kind[] | contains("bin")) | .name')
-          # сохраним построчно в выход
           echo "bin_names<<EOF" >> $GITHUB_OUTPUT
           echo "$BIN_NAMES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -107,7 +102,6 @@ jobs:
           ARCHIVE_NAME="pwsp-${TAG}-linux-x64.zip"
           echo "Creating archive: $ARCHIVE_NAME"
 
-          # читаем построчно список бинарников и формируем массив файлов
           FILES=()
           while IFS= read -r BIN; do
             [ -z "$BIN" ] && continue
@@ -119,7 +113,6 @@ jobs:
             exit 1
           fi
 
-          # проверим, что все бинарники действительно есть
           for f in "${FILES[@]}"; do
             if [ ! -f "$f" ]; then
               echo "Error: expected binary not found: $f" >&2
@@ -128,7 +121,6 @@ jobs:
             echo "Will add: $f"
           done
 
-          # создаём архив с бинарниками внутри как просто pwsp-gui, pwsp-daemon, pwsp-cli
           zip -j "$ARCHIVE_NAME" "${FILES[@]}"
 
       - name: Upload release archive

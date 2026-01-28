@@ -1,0 +1,53 @@
+name: Git deb
+
+permissions:
+  contents: write
+  packages: write
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install apt deps (jq/zip + dev-libs)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            zip jq \
+            libpipewire-0.3-dev \
+            libclang-dev \
+            libasound2-dev
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Build all release binaries
+        run: cargo build --release --locked
+
+      - name: Install cargo-deb and create .deb
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo install --locked cargo-deb
+          export PATH="$HOME/.cargo/bin:$PATH"
+
+          cargo-deb
+
+      - name: Upload .deb(s) as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb-packages
+          path: target/debian/*.deb
+          retention-days: 7
