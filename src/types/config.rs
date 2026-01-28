@@ -34,7 +34,7 @@ impl DaemonConfig {
 #[serde(default)]
 pub struct GuiConfig {
     pub scale_factor: f32,
-    pub vertical_separator_width: f32,
+    pub left_panel_width: f32,
 
     pub save_volume: bool,
     pub save_input: bool,
@@ -48,7 +48,7 @@ impl Default for GuiConfig {
     fn default() -> Self {
         GuiConfig {
             scale_factor: 1.0,
-            vertical_separator_width: 0.0,
+            left_panel_width: 280.0,
 
             save_volume: false,
             save_input: false,

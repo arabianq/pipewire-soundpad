@@ -260,7 +260,9 @@ impl SoundpadGui {
     }
 
     fn draw_body(&mut self, ui: &mut Ui) {
-        let left_panel_width = (ui.available_width() / 4.0 + self.config.vertical_separator_width)
+        let left_panel_width = self
+            .config
+            .left_panel_width
             .max(100.0)
             .min(ui.available_width() - 100.0);
         let dirs_size = Vec2::new(left_panel_width, ui.available_height() - 40.0);
@@ -282,7 +284,8 @@ impl SoundpadGui {
                 response.on_hover_and_drag_cursor(CursorIcon::ResizeHorizontal);
 
             if vertical_separator_response.dragged() {
-                self.config.vertical_separator_width += vertical_separator_response.drag_delta().x;
+                self.config.left_panel_width += vertical_separator_response.drag_delta().x;
+                self.config.left_panel_width = self.config.left_panel_width.clamp(100.0, 500.0);
             }
 
             if vertical_separator_response.drag_stopped() {
