@@ -62,6 +62,7 @@ jobs:
                   manifest-path: packages/flatpak/ru.arabianq.pwsp.yaml
                   cache: true
                   branch: master
+                  build-bundle: true
 
             - name: Upload Flatpak to release
               uses: softprops/action-gh-release@v2

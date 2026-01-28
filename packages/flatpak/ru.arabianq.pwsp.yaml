@@ -44,4 +44,4 @@ modules:
       - install -Dm644 packages/flatpak/ru.arabianq.pwsp.metainfo.xml /app/share/metainfo/ru.arabianq.pwsp.metainfo.xml
     sources:
       - type: dir
-        path: .
+        path: ../../

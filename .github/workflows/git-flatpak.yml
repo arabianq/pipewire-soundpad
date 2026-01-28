@@ -24,3 +24,4 @@ jobs:
                   manifest-path: packages/flatpak/ru.arabianq.pwsp.yaml
                   cache: true
                   branch: master
+                  build-bundle: true
