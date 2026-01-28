@@ -110,12 +110,18 @@ impl SoundpadGui {
 
     pub fn open_dir(&mut self, path: &PathBuf) {
         self.app_state.current_dir = Some(path.clone());
-        self.app_state.files = path
-            .read_dir()
-            .unwrap()
-            .filter_map(|res| res.ok())
-            .map(|entry| entry.path())
-            .collect();
+        match path.read_dir() {
+            Ok(read_dir) => {
+                self.app_state.files = read_dir
+                    .filter_map(|res| res.ok())
+                    .map(|entry| entry.path())
+                    .collect();
+            }
+            Err(e) => {
+                eprintln!("Failed to read directory {:?}: {}", path, e);
+                self.app_state.files.clear();
+            }
+        }
     }
 
     pub fn play_file(&mut self, path: &PathBuf, concurrent: bool) {
