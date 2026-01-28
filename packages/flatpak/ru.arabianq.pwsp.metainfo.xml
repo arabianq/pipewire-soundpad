@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+    <id>ru.arabianq.pwsp</id>
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>MIT</project_license>
+    <name>PWSP</name>
+    <summary>Play audio files through your microphone using PipeWire</summary>
+    <description>
+        <p>
+            PWSP (PipeWire Soundpad) is a tool that allows you to play audio files through your
+            microphone.
+            It features both a graphical user interface and a command-line interface.
+        </p>
+    </description>
+    <launchable type="desktop-id">ru.arabianq.pwsp.desktop</launchable>
+    <screenshots>
+        <screenshot type="default">
+            <image>
+                https://raw.githubusercontent.com/arabianq/pipewire-soundpad/master/assets/screenshot.png</image>
+        </screenshot>
+    </screenshots>
+    <url type="homepage">https://pwsp.arabianq.ru</url>
+    <developer_name>arabian</developer_name>
+    <content_rating type="oars-1.1" />
+</component>

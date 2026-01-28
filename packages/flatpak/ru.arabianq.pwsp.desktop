@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=PWSP (Soundpad)
+Comment=Let's you play audio files through you microphone
+Exec=pwsp-wrapper.sh %u
+Icon=ru.arabianq.pwsp
+Terminal=false
+Type=Application
+Categories=Audio;Utility;
+Keywords=soundpad;pipewire;audio;

@@ -1,0 +1,53 @@
+app-id: ru.arabianq.pwsp
+runtime: org.freedesktop.Platform
+runtime-version: "24.08"
+sdk: org.freedesktop.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.rust-stable
+  - org.freedesktop.Sdk.Extension.llvm20
+command: pwsp-wrapper.sh
+finish-args:
+  - --share=ipc
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --socket=pulseaudio
+  - --filesystem=xdg-run/pipewire-0
+  - --filesystem=xdg-run/pwsp:create
+  - --filesystem=xdg-run/app/ru.arabianq.pwsp:create
+  - --filesystem=host
+  - --device=all
+  - --device=dri
+  - --share=network
+  - --talk-name=org.freedesktop.portal.Desktop
+  - --talk-name=org.freedesktop.portal.Documents
+
+build-options:
+  append-path: /usr/lib/sdk/rust-stable/bin:/usr/lib/sdk/llvm20/bin
+  env:
+    CARGO_HOME: /run/build/pwsp/cargo
+    LIBCLANG_PATH: /usr/lib/sdk/llvm20/lib
+
+modules:
+  - name: pwsp
+    buildsystem: simple
+    build-options:
+      build-args:
+        - --share=network
+    build-commands:
+      - cargo build --release
+      - install -Dm755 target/release/pwsp-daemon /app/bin/pwsp-daemon
+      - install -Dm755 target/release/pwsp-cli /app/bin/pwsp-cli
+      - install -Dm755 target/release/pwsp-gui /app/bin/pwsp-gui
+      - install -Dm755 pwsp-wrapper.sh /app/bin/pwsp-wrapper.sh
+      - install -Dm644 assets/icon.png /app/share/icons/hicolor/256x256/apps/ru.arabianq.pwsp.png
+      - install -Dm644 ru.arabianq.pwsp.desktop /app/share/applications/ru.arabianq.pwsp.desktop
+      - install -Dm644 ru.arabianq.pwsp.metainfo.xml /app/share/metainfo/ru.arabianq.pwsp.metainfo.xml
+    sources:
+      - type: dir
+        path: ../../
+      - type: file
+        path: pwsp-wrapper.sh
+      - type: file
+        path: ru.arabianq.pwsp.desktop
+      - type: file
+        path: ru.arabianq.pwsp.metainfo.xml
