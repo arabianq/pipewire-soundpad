@@ -1,0 +1,28 @@
+name: Flatpak CI
+
+on:
+    push:
+        branches: [main, master]
+    pull_request:
+        branches: [main, master]
+    workflow_dispatch:
+
+jobs:
+    flatpak-build:
+        runs-on: ubuntu-latest
+        container:
+            image: bilelmoussaoui/flatpak-github-actions:freedesktop-24.08
+            options: --privileged
+
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: recursive
+
+            - name: Build Flatpak
+              uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+              with:
+                  bundle: ru.arabianq.pwsp.flatpak
+                  manifest-path: packages/flatpak/ru.arabianq.pwsp.yaml
+                  cache: true
+                  branch: master

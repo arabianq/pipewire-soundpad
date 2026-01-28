@@ -1,0 +1,72 @@
+name: Release Flatpak
+
+permissions:
+    contents: write
+
+on:
+    release:
+        types: [created]
+    workflow_dispatch:
+        inputs:
+            tag:
+                description: "Tag to attach assets to (e.g. v1.0.0)"
+                required: false
+
+jobs:
+    flatpak-release:
+        runs-on: ubuntu-latest
+        container:
+            image: bilelmoussaoui/flatpak-github-actions:freedesktop-24.08
+            options: --privileged
+
+        steps:
+            - name: Determine tag to use
+              id: tag
+              run: |
+                  set -euo pipefail
+
+                  INPUT_TAG="${{ github.event.inputs.tag || '' }}"
+                  if [ -n "$INPUT_TAG" ]; then
+                    echo "tag=$INPUT_TAG" >> $GITHUB_OUTPUT
+                    exit 0
+                  fi
+
+                  EVENT_TAG="${{ github.event.release.tag_name || '' }}"
+                  if [ -n "$EVENT_TAG" ]; then
+                    echo "tag=$EVENT_TAG" >> $GITHUB_OUTPUT
+                    exit 0
+                  fi
+
+                  if [[ "${GITHUB_REF:-}" =~ ^refs/tags/(.+)$ ]]; then
+                    echo "tag=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
+                    exit 0
+                  fi
+
+                  echo "No tag found"
+                  echo "tag=" >> $GITHUB_OUTPUT
+
+            - name: Fail if no tag determined
+              if: ${{ steps.tag.outputs.tag == '' }}
+              run: |
+                  echo "ERROR: No tag determined."
+                  exit 1
+
+            - uses: actions/checkout@v4
+              with:
+                  ref: ${{ steps.tag.outputs.tag }}
+                  submodules: recursive
+
+            - name: Build Flatpak
+              uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+              with:
+                  bundle: ru.arabianq.pwsp.flatpak
+                  manifest-path: packages/flatpak/ru.arabianq.pwsp.yaml
+                  cache: true
+                  branch: master
+
+            - name: Upload Flatpak to release
+              uses: softprops/action-gh-release@v2
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  tag_name: ${{ steps.tag.outputs.tag }}
+                  files: ru.arabianq.pwsp.flatpak
