@@ -76,7 +76,7 @@ sudo dnf install pwsp
 There is pwsp package in AUR.
 You can install it using yay, paru or any other AUR helper.
 ```bash
-paru pwsp
+paru pwsp-bin # or paru pwsp to build it locally
 ```
 
 ## **Installing using cargo**
