@@ -24,6 +24,9 @@ chats on platforms like **Discord, Zoom, or Teamspeak**.
     * **Position slider** to fast-forward or rewind the audio.
 * **Persistent Configuration**: The list of added directories and your selected audio output device are saved
   automatically, so you won't need to reconfigure them every time you launch the application.
+* **Collapsible Audio Tracks**: You can collapse every audio track to save space.
+* **Drag and Drop Directories**: Reorder your sound directories easily using drag and drop.
+* **Automatic Device Detection**: PWSP automatically detects when an input device is connected or disconnected and handles linking/unlinking.
 
 # **⚙️ How It Works**
 
@@ -179,7 +182,6 @@ pwsp-cli --help
 
 | Key                      | Action                                               |
 | :----------------------- | :--------------------------------------------------- |
-| **Esc**                  | Close application                                    |
 | **Space**                | Pause / Resume audio                                 |
 | **Backspace**            | Stop all audio tracks                                |
 | **Enter**                | Play selected file (stops all other tracks)          |
