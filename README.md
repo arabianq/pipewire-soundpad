@@ -208,3 +208,6 @@ a [pull request](https://github.com/arabianq/pipewire-soundpad/pulls).
 
 This project is licensed under
 the [MIT License](https://github.com/arabianq/pipewire-soundpad/blob/main/LICENSE).
+
+# **🤖 AI Wiki**
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/arabianq/pipewire-soundpad)
