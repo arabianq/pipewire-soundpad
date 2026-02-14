@@ -4,7 +4,7 @@ use egui::{
     Layout, RichText, ScrollArea, Sense, Slider, TextEdit, Ui, Vec2,
 };
 use egui_dnd::dnd;
-use egui_material_icons::icons;
+use egui_material_icons::icons::*;
 use pwsp::types::{audio_player::TrackInfo, gui::AppState};
 use pwsp::utils::gui::format_time_pair;
 use std::{error::Error, time::Instant};
@@ -19,13 +19,13 @@ enum TrackAction {
 impl SoundpadGui {
     fn get_volume_icon(volume: f32) -> &'static str {
         if volume > 0.7 {
-            icons::ICON_VOLUME_UP
+            ICON_VOLUME_UP
         } else if volume <= 0.0 {
-            icons::ICON_VOLUME_OFF
+            ICON_VOLUME_OFF
         } else if volume < 0.3 {
-            icons::ICON_VOLUME_MUTE
+            ICON_VOLUME_MUTE
         } else {
-            icons::ICON_VOLUME_DOWN
+            ICON_VOLUME_DOWN
         }
     }
 
@@ -44,7 +44,7 @@ impl SoundpadGui {
             ui.spacing_mut().item_spacing.y = 5.0;
             // --------- Back Button and Title ----------
             ui.horizontal_top(|ui| {
-                let back_button = Button::new(icons::ICON_ARROW_BACK).frame(false);
+                let back_button = Button::new(ICON_ARROW_BACK).frame(false);
                 let back_button_response = ui.add(back_button);
                 if back_button_response.clicked() {
                     self.app_state.show_settings = false;
@@ -167,9 +167,9 @@ impl SoundpadGui {
         ui.horizontal_top(|ui| {
             // ---------- Play Button ----------
             let play_button = Button::new(if track.paused {
-                icons::ICON_PLAY_ARROW
+                ICON_PLAY_ARROW
             } else {
-                icons::ICON_PAUSE
+                ICON_PAUSE
             })
             .corner_radius(15.0);
 
@@ -186,9 +186,9 @@ impl SoundpadGui {
             // ---------- Loop Button ----------
             let loop_button = Button::new(
                 RichText::new(if track.looped {
-                    icons::ICON_REPEAT_ONE
+                    ICON_REPEAT_ONE
                 } else {
-                    icons::ICON_REPEAT
+                    ICON_REPEAT
                 })
                 .size(18.0),
             )
@@ -246,7 +246,7 @@ impl SoundpadGui {
             // --------------------------------
 
             // ---------- Stop Button ---------
-            let stop_button = Button::new(icons::ICON_CLOSE).frame(false);
+            let stop_button = Button::new(ICON_CLOSE).frame(false);
             let stop_button_response = ui.add_sized([30.0, 30.0], stop_button);
             if stop_button_response.clicked() {
                 action = Some(TrackAction::Stop(track.id));
@@ -309,7 +309,7 @@ impl SoundpadGui {
                     let path = item.clone();
                     ui.horizontal(|ui| {
                         handle.ui(ui, |ui| {
-                            ui.label(icons::ICON_DRAG_INDICATOR);
+                            ui.label(ICON_DRAG_INDICATOR);
                         });
                         let name = path
                             .file_name()
@@ -331,7 +331,7 @@ impl SoundpadGui {
                             self.open_dir(&path);
                         }
 
-                        let delete_dir_button = Button::new(icons::ICON_DELETE).frame(false);
+                        let delete_dir_button = Button::new(ICON_DELETE).frame(false);
                         let delete_dir_button_response =
                             ui.add_sized([18.0, 18.0], delete_dir_button);
                         if delete_dir_button_response.clicked() {
@@ -341,7 +341,7 @@ impl SoundpadGui {
                         // Context menu
                         dir_button_response.context_menu(|ui| {
                             if ui
-                                .button(format!("{} {}", icons::ICON_OPEN_IN_NEW, "Show"))
+                                .button(format!("{} {}", ICON_OPEN_IN_NEW, "Show"))
                                 .clicked()
                             {
                                 self.open_dir(&path);
@@ -350,8 +350,7 @@ impl SoundpadGui {
                             if ui
                                 .button(format!(
                                     "{} {}",
-                                    icons::ICON_OPEN_IN_BROWSER,
-                                    "Open in File Manager"
+                                    ICON_OPEN_IN_BROWSER, "Open in File Manager"
                                 ))
                                 .clicked()
                             {
@@ -362,10 +361,7 @@ impl SoundpadGui {
 
                             ui.separator();
 
-                            if ui
-                                .button(format!("{} {}", icons::ICON_DELETE, "Remove"))
-                                .clicked()
-                            {
+                            if ui.button(format!("{} {}", ICON_DELETE, "Remove")).clicked() {
                                 self.app_state.dirs_to_remove.insert(path.clone());
                             }
                         });
@@ -374,7 +370,7 @@ impl SoundpadGui {
                 self.app_state.dirs = dirs;
 
                 ui.horizontal(|ui| {
-                    let add_dirs_button = Button::new(icons::ICON_ADD).frame(false);
+                    let add_dirs_button = Button::new(ICON_ADD).frame(false);
                     let add_dirs_button_response = ui.add_sized([18.0, 18.0], add_dirs_button);
                     if add_dirs_button_response.clicked() {
                         self.add_dirs();
@@ -452,23 +448,20 @@ impl SoundpadGui {
                         // Context menu
                         file_button_response.context_menu(|ui| {
                             if ui
-                                .button(format!("{} {}", icons::ICON_BOLT, "Play Solo"))
+                                .button(format!("{} {}", ICON_BOLT, "Play Solo"))
                                 .clicked()
                             {
                                 self.play_file(&entry_path, false);
                                 self.app_state.selected_file = Some(entry_path.clone());
                             }
 
-                            if ui
-                                .button(format!("{} {}", icons::ICON_ADD, "Add New"))
-                                .clicked()
-                            {
+                            if ui.button(format!("{} {}", ICON_ADD, "Add New")).clicked() {
                                 self.play_file(&entry_path, true);
                                 self.app_state.selected_file = Some(entry_path.clone());
                             }
 
                             if ui
-                                .button(format!("{} {}", icons::ICON_SWAP_HORIZ, "Replace Last"))
+                                .button(format!("{} {}", ICON_SWAP_HORIZ, "Replace Last"))
                                 .clicked()
                                 && let Some(last_track) = self.audio_player_state.tracks.last()
                             {
@@ -482,8 +475,7 @@ impl SoundpadGui {
                             if ui
                                 .button(format!(
                                     "{} {}",
-                                    icons::ICON_OPEN_IN_BROWSER,
-                                    "Show in File Manager"
+                                    ICON_OPEN_IN_BROWSER, "Show in File Manager"
                                 ))
                                 .clicked()
                             {
@@ -560,7 +552,7 @@ impl SoundpadGui {
 
             // ---------- Settings button ----------
             let settings_button =
-                Button::new(icons::ICON_SETTINGS.atom_size(Vec2::new(18.0, 18.0))).frame(false);
+                Button::new(ICON_SETTINGS.atom_size(Vec2::new(18.0, 18.0))).frame(false);
             let settings_button_response = ui.add_sized([18.0, 18.0], settings_button);
             if settings_button_response.clicked() {
                 self.app_state.show_settings = true;
