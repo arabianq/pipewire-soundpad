@@ -5,11 +5,9 @@ use egui::{
 };
 use egui_dnd::dnd;
 use egui_material_icons::icons;
-use pwsp::types::audio_player::TrackInfo;
+use pwsp::types::{audio_player::TrackInfo, gui::AppState};
 use pwsp::utils::gui::format_time_pair;
 use std::{error::Error, time::Instant};
-
-use pwsp::types::gui::AppState;
 
 enum TrackAction {
     Pause(u32),
@@ -343,10 +341,23 @@ impl SoundpadGui {
                         // Context menu
                         dir_button_response.context_menu(|ui| {
                             if ui
-                                .button(format!("{} {}", icons::ICON_OPEN_IN_NEW, "Open"))
+                                .button(format!("{} {}", icons::ICON_OPEN_IN_NEW, "Show"))
                                 .clicked()
                             {
                                 self.open_dir(&path);
+                            }
+
+                            if ui
+                                .button(format!(
+                                    "{} {}",
+                                    icons::ICON_OPEN_IN_BROWSER,
+                                    "Open in File Manager"
+                                ))
+                                .clicked()
+                            {
+                                if let Err(e) = opener::open(&path) {
+                                    eprintln!("Failed to open file manager: {}", e);
+                                }
                             }
 
                             ui.separator();
@@ -464,6 +475,21 @@ impl SoundpadGui {
                                 self.stop(Some(last_track.id));
                                 self.play_file(&entry_path, true);
                                 self.app_state.selected_file = Some(entry_path.clone());
+                            }
+
+                            ui.separator();
+
+                            if ui
+                                .button(format!(
+                                    "{} {}",
+                                    icons::ICON_OPEN_IN_BROWSER,
+                                    "Show in File Manager"
+                                ))
+                                .clicked()
+                            {
+                                if let Err(e) = opener::reveal(&entry_path) {
+                                    eprintln!("Failed to open file manager: {}", e);
+                                }
                             }
                         });
                     }
