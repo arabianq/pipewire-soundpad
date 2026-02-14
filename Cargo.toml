@@ -18,17 +18,37 @@ async-trait = "0.1.89"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.149"
 
-clap = { version = "4.5.58", default-features = false, features = ["std", "suggestions", "help", "usage", "error-context", "derive"] }
+clap = { version = "4.5.58", default-features = false, features = [
+    "std",
+    "suggestions",
+    "help",
+    "usage",
+    "error-context",
+    "derive",
+] }
 dirs = "6.0.0"
 itertools = "0.14.0"
 
-rodio = { version = "0.21.1", default-features = false, features = ["symphonia-all", "playback"] }
+rodio = { version = "0.21.1", default-features = false, features = [
+    "symphonia-all",
+    "playback",
+] }
 pipewire = "0.9.2"
-rfd = { version = "0.17.2", default-features = false, features = ["xdg-portal"]}
+rfd = { version = "0.17.2", default-features = false, features = [
+    "xdg-portal",
+] }
 opener = { version = "0.8.4", features = ["reveal"] }
 
-egui = { version = "0.33.3", default-features = false, features = ["default_fonts", "rayon"] }
-eframe = { version = "0.33.3", default-features = false, features = ["default_fonts", "glow", "x11", "wayland"] }
+egui = { version = "0.33.3", default-features = false, features = [
+    "default_fonts",
+    "rayon",
+] }
+eframe = { version = "0.33.3", default-features = false, features = [
+    "default_fonts",
+    "glow",
+    "x11",
+    "wayland",
+] }
 egui_material_icons = "0.5.0"
 egui_dnd = "0.14.0"
 
@@ -53,10 +73,34 @@ panic = "abort"
 
 [package.metadata.deb]
 assets = [
-    ["target/release/pwsp-daemon", "usr/bin/", "755"],
-    ["target/release/pwsp-cli", "usr/bin/", "755"],
-    ["target/release/pwsp-gui", "usr/bin/", "755"],
-    ["assets/pwsp-gui.desktop", "usr/share/applications/pwsp.desktop", "644"],
-    ["assets/icon.png", "usr/share/icons/hicolor/256x256/apps/pwsp.png", "644"],
-    ["assets/pwsp-daemon.service", "usr/lib/systemd/user/pwsp-daemon.service", "644"],
+    [
+        "target/release/pwsp-daemon",
+        "usr/bin/",
+        "755",
+    ],
+    [
+        "target/release/pwsp-cli",
+        "usr/bin/",
+        "755",
+    ],
+    [
+        "target/release/pwsp-gui",
+        "usr/bin/",
+        "755",
+    ],
+    [
+        "assets/pwsp-gui.desktop",
+        "usr/share/applications/pwsp.desktop",
+        "644",
+    ],
+    [
+        "assets/icon.png",
+        "usr/share/icons/hicolor/256x256/apps/pwsp.png",
+        "644",
+    ],
+    [
+        "assets/pwsp-daemon.service",
+        "usr/lib/systemd/user/pwsp-daemon.service",
+        "644",
+    ],
 ]
