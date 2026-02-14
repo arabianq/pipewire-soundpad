@@ -339,6 +339,25 @@ impl SoundpadGui {
                         if delete_dir_button_response.clicked() {
                             self.app_state.dirs_to_remove.insert(path.clone());
                         }
+
+                        // Context menu
+                        dir_button_response.context_menu(|ui| {
+                            if ui
+                                .button(format!("{} {}", icons::ICON_OPEN_IN_NEW, "Open"))
+                                .clicked()
+                            {
+                                self.open_dir(&path);
+                            }
+
+                            ui.separator();
+
+                            if ui
+                                .button(format!("{} {}", icons::ICON_DELETE, "Remove"))
+                                .clicked()
+                            {
+                                self.app_state.dirs_to_remove.insert(path.clone());
+                            }
+                        });
                     });
                 });
                 self.app_state.dirs = dirs;
@@ -416,8 +435,37 @@ impl SoundpadGui {
                                     self.play_file(&entry_path, false);
                                 }
                             });
-                            self.app_state.selected_file = Some(entry_path);
+                            self.app_state.selected_file = Some(entry_path.clone());
                         }
+
+                        // Context menu
+                        file_button_response.context_menu(|ui| {
+                            if ui
+                                .button(format!("{} {}", icons::ICON_BOLT, "Play Solo"))
+                                .clicked()
+                            {
+                                self.play_file(&entry_path, false);
+                                self.app_state.selected_file = Some(entry_path.clone());
+                            }
+
+                            if ui
+                                .button(format!("{} {}", icons::ICON_ADD, "Add New"))
+                                .clicked()
+                            {
+                                self.play_file(&entry_path, true);
+                                self.app_state.selected_file = Some(entry_path.clone());
+                            }
+
+                            if ui
+                                .button(format!("{} {}", icons::ICON_SWAP_HORIZ, "Replace Last"))
+                                .clicked()
+                                && let Some(last_track) = self.audio_player_state.tracks.last()
+                            {
+                                self.stop(Some(last_track.id));
+                                self.play_file(&entry_path, true);
+                                self.app_state.selected_file = Some(entry_path.clone());
+                            }
+                        });
                     }
                 });
             });
