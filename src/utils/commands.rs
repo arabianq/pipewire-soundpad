@@ -69,6 +69,7 @@ pub fn parse_command(request: &Request) -> Option<Box<dyn Executable + Send>> {
             Some(Box::new(SetLoopCommand { enabled, id }))
         }
         "toggle_loop" => Some(Box::new(ToggleLoopCommand { id })),
+        "get_daemon_version" => Some(Box::new(GetDaemonVersionCommand {})),
         "get_full_state" => Some(Box::new(GetFullStateCommand {})),
         _ => None,
     }

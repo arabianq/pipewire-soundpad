@@ -92,6 +92,8 @@ enum GetCommands {
     Input,
     /// All audio inputs
     Inputs,
+    /// Version of the daemon
+    DaemonVersion,
     /// Full player state
     FullState,
 }
@@ -148,6 +150,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             GetCommands::Tracks => Request::get_tracks(),
             GetCommands::Input => Request::get_input(),
             GetCommands::Inputs => Request::get_inputs(),
+            GetCommands::DaemonVersion => Request::get_daemon_version(),
             GetCommands::FullState => Request::get_full_state(),
         },
         Commands::Set { parameter } => match parameter {

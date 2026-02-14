@@ -82,6 +82,8 @@ pub struct ToggleLoopCommand {
     pub id: Option<u32>,
 }
 
+pub struct GetDaemonVersionCommand {}
+
 pub struct GetFullStateCommand {}
 
 #[async_trait]
@@ -348,6 +350,13 @@ impl Executable for ToggleLoopCommand {
 }
 
 #[async_trait]
+impl Executable for GetDaemonVersionCommand {
+    async fn execute(&self) -> Response {
+        Response::new(true, env!("CARGO_PKG_VERSION"))
+    }
+}
+
+#[async_trait]
 impl Executable for GetFullStateCommand {
     async fn execute(&self) -> Response {
         let (input_devices, _output_devices) = get_all_devices().await.unwrap();
@@ -374,7 +383,7 @@ impl Executable for GetFullStateCommand {
             tracks: audio_player.get_tracks(),
             volume: audio_player.volume,
             current_input: current_input_nick,
-            all_inputs,
+            all_inputs: all_inputs,
         };
 
         Response::new(true, serde_json::to_string(&full_state).unwrap())
