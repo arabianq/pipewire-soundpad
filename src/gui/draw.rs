@@ -81,6 +81,10 @@ impl SoundpadGui {
                 self.config.save_to_file().ok();
             }
             // --------------------------------
+
+            ui.with_layout(Layout::bottom_up(Align::Min), |ui| {
+                ui.label(format!("GUI version: {}", env!("CARGO_PKG_VERSION")));
+            });
         });
     }
 
