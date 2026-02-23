@@ -35,6 +35,8 @@ enum Commands {
 enum Actions {
     /// Ping the daemon
     Ping,
+    /// Kill the daemon
+    Kill,
     /// Pause audio playback
     Pause {
         #[clap(short, long)]
@@ -131,6 +133,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let request = match cli.command {
         Commands::Action { action } => match action {
             Actions::Ping => Request::ping(),
+            Actions::Kill => Request::kill(),
             Actions::Pause { id } => Request::pause(id),
             Actions::Resume { id } => Request::resume(id),
             Actions::TogglePause { id } => Request::toggle_pause(id),

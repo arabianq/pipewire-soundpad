@@ -111,6 +111,10 @@ async fn commands_loop(listener: UnixListener) -> Result<(), Box<dyn Error>> {
                 return;
             }
             // ---------- Send response (end) ----------
+
+            if response.status && response.message.eq("killed") {
+                std::process::exit(0);
+            }
         });
     }
 }

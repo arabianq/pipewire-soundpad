@@ -24,6 +24,10 @@ impl Request {
         Request::new("ping", vec![])
     }
 
+    pub fn kill() -> Self {
+        Request::new("kill", vec![])
+    }
+
     pub fn pause(id: Option<u32>) -> Self {
         let mut args = vec![];
         let id_str;

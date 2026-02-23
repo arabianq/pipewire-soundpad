@@ -18,6 +18,8 @@ pub trait Executable {
 
 pub struct PingCommand {}
 
+pub struct KillCommand {}
+
 pub struct PauseCommand {
     pub id: Option<u32>,
 }
@@ -90,6 +92,13 @@ pub struct GetFullStateCommand {}
 impl Executable for PingCommand {
     async fn execute(&self) -> Response {
         Response::new(true, "pong")
+    }
+}
+
+#[async_trait]
+impl Executable for KillCommand {
+    async fn execute(&self) -> Response {
+        Response::new(true, "killed")
     }
 }
 
