@@ -7,8 +7,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         prog="PWSP Flatpak",
         add_help=True,
-        exit_on_error=True,
-        color=True
+        exit_on_error=True
     )
     subparsers = parser.add_subparsers(dest="command")
 
