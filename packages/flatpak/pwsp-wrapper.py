@@ -32,4 +32,4 @@ if __name__ == "__main__":
             if args.start:
                 subprocess.Popen("pwsp-daemon")
             elif args.kill:
-                subprocess.Popen(["killall", "pwsp-daemon"])
+                subprocess.Popen(["pkill", "f", "pwsp-daemon"])
