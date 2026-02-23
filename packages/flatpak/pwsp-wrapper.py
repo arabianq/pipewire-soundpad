@@ -8,7 +8,6 @@ if __name__ == "__main__":
         prog="PWSP Flatpak",
         add_help=True,
         exit_on_error=True,
-        suggest_on_error=True,
         color=True
     )
     subparsers = parser.add_subparsers(dest="command")
