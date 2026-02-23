@@ -5,7 +5,7 @@ use crate::{
         pipewire::{create_link, get_device},
     },
 };
-use rodio::{Decoder, OutputStream, OutputStreamBuilder, Sink, Source};
+use rodio::{Decoder, DeviceSinkBuilder, MixerDeviceSink, Player, Source};
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
@@ -45,7 +45,7 @@ pub struct FullState {
 
 pub struct PlayingSound {
     pub id: u32,
-    pub sink: Sink,
+    pub sink: Player,
     pub path: PathBuf,
     pub duration: Option<f32>,
     pub looped: bool,
@@ -53,7 +53,7 @@ pub struct PlayingSound {
 }
 
 pub struct AudioPlayer {
-    pub stream_handle: OutputStream,
+    pub stream_handle: MixerDeviceSink,
     pub tracks: HashMap<u32, PlayingSound>,
     pub next_id: u32,
 
@@ -68,7 +68,7 @@ impl AudioPlayer {
         let daemon_config = get_daemon_config();
         let default_volume = daemon_config.default_volume.unwrap_or(1.0);
 
-        let stream_handle = OutputStreamBuilder::open_default_stream()?;
+        let stream_handle = DeviceSinkBuilder::open_default_sink()?;
 
         let mut audio_player = AudioPlayer {
             stream_handle,
@@ -282,7 +282,7 @@ impl AudioPlayer {
 
                 let duration = source.total_duration().map(|d| d.as_secs_f32());
 
-                let sink = Sink::connect_new(self.stream_handle.mixer());
+                let sink = Player::connect_new(self.stream_handle.mixer());
                 sink.set_volume(self.volume); // Default volume is 1.0 * master
                 sink.append(source);
                 sink.play();
