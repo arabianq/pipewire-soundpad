@@ -1,5 +1,5 @@
 use crate::gui::SoundpadGui;
-use egui::{Context, Key, Modifiers};
+use egui::{Context, Id, Key, Modifiers};
 
 use std::path::PathBuf;
 
@@ -12,22 +12,36 @@ impl SoundpadGui {
         ctx.input(|i| i.modifiers)
     }
 
+    fn get_focused(&self, ctx: &Context) -> Option<Id> {
+        ctx.memory(|m| m.focused())
+    }
+
     pub fn handle_input(&mut self, ctx: &Context) {
         let modifiers = self.modifiers(ctx);
+        let is_search_focused = {
+            if let Some(focused_id) = self.get_focused(ctx)
+                && let Some(search_id) = self.app_state.search_field_id
+                && focused_id.eq(&search_id)
+            {
+                true
+            } else {
+                false
+            }
+        };
 
         // Open/close settings
-        if self.key_pressed(ctx, Key::I) {
+        if !is_search_focused && self.key_pressed(ctx, Key::I) {
             self.app_state.show_settings = !self.app_state.show_settings;
         }
 
         if !self.app_state.show_settings {
             // Pause / resume audio on space
-            if self.key_pressed(ctx, Key::Space) {
+            if !is_search_focused && self.key_pressed(ctx, Key::Space) {
                 self.play_toggle();
             }
 
             // Stop all audio tracks on backspace
-            if self.key_pressed(ctx, Key::Backspace) {
+            if !is_search_focused && self.key_pressed(ctx, Key::Backspace) {
                 self.stop(None);
             }
 
