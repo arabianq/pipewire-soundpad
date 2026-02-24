@@ -47,7 +47,13 @@ impl SoundpadGui {
 
             // Focus search field
             if self.key_pressed(ctx, Key::Slash) {
-                self.app_state.force_focus_search = true;
+                if search_focused {
+                    ctx.memory_mut(|m| {
+                        m.request_focus(Id::NULL);
+                    });
+                } else {
+                    self.app_state.force_focus_search = true;
+                }
             }
 
             // Play selected file on Enter
