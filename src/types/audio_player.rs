@@ -208,6 +208,18 @@ impl AudioPlayer {
         PlayerState::Stopped
     }
 
+    pub fn get_volume(&mut self, id: Option<u32>) -> Option<f32> {
+        if let Some(id) = id {
+            if let Some(sound) = self.tracks.get_mut(&id) {
+                return Some(sound.sink.volume());
+            } else {
+                return None;
+            }
+        } else {
+            return Some(self.volume);
+        }
+    }
+
     pub fn set_volume(&mut self, volume: f32, id: Option<u32>) {
         if let Some(id) = id {
             if let Some(sound) = self.tracks.get_mut(&id) {

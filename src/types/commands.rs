@@ -40,7 +40,9 @@ pub struct IsPausedCommand {}
 
 pub struct GetStateCommand {}
 
-pub struct GetVolumeCommand {}
+pub struct GetVolumeCommand {
+    pub id: Option<u32>,
+}
 
 pub struct SetVolumeCommand {
     pub volume: Option<f32>,
@@ -188,9 +190,14 @@ impl Executable for GetStateCommand {
 #[async_trait]
 impl Executable for GetVolumeCommand {
     async fn execute(&self) -> Response {
-        let audio_player = get_audio_player().await.lock().await;
-        let volume = audio_player.volume;
+        let mut audio_player = get_audio_player().await.lock().await;
+        let volume = audio_player.get_volume(self.id);
+
+        if let Some(volume) = volume {
         Response::new(true, volume.to_string())
+        } else {
+            Response::new(false, "Failed to get volume")
+        }
     }
 }
 

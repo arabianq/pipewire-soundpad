@@ -75,7 +75,10 @@ enum GetCommands {
     /// Check if the player is paused
     IsPaused,
     /// Playback volume
-    Volume,
+    Volume {
+        #[clap(short, long)]
+        id: Option<u32>,
+    },
     /// Playback position (in seconds)
     Position {
         #[clap(short, long)]
@@ -146,7 +149,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         },
         Commands::Get { parameter } => match parameter {
             GetCommands::IsPaused => Request::get_is_paused(),
-            GetCommands::Volume => Request::get_volume(),
+            GetCommands::Volume { id } => Request::get_volume(id),
             GetCommands::Position { id } => Request::get_position(id),
             GetCommands::Duration { id } => Request::get_duration(id),
             GetCommands::State => Request::get_state(),

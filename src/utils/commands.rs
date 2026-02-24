@@ -14,7 +14,7 @@ pub fn parse_command(request: &Request) -> Option<Box<dyn Executable + Send>> {
         "stop" => Some(Box::new(StopCommand { id })),
         "is_paused" => Some(Box::new(IsPausedCommand {})),
         "get_state" => Some(Box::new(GetStateCommand {})),
-        "get_volume" => Some(Box::new(GetVolumeCommand {})),
+        "get_volume" => Some(Box::new(GetVolumeCommand { id })),
         "set_volume" => {
             let volume = request
                 .args

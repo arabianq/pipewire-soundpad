@@ -82,8 +82,14 @@ impl Request {
         Request::new("is_paused", vec![])
     }
 
-    pub fn get_volume() -> Self {
-        Request::new("get_volume", vec![])
+    pub fn get_volume(id: Option<u32>) -> Self {
+        let mut args = vec![];
+        let id_str;
+        if let Some(id) = id {
+            id_str = id.to_string();
+            args.push(("id", id_str.as_str()));
+        }
+        Request::new("get_volume", args)
     }
 
     pub fn get_position(id: Option<u32>) -> Self {
