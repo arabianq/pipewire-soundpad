@@ -183,7 +183,10 @@ impl Executable for GetStateCommand {
     async fn execute(&self) -> Response {
         let audio_player = get_audio_player().await.lock().await;
         let state = audio_player.get_state();
-        Response::new(true, serde_json::to_string(&state).unwrap())
+        match serde_json::to_string(&state) {
+            Ok(json) => Response::new(true, json),
+            Err(err) => Response::new(false, format!("Failed to serialize state: {}", err)),
+        }
     }
 }
 
@@ -272,7 +275,10 @@ impl Executable for GetTracksCommand {
     async fn execute(&self) -> Response {
         let audio_player = get_audio_player().await.lock().await;
         let tracks = audio_player.get_tracks();
-        Response::new(true, serde_json::to_string(&tracks).unwrap())
+        match serde_json::to_string(&tracks) {
+            Ok(json) => Response::new(true, json),
+            Err(err) => Response::new(false, format!("Failed to serialize tracks: {}", err)),
+        }
     }
 }
 
@@ -298,7 +304,10 @@ impl Executable for GetCurrentInputCommand {
 #[async_trait]
 impl Executable for GetAllInputsCommand {
     async fn execute(&self) -> Response {
-        let (input_devices, _output_devices) = get_all_devices().await.unwrap();
+        let (input_devices, _output_devices) = match get_all_devices().await {
+            Ok(devices) => devices,
+            Err(err) => return Response::new(false, format!("Failed to get devices: {}", err)),
+        };
         let mut input_devices_strings = vec![];
         for device in input_devices {
             if device.name == "pwsp-virtual-mic" {
@@ -375,7 +384,10 @@ impl Executable for GetDaemonVersionCommand {
 #[async_trait]
 impl Executable for GetFullStateCommand {
     async fn execute(&self) -> Response {
-        let (input_devices, _output_devices) = get_all_devices().await.unwrap();
+        let (input_devices, _output_devices) = match get_all_devices().await {
+            Ok(devices) => devices,
+            Err(err) => return Response::new(false, format!("Failed to get devices: {}", err)),
+        };
         let mut all_inputs = HashMap::new();
         let mut current_input_nick = String::new();
 
@@ -399,9 +411,12 @@ impl Executable for GetFullStateCommand {
             tracks: audio_player.get_tracks(),
             volume: audio_player.volume,
             current_input: current_input_nick,
-            all_inputs: all_inputs,
+            all_inputs,
         };
 
-        Response::new(true, serde_json::to_string(&full_state).unwrap())
+        match serde_json::to_string(&full_state) {
+            Ok(json) => Response::new(true, json),
+            Err(err) => Response::new(false, format!("Failed to serialize full state: {}", err)),
+        }
     }
 }
