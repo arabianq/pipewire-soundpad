@@ -27,6 +27,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
     get_daemon_config(); // Initialize daemon config
     create_virtual_mic()?;
     get_audio_player().await; // Initialize audio player
+
+    let max_retries = 5;
+    for i in 0..=max_retries {
+        match link_player_to_virtual_mic().await {
+            Ok(_) => break,
+            Err(e) => println!("{e}\t{i}/{max_retries}"),
+        }
+
+        sleep(Duration::from_millis(300 * i)).await;
+    }
     link_player_to_virtual_mic().await?;
 
     let runtime_dir = get_runtime_dir();

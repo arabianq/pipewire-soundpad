@@ -39,16 +39,16 @@ pub async fn link_player_to_virtual_mic() -> Result<(), Box<dyn Error>> {
     if let Ok(device) = get_device("pwsp-daemon").await {
         pwsp_daemon_output = device;
     } else {
-        eprintln!("Could not find alsa_playback.pwsp-daemon device, skipping device linking");
-        return Ok(());
+        return Err(
+            "Could not find alsa_playback.pwsp-daemon device, skipping device linking".into(),
+        );
     }
 
     let pwsp_daemon_input;
     if let Ok(device) = get_device("pwsp-virtual-mic").await {
         pwsp_daemon_input = device;
     } else {
-        eprintln!("Could not find pwsp-virtual-mic device, skipping device linking");
-        return Ok(());
+        return Err("Could not find pwsp-virtual-mic device, skipping device linking".into());
     }
 
     let output_fl = pwsp_daemon_output
