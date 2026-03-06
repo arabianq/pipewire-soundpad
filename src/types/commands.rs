@@ -380,13 +380,14 @@ impl Executable for GetFullStateCommand {
         let mut current_input_nick = String::new();
 
         let audio_player = get_audio_player().await.lock().await;
+        let current_input_name = audio_player.input_device_name.as_deref();
         for device in input_devices {
             if device.name == "pwsp-virtual-mic" {
                 continue;
             }
 
-            if let Some(current_input_name) = &audio_player.input_device_name {
-                if device.name == *current_input_name {
+            if let Some(name) = current_input_name {
+                if device.name == name {
                     current_input_nick = format!("{} - {}", device.name, device.nick);
                 }
             }
