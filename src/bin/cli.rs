@@ -144,7 +144,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             Actions::Play {
                 file_path,
                 concurrent,
-            } => Request::play(file_path.to_str().unwrap(), concurrent),
+            } => Request::play(&file_path.to_string_lossy(), concurrent),
             Actions::ToggleLoop { id } => Request::toggle_loop(id),
         },
         Commands::Get { parameter } => match parameter {
