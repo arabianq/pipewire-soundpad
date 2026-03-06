@@ -1,4 +1,4 @@
-name: Git archive
+name: Build
 
 permissions:
   contents: write
@@ -7,10 +7,12 @@ permissions:
 on:
   push:
     branches: [main, master]
+  pull_request:
+    branches: [main, master]
   workflow_dispatch:
 
 jobs:
-  build-and-upload:
+  linux-build:
     runs-on: ubuntu-latest
 
     steps:
@@ -39,7 +41,6 @@ jobs:
           set -euo pipefail
           BIN_NAMES=$(cargo metadata --no-deps --format-version 1 \
             | jq -r '.packages[0].targets[] | select(.kind[] | contains("bin")) | .name')
-          # сохраним построчно в выход
           echo "bin_names<<EOF" >> $GITHUB_OUTPUT
           echo "$BIN_NAMES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -82,3 +83,37 @@ jobs:
           name: archive
           path: pwsp-*.zip
           retention-days: 7
+
+      - name: Install cargo-deb and create .deb
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo install --locked cargo-deb
+          export PATH="$HOME/.cargo/bin:$PATH"
+
+          cargo-deb
+
+      - name: Upload .deb(s) as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb-packages
+          path: target/debian/*.deb
+          retention-days: 7
+
+  flatpak-build:
+    runs-on: ubuntu-latest
+    container:
+      image: bilelmoussaoui/flatpak-github-actions:freedesktop-24.08
+      options: --privileged
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Flatpak
+        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: ru.arabianq.pwsp.flatpak
+          manifest-path: packages/flatpak/ru.arabianq.pwsp.yaml
+          cache: true
+          branch: master
+          build-bundle: true
