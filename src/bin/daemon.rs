@@ -95,7 +95,21 @@ async fn commands_loop(listener: UnixListener) -> Result<(), Box<dyn Error>> {
                 return;
             }
 
-            let request: Request = serde_json::from_slice(&buffer).unwrap();
+            let request: Request = match serde_json::from_slice(&buffer) {
+                Ok(req) => req,
+                Err(err) => {
+                    let response =
+                        Response::new(false, format!("Failed to parse request: {}", err));
+                    let response_data = match serde_json::to_vec(&response) {
+                        Ok(data) => data,
+                        Err(_) => return, // Should not happen with this simple Response
+                    };
+                    let response_len = response_data.len() as u32;
+                    let _ = stream.write_all(&response_len.to_le_bytes()).await;
+                    let _ = stream.write_all(&response_data).await;
+                    return;
+                }
+            };
             // ---------- Read request (end) ----------
 
             // ---------- Generate response (start) ----------
@@ -109,7 +123,13 @@ async fn commands_loop(listener: UnixListener) -> Result<(), Box<dyn Error>> {
             // ---------- Generate response (end) ----------
 
             // ---------- Send response (start) ----------
-            let response_data = serde_json::to_vec(&response).unwrap();
+            let response_data = match serde_json::to_vec(&response) {
+                Ok(data) => data,
+                Err(err) => {
+                    eprintln!("Failed to serialize response: {}", err);
+                    return;
+                }
+            };
             let response_len = response_data.len() as u32;
 
             if stream.write_all(&response_len.to_le_bytes()).await.is_err() {
