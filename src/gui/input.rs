@@ -80,29 +80,22 @@ impl SoundpadGui {
                     let mut dirs: Vec<PathBuf> = self.app_state.dirs.iter().cloned().collect();
                     dirs.sort();
 
-                    let current_dir_index: i8;
-                    if let Some(current_dir) = &self.app_state.current_dir {
-                        if let Some(index) = dirs.iter().position(|x| x == current_dir) {
-                            current_dir_index = index as i8;
-                        } else {
-                            current_dir_index = -1;
-                        }
-                    } else {
-                        current_dir_index = -1;
-                    }
+                    let current_dir_index = self
+                        .app_state
+                        .current_dir
+                        .as_ref()
+                        .and_then(|cd| dirs.iter().position(|x| x == cd));
 
-                    let mut new_dir_index: i8;
+                    let new_dir_index = match (current_dir_index, arrow_up_pressed, arrow_down_pressed) {
+                        (Some(i), true, false) => (i + dirs.len() - 1) % dirs.len(),
+                        (Some(i), false, true) => (i + 1) % dirs.len(),
+                        (Some(i), true, true) => i,
+                        (None, true, _) => dirs.len() - 1,
+                        (None, false, true) => 0,
+                        _ => return,
+                    };
 
-                    new_dir_index =
-                        current_dir_index - arrow_up_pressed as i8 + arrow_down_pressed as i8;
-
-                    if new_dir_index < 0 {
-                        new_dir_index = (dirs.len() - 1) as i8;
-                    } else if new_dir_index >= dirs.len() as i8 {
-                        new_dir_index = 0;
-                    }
-
-                    self.open_dir(&dirs[new_dir_index as usize]);
+                    self.open_dir(&dirs[new_dir_index]);
                 } else if self.app_state.current_dir.is_some() {
                     let files = self.get_filtered_files();
 
@@ -114,20 +107,18 @@ impl SoundpadGui {
                         .app_state
                         .selected_file
                         .as_ref()
-                        .and_then(|f| files.iter().position(|x| x == f))
-                        .map(|i| i as i64)
-                        .unwrap_or(-1);
+                        .and_then(|f| files.iter().position(|x| x == f));
 
-                    let mut new_files_index =
-                        current_files_index - arrow_up_pressed as i64 + arrow_down_pressed as i64;
+                    let new_files_index = match (current_files_index, arrow_up_pressed, arrow_down_pressed) {
+                        (Some(i), true, false) => (i + files.len() - 1) % files.len(),
+                        (Some(i), false, true) => (i + 1) % files.len(),
+                        (Some(i), true, true) => i,
+                        (None, true, _) => files.len() - 1,
+                        (None, false, true) => 0,
+                        _ => return,
+                    };
 
-                    if new_files_index < 0 {
-                        new_files_index = (files.len() - 1) as i64;
-                    } else if new_files_index >= files.len() as i64 {
-                        new_files_index = 0;
-                    }
-
-                    self.app_state.selected_file = Some(files[new_files_index as usize].clone());
+                    self.app_state.selected_file = Some(files[new_files_index].clone());
                 }
             }
         }
