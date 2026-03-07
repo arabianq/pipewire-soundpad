@@ -47,8 +47,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     lock_file.lock()?;
 
     let socket_path = runtime_dir.join("daemon.sock");
-    if fs::metadata(&socket_path).is_ok() {
-        fs::remove_file(&socket_path)?;
+    if let Err(e) = fs::remove_file(&socket_path) {
+        if e.kind() != std::io::ErrorKind::NotFound {
+            return Err(e.into());
+        }
     }
 
     let listener = UnixListener::bind(&socket_path)?;
