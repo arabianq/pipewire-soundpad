@@ -26,7 +26,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     get_daemon_config(); // Initialize daemon config
     create_virtual_mic()?;
-    get_audio_player().await; // Initialize audio player
+    if let Err(err) = get_audio_player().await {
+        eprintln!("Failed to initialize audio player: {}", err);
+    } // Initialize audio player
 
     let max_retries = 5;
     for i in 0..=max_retries {
@@ -156,9 +158,17 @@ async fn commands_loop(listener: UnixListener) -> Result<(), Box<dyn Error>> {
 
 async fn player_loop() {
     loop {
-        let mut audio_player = get_audio_player().await.lock().await;
-
-        audio_player.update().await;
+        match get_audio_player().await {
+            Ok(player_mutex) => {
+                let mut audio_player = player_mutex.lock().await;
+                audio_player.update().await;
+            }
+            Err(_err) => {
+                // To avoid spamming logs every 100ms when audio player fails to init
+                // we can just sleep, or you might prefer to print the error.
+                // Assuming it failed to initialize, no player update is possible.
+            }
+        }
 
         sleep(Duration::from_millis(100)).await;
     }

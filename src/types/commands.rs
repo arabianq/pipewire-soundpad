@@ -107,7 +107,10 @@ impl Executable for KillCommand {
 #[async_trait]
 impl Executable for PauseCommand {
     async fn execute(&self) -> Response {
-        let mut audio_player = get_audio_player().await.lock().await;
+        let mut audio_player = match get_audio_player().await {
+            Ok(player) => player.lock().await,
+            Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+        };
         audio_player.pause(self.id);
         Response::new(true, "Audio was paused")
     }
@@ -116,7 +119,10 @@ impl Executable for PauseCommand {
 #[async_trait]
 impl Executable for ResumeCommand {
     async fn execute(&self) -> Response {
-        let mut audio_player = get_audio_player().await.lock().await;
+        let mut audio_player = match get_audio_player().await {
+            Ok(player) => player.lock().await,
+            Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+        };
         audio_player.resume(self.id);
         Response::new(true, "Audio was resumed")
     }
@@ -125,7 +131,10 @@ impl Executable for ResumeCommand {
 #[async_trait]
 impl Executable for TogglePauseCommand {
     async fn execute(&self) -> Response {
-        let mut audio_player = get_audio_player().await.lock().await;
+        let mut audio_player = match get_audio_player().await {
+            Ok(player) => player.lock().await,
+            Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+        };
 
         if audio_player.get_state() == PlayerState::Stopped {
             return Response::new(false, "Audio is not playing");
@@ -163,7 +172,10 @@ impl Executable for TogglePauseCommand {
 #[async_trait]
 impl Executable for StopCommand {
     async fn execute(&self) -> Response {
-        let mut audio_player = get_audio_player().await.lock().await;
+        let mut audio_player = match get_audio_player().await {
+            Ok(player) => player.lock().await,
+            Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+        };
         audio_player.stop(self.id);
         Response::new(true, "Audio was stopped")
     }
@@ -172,7 +184,10 @@ impl Executable for StopCommand {
 #[async_trait]
 impl Executable for IsPausedCommand {
     async fn execute(&self) -> Response {
-        let audio_player = get_audio_player().await.lock().await;
+        let audio_player = match get_audio_player().await {
+            Ok(player) => player.lock().await,
+            Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+        };
         let is_paused = audio_player.is_paused().to_string();
         Response::new(true, is_paused)
     }
@@ -181,7 +196,10 @@ impl Executable for IsPausedCommand {
 #[async_trait]
 impl Executable for GetStateCommand {
     async fn execute(&self) -> Response {
-        let audio_player = get_audio_player().await.lock().await;
+        let audio_player = match get_audio_player().await {
+            Ok(player) => player.lock().await,
+            Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+        };
         let state = audio_player.get_state();
         match serde_json::to_string(&state) {
             Ok(json) => Response::new(true, json),
@@ -193,7 +211,10 @@ impl Executable for GetStateCommand {
 #[async_trait]
 impl Executable for GetVolumeCommand {
     async fn execute(&self) -> Response {
-        let mut audio_player = get_audio_player().await.lock().await;
+        let mut audio_player = match get_audio_player().await {
+            Ok(player) => player.lock().await,
+            Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+        };
         let volume = audio_player.get_volume(self.id);
 
         if let Some(volume) = volume {
@@ -208,7 +229,10 @@ impl Executable for GetVolumeCommand {
 impl Executable for SetVolumeCommand {
     async fn execute(&self) -> Response {
         if let Some(volume) = self.volume {
-            let mut audio_player = get_audio_player().await.lock().await;
+            let mut audio_player = match get_audio_player().await {
+                Ok(player) => player.lock().await,
+                Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+            };
             audio_player.set_volume(volume, self.id);
             Response::new(true, format!("Audio volume was set to {}", volume))
         } else {
@@ -220,7 +244,10 @@ impl Executable for SetVolumeCommand {
 #[async_trait]
 impl Executable for GetPositionCommand {
     async fn execute(&self) -> Response {
-        let audio_player = get_audio_player().await.lock().await;
+        let audio_player = match get_audio_player().await {
+            Ok(player) => player.lock().await,
+            Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+        };
         let position = audio_player.get_position(self.id);
         Response::new(true, position.to_string())
     }
@@ -230,7 +257,10 @@ impl Executable for GetPositionCommand {
 impl Executable for SeekCommand {
     async fn execute(&self) -> Response {
         if let Some(position) = self.position {
-            let mut audio_player = get_audio_player().await.lock().await;
+            let mut audio_player = match get_audio_player().await {
+                Ok(player) => player.lock().await,
+                Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+            };
             match audio_player.seek(position, self.id) {
                 Ok(_) => Response::new(true, format!("Audio position was set to {}", position)),
                 Err(err) => Response::new(false, err.to_string()),
@@ -244,7 +274,10 @@ impl Executable for SeekCommand {
 #[async_trait]
 impl Executable for GetDurationCommand {
     async fn execute(&self) -> Response {
-        let mut audio_player = get_audio_player().await.lock().await;
+        let mut audio_player = match get_audio_player().await {
+            Ok(player) => player.lock().await,
+            Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+        };
         match audio_player.get_duration(self.id) {
             Ok(duration) => Response::new(true, duration.to_string()),
             Err(err) => Response::new(false, err.to_string()),
@@ -256,7 +289,10 @@ impl Executable for GetDurationCommand {
 impl Executable for PlayCommand {
     async fn execute(&self) -> Response {
         if let Some(file_path) = &self.file_path {
-            let mut audio_player = get_audio_player().await.lock().await;
+            let mut audio_player = match get_audio_player().await {
+                Ok(player) => player.lock().await,
+                Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+            };
             match audio_player
                 .play(file_path, self.concurrent.unwrap_or(false))
                 .await
@@ -273,7 +309,10 @@ impl Executable for PlayCommand {
 #[async_trait]
 impl Executable for GetTracksCommand {
     async fn execute(&self) -> Response {
-        let audio_player = get_audio_player().await.lock().await;
+        let audio_player = match get_audio_player().await {
+            Ok(player) => player.lock().await,
+            Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+        };
         let tracks = audio_player.get_tracks();
         match serde_json::to_string(&tracks) {
             Ok(json) => Response::new(true, json),
@@ -285,7 +324,10 @@ impl Executable for GetTracksCommand {
 #[async_trait]
 impl Executable for GetCurrentInputCommand {
     async fn execute(&self) -> Response {
-        let audio_player = get_audio_player().await.lock().await;
+        let audio_player = match get_audio_player().await {
+            Ok(player) => player.lock().await,
+            Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+        };
         if let Some(input_device_name) = &audio_player.input_device_name {
             if let Ok(input_device) = get_device(input_device_name).await {
                 Response::new(
@@ -327,7 +369,10 @@ impl Executable for GetAllInputsCommand {
 impl Executable for SetCurrentInputCommand {
     async fn execute(&self) -> Response {
         if let Some(name) = &self.name {
-            let mut audio_player = get_audio_player().await.lock().await;
+            let mut audio_player = match get_audio_player().await {
+                Ok(player) => player.lock().await,
+                Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+            };
             match audio_player.set_current_input_device(name).await {
                 Ok(_) => Response::new(true, "Input device was set"),
                 Err(err) => Response::new(false, err.to_string()),
@@ -341,7 +386,10 @@ impl Executable for SetCurrentInputCommand {
 #[async_trait]
 impl Executable for SetLoopCommand {
     async fn execute(&self) -> Response {
-        let mut audio_player = get_audio_player().await.lock().await;
+        let mut audio_player = match get_audio_player().await {
+            Ok(player) => player.lock().await,
+            Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+        };
 
         match self.enabled {
             Some(enabled) => {
@@ -356,7 +404,10 @@ impl Executable for SetLoopCommand {
 #[async_trait]
 impl Executable for ToggleLoopCommand {
     async fn execute(&self) -> Response {
-        let mut audio_player = get_audio_player().await.lock().await;
+        let mut audio_player = match get_audio_player().await {
+            Ok(player) => player.lock().await,
+            Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+        };
         if let Some(id) = self.id {
             if let Some(track) = audio_player.tracks.get_mut(&id) {
                 track.looped = !track.looped;
@@ -391,13 +442,15 @@ impl Executable for GetFullStateCommand {
         let mut all_inputs = HashMap::new();
         let mut current_input_nick = String::new();
 
-        let audio_player = get_audio_player().await.lock().await;
+        let audio_player = match get_audio_player().await {
+            Ok(player) => player.lock().await,
+            Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+        };
         if let Some(current_input_name) = &audio_player.input_device_name {
             for device in input_devices {
                 if device.name == "pwsp-virtual-mic" {
                     continue;
                 }
-
                 if device.name == *current_input_name {
                     current_input_nick = format!("{} - {}", device.name, device.nick);
                 }
