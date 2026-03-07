@@ -208,20 +208,18 @@ pub async fn get_all_devices() -> Result<(Vec<AudioDevice>, Vec<AudioDevice>), B
 }
 
 pub async fn get_device(device_name: &str) -> Result<AudioDevice, Box<dyn Error>> {
-    let (mut input_devices, output_devices) = get_all_devices().await?;
-    input_devices.extend(output_devices);
+    let (input_devices, output_devices) = get_all_devices().await?;
 
-    for device in input_devices {
-        if device.name == device_name
-            || device.nick == device_name
-            || device.name.contains(device_name)
-            || device.nick.contains(device_name)
-        {
-            return Ok(device);
-        }
-    }
-
-    Err("Device not found".into())
+    input_devices
+        .into_iter()
+        .chain(output_devices)
+        .find(|device| {
+            device.name == device_name
+                || device.nick == device_name
+                || device.name.contains(device_name)
+                || device.nick.contains(device_name)
+        })
+        .ok_or_else(|| "Device not found".into())
 }
 
 pub fn create_virtual_mic() -> Result<pipewire::channel::Sender<Terminate>, Box<dyn Error>> {
