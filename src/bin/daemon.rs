@@ -91,6 +91,11 @@ async fn commands_loop(listener: UnixListener) -> Result<(), Box<dyn Error>> {
 
             let request_len = u32::from_le_bytes(len_bytes) as usize;
 
+            if request_len > 10 * 1024 * 1024 {
+                eprintln!("Failed to read message from client: request too large ({} bytes)!", request_len);
+                return;
+            }
+
             let mut buffer = vec![0u8; request_len];
             if stream.read_exact(&mut buffer).await.is_err() {
                 eprintln!("Failed to read message from client!");

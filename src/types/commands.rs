@@ -218,7 +218,7 @@ impl Executable for GetVolumeCommand {
         let volume = audio_player.get_volume(self.id);
 
         if let Some(volume) = volume {
-        Response::new(true, volume.to_string())
+            Response::new(true, volume.to_string())
         } else {
             Response::new(false, "Failed to get volume")
         }
@@ -452,13 +452,20 @@ impl Executable for GetFullStateCommand {
                 continue;
             }
 
-            if let Some(name) = current_input_name {
-                if device.name == name {
+                if device.name == *current_input_name {
                     current_input_nick = format!("{} - {}", device.name, device.nick);
                 }
-            }
 
-            all_inputs.insert(device.name, device.nick);
+                all_inputs.insert(device.name, device.nick);
+            }
+        } else {
+            for device in input_devices {
+                if device.name == "pwsp-virtual-mic" {
+                    continue;
+                }
+
+                all_inputs.insert(device.name, device.nick);
+            }
         }
 
         let full_state = FullState {

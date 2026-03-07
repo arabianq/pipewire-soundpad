@@ -12,10 +12,11 @@ pub struct DaemonConfig {
 impl DaemonConfig {
     pub fn save_to_file(&self) -> Result<(), Box<dyn Error>> {
         let config_path = get_config_path()?.join("daemon.json");
-        let config_dir = config_path.parent().unwrap();
 
-        if !config_path.exists() {
-            fs::create_dir_all(config_dir)?;
+        if let Some(config_dir) = config_path.parent() {
+            if !config_path.exists() {
+                fs::create_dir_all(config_dir)?;
+            }
         }
 
         let config_json = serde_json::to_string_pretty(self)?;
@@ -26,7 +27,10 @@ impl DaemonConfig {
     pub fn load_from_file() -> Result<DaemonConfig, Box<dyn Error>> {
         let config_path = get_config_path()?.join("daemon.json");
         let bytes = fs::read(config_path)?;
-        Ok(serde_json::from_slice::<DaemonConfig>(&bytes)?)
+        match serde_json::from_slice::<DaemonConfig>(&bytes) {
+            Ok(config) => Ok(config),
+            Err(_) => Ok(DaemonConfig::default()),
+        }
     }
 }
 
@@ -63,10 +67,11 @@ impl Default for GuiConfig {
 impl GuiConfig {
     pub fn save_to_file(&mut self) -> Result<(), Box<dyn Error>> {
         let config_path = get_config_path()?.join("gui.json");
-        let config_dir = config_path.parent().unwrap();
 
-        if !config_path.exists() {
-            fs::create_dir_all(config_dir)?;
+        if let Some(config_dir) = config_path.parent() {
+            if !config_path.exists() {
+                fs::create_dir_all(config_dir)?;
+            }
         }
 
         // Do not save scale factor if user does not want to
@@ -82,6 +87,9 @@ impl GuiConfig {
     pub fn load_from_file() -> Result<GuiConfig, Box<dyn Error>> {
         let config_path = get_config_path()?.join("gui.json");
         let bytes = fs::read(config_path)?;
-        Ok(serde_json::from_slice::<GuiConfig>(&bytes)?)
+        match serde_json::from_slice::<GuiConfig>(&bytes) {
+            Ok(config) => Ok(config),
+            Err(_) => Ok(GuiConfig::default()),
+        }
     }
 }
