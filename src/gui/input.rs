@@ -57,17 +57,18 @@ impl SoundpadGui {
             }
 
             // Play selected file on Enter
-            if self.key_pressed(ctx, Key::Enter) && self.app_state.selected_file.is_some() {
-                let path = &self.app_state.selected_file.clone().unwrap();
-                if modifiers.ctrl {
-                    self.play_file(path, true);
-                } else if modifiers.shift
-                    && let Some(last_track) = self.audio_player_state.tracks.last()
-                {
-                    self.stop(Some(last_track.id));
-                    self.play_file(path, true);
-                } else {
-                    self.play_file(path, false);
+            if self.key_pressed(ctx, Key::Enter) {
+                if let Some(path) = self.app_state.selected_file.clone() {
+                    if modifiers.ctrl {
+                        self.play_file(&path, true);
+                    } else if modifiers.shift
+                        && let Some(last_track) = self.audio_player_state.tracks.last()
+                    {
+                        self.stop(Some(last_track.id));
+                        self.play_file(&path, true);
+                    } else {
+                        self.play_file(&path, false);
+                    }
                 }
             }
 
