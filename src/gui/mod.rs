@@ -58,7 +58,7 @@ impl SoundpadGui {
 
     pub fn play_toggle(&mut self) {
         let (new_state, request) = {
-            let guard = self.audio_player_state_shared.lock().unwrap();
+            let guard = self.audio_player_state_shared.lock().unwrap_or_else(|e| e.into_inner());
             match guard.state {
                 PlayerState::Playing => (Some(PlayerState::Paused), Some(Request::pause(None))),
                 PlayerState::Paused => (Some(PlayerState::Playing), Some(Request::resume(None))),
@@ -71,7 +71,7 @@ impl SoundpadGui {
         }
 
         if let Some(state) = new_state {
-            let mut guard = self.audio_player_state_shared.lock().unwrap();
+            let mut guard = self.audio_player_state_shared.lock().unwrap_or_else(|e| e.into_inner());
             guard.new_state = Some(state.clone());
             guard.state = state;
         }

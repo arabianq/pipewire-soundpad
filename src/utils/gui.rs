@@ -55,7 +55,7 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
 
             if !is_running {
                 {
-                    let mut guard = audio_player_state_shared.lock().unwrap();
+                    let mut guard = audio_player_state_shared.lock().unwrap_or_else(|e| e.into_inner());
                     guard.is_daemon_running = false;
                 }
                 sleep(Duration::from_millis(500)).await;
@@ -69,7 +69,7 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
                 let full_state: FullState =
                     serde_json::from_str(&full_state_res.message).unwrap_or_default();
 
-                let mut guard = audio_player_state_shared.lock().unwrap();
+                let mut guard = audio_player_state_shared.lock().unwrap_or_else(|e| e.into_inner());
 
                 guard.state = match guard.new_state.clone() {
                     Some(new_state) => {
