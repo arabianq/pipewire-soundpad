@@ -26,7 +26,10 @@ impl DaemonConfig {
     pub fn load_from_file() -> Result<DaemonConfig, Box<dyn Error>> {
         let config_path = get_config_path()?.join("daemon.json");
         let bytes = fs::read(config_path)?;
-        Ok(serde_json::from_slice::<DaemonConfig>(&bytes)?)
+        match serde_json::from_slice::<DaemonConfig>(&bytes) {
+            Ok(config) => Ok(config),
+            Err(_) => Ok(DaemonConfig::default()),
+        }
     }
 }
 
@@ -82,6 +85,9 @@ impl GuiConfig {
     pub fn load_from_file() -> Result<GuiConfig, Box<dyn Error>> {
         let config_path = get_config_path()?.join("gui.json");
         let bytes = fs::read(config_path)?;
-        Ok(serde_json::from_slice::<GuiConfig>(&bytes)?)
+        match serde_json::from_slice::<GuiConfig>(&bytes) {
+            Ok(config) => Ok(config),
+            Err(_) => Ok(GuiConfig::default()),
+        }
     }
 }
