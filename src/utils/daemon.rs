@@ -17,11 +17,14 @@ use tokio::{
 
 static AUDIO_PLAYER: OnceCell<Mutex<AudioPlayer>> = OnceCell::const_new();
 
-pub async fn get_audio_player() -> &'static Mutex<AudioPlayer> {
+pub async fn get_audio_player() -> Result<&'static Mutex<AudioPlayer>, String> {
     AUDIO_PLAYER
-        .get_or_init(|| async {
+        .get_or_try_init(|| async {
             println!("Initializing audio player");
-            Mutex::new(AudioPlayer::new().await.unwrap())
+            match AudioPlayer::new().await {
+                Ok(player) => Ok(Mutex::new(player)),
+                Err(err) => Err(err.to_string()),
+            }
         })
         .await
 }
