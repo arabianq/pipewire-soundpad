@@ -90,7 +90,18 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
                     .next()
                     .unwrap_or_default()
                     .to_string();
-                guard.all_inputs = full_state.all_inputs;
+
+                if guard.all_inputs != full_state.all_inputs {
+                    guard.all_inputs = full_state.all_inputs;
+                    let mut sorted: Vec<(String, String)> = guard
+                        .all_inputs
+                        .iter()
+                        .map(|(k, v)| (k.clone(), v.clone()))
+                        .collect();
+                    sorted.sort_by(|a, b| a.0.cmp(&b.0));
+                    guard.all_inputs_sorted = sorted;
+                }
+
                 guard.is_daemon_running = true;
             }
 
