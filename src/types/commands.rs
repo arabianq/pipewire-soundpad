@@ -197,7 +197,7 @@ impl Executable for GetVolumeCommand {
         let volume = audio_player.get_volume(self.id);
 
         if let Some(volume) = volume {
-        Response::new(true, volume.to_string())
+            Response::new(true, volume.to_string())
         } else {
             Response::new(false, "Failed to get volume")
         }
