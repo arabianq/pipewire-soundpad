@@ -374,13 +374,28 @@ impl AudioPlayer {
             }
         }
 
+        let mut restart_futures = vec![];
+
         for id in restarts {
-            if let Some(sound) = self.tracks.get_mut(&id) {
-                if let Ok(file) = fs::File::open(&sound.path) {
-                    if let Ok(source) = Decoder::try_from(file) {
-                        sound.sink.append(source);
-                        sound.sink.play();
+            if let Some(sound) = self.tracks.get(&id) {
+                let path = sound.path.clone();
+                let handle = tokio::task::spawn_blocking(move || {
+                    if let Ok(file) = fs::File::open(&path) {
+                        if let Ok(source) = Decoder::try_from(file) {
+                            return Some((id, source));
+                        }
                     }
+                    None
+                });
+                restart_futures.push(handle);
+            }
+        }
+
+        for handle in restart_futures {
+            if let Ok(Some((id, source))) = handle.await {
+                if let Some(sound) = self.tracks.get_mut(&id) {
+                    sound.sink.append(source);
+                    sound.sink.play();
                 }
             }
         }
