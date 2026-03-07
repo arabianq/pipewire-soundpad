@@ -1,4 +1,4 @@
-name: Release archive
+name: Release
 
 permissions:
   contents: write
@@ -14,19 +14,11 @@ on:
         required: false
 
 jobs:
-  build-and-release:
+  prepare:
     runs-on: ubuntu-latest
-
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
     steps:
-      - name: Install apt deps (jq/zip + dev-libs)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            zip jq \
-            libpipewire-0.3-dev \
-            libclang-dev \
-            libasound2-dev
-
       - name: Determine tag to use
         id: tag
         run: |
@@ -53,7 +45,7 @@ jobs:
           fi
 
           echo "No tag in input/event/GITHUB_REF — querying latest release via API..."
-          LATEST_JSON=$(curl -sSf -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${{ github.repository }}/releases/latest" || true)
+          LATEST_JSON=$(curl -sSf -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${{ github.repository }}/releases/latest" || true)
           TAG_NAME=$(echo "$LATEST_JSON" | jq -r '.tag_name // empty')
           if [ -n "$TAG_NAME" ]; then
             echo "Found latest release tag: $TAG_NAME"
@@ -70,10 +62,24 @@ jobs:
           echo "ERROR: No tag determined. Provide a tag when running manually or ensure a release exists."
           exit 1
 
+  linux-release:
+    needs: prepare
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install apt deps (jq/zip + dev-libs)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            zip jq \
+            libpipewire-0.3-dev \
+            libclang-dev \
+            libasound2-dev
+
       - name: Checkout code at tag
         uses: actions/checkout@v4
         with:
-          ref: ${{ steps.tag.outputs.tag || github.ref }}
+          ref: ${{ needs.prepare.outputs.tag }}
           fetch-depth: 0
 
       - name: Setup Rust toolchain
@@ -98,7 +104,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          TAG="${{ steps.tag.outputs.tag }}"
+          TAG="${{ needs.prepare.outputs.tag }}"
           ARCHIVE_NAME="pwsp-${TAG}-linux-x64.zip"
           echo "Creating archive: $ARCHIVE_NAME"
 
@@ -127,6 +133,51 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag_name: ${{ steps.tag.outputs.tag }}
+          tag_name: ${{ needs.prepare.outputs.tag }}
           files: |
             pwsp-*.zip
+
+      - name: Install cargo-deb and create .deb
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo install --locked cargo-deb
+          export PATH="$HOME/.cargo/bin:$PATH"
+
+          cargo-deb
+
+      - name: Upload .deb(s) to release
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ needs.prepare.outputs.tag }}
+          files: |
+            target/debian/*.deb
+
+  flatpak-release:
+    needs: prepare
+    runs-on: ubuntu-latest
+    container:
+      image: bilelmoussaoui/flatpak-github-actions:freedesktop-24.08
+      options: --privileged
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+
+      - name: Build Flatpak
+        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: ru.arabianq.pwsp.flatpak
+          manifest-path: packages/flatpak/ru.arabianq.pwsp.yaml
+          cache: true
+          branch: master
+          build-bundle: true
+
+      - name: Upload Flatpak to release
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ needs.prepare.outputs.tag }}
+          files: ru.arabianq.pwsp.flatpak
