@@ -446,12 +446,11 @@ impl Executable for GetFullStateCommand {
             Ok(player) => player.lock().await,
             Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
         };
-        let current_input_name = audio_player.input_device_name.as_deref();
-        for device in input_devices {
-            if device.name == "pwsp-virtual-mic" {
-                continue;
-            }
-
+        if let Some(current_input_name) = &audio_player.input_device_name {
+            for device in input_devices {
+                if device.name == "pwsp-virtual-mic" {
+                    continue;
+                }
                 if device.name == *current_input_name {
                     current_input_nick = format!("{} - {}", device.name, device.nick);
                 }

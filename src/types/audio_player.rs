@@ -278,12 +278,20 @@ impl AudioPlayer {
         file_path: &Path,
         concurrent: bool,
     ) -> Result<u32, Box<dyn Error>> {
-        if !file_path.exists() {
-            return Err(format!("File does not exist: {}", file_path.display()).into());
-        }
+        let path_buf = file_path.to_path_buf();
 
-        let file = fs::File::open(file_path)?;
-        match Decoder::try_from(file) {
+        let decoder_result = tokio::task::spawn_blocking(move || -> Result<_, Box<dyn Error + Send + Sync>> {
+            if !path_buf.exists() {
+                return Err(format!("File does not exist: {}", path_buf.display()).into());
+            }
+
+            let file = fs::File::open(&path_buf)?;
+            let decoder = Decoder::try_from(file).map_err(|e| Box::new(e) as Box<dyn Error + Send + Sync>)?;
+            Ok(decoder)
+        })
+        .await?;
+
+        match decoder_result {
             Ok(source) => {
                 if !concurrent {
                     self.tracks.clear();
@@ -312,7 +320,7 @@ impl AudioPlayer {
 
                 Ok(id)
             }
-            Err(err) => Err(err.into()),
+            Err(err) => Err(err as Box<dyn Error>),
         }
     }
 
