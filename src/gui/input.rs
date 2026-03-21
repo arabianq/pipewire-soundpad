@@ -86,14 +86,15 @@ impl SoundpadGui {
                         .as_ref()
                         .and_then(|cd| dirs.iter().position(|x| x == cd));
 
-                    let new_dir_index = match (current_dir_index, arrow_up_pressed, arrow_down_pressed) {
-                        (Some(i), true, false) => (i + dirs.len() - 1) % dirs.len(),
-                        (Some(i), false, true) => (i + 1) % dirs.len(),
-                        (Some(i), true, true) => i,
-                        (None, true, _) => dirs.len() - 1,
-                        (None, false, true) => 0,
-                        _ => return,
-                    };
+                    let new_dir_index =
+                        match (current_dir_index, arrow_up_pressed, arrow_down_pressed) {
+                            (Some(i), true, false) => (i + dirs.len() - 1) % dirs.len(),
+                            (Some(i), false, true) => (i + 1) % dirs.len(),
+                            (Some(i), true, true) => i,
+                            (None, true, _) => dirs.len() - 1,
+                            (None, false, true) => 0,
+                            _ => return,
+                        };
 
                     self.open_dir(&dirs[new_dir_index]);
                 } else if self.app_state.current_dir.is_some() {
@@ -109,14 +110,15 @@ impl SoundpadGui {
                         .as_ref()
                         .and_then(|f| files.iter().position(|x| x == f));
 
-                    let new_files_index = match (current_files_index, arrow_up_pressed, arrow_down_pressed) {
-                        (Some(i), true, false) => (i + files.len() - 1) % files.len(),
-                        (Some(i), false, true) => (i + 1) % files.len(),
-                        (Some(i), true, true) => i,
-                        (None, true, _) => files.len() - 1,
-                        (None, false, true) => 0,
-                        _ => return,
-                    };
+                    let new_files_index =
+                        match (current_files_index, arrow_up_pressed, arrow_down_pressed) {
+                            (Some(i), true, false) => (i + files.len() - 1) % files.len(),
+                            (Some(i), false, true) => (i + 1) % files.len(),
+                            (Some(i), true, true) => i,
+                            (None, true, _) => files.len() - 1,
+                            (None, false, true) => 0,
+                            _ => return,
+                        };
 
                     self.app_state.selected_file = Some(files[new_files_index].clone());
                 }

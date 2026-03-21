@@ -97,7 +97,10 @@ async fn commands_loop(listener: UnixListener) -> Result<(), Box<dyn Error>> {
             let request_len = u32::from_le_bytes(len_bytes) as usize;
 
             if request_len > 10 * 1024 * 1024 {
-                eprintln!("Failed to read message from client: request too large ({} bytes)!", request_len);
+                eprintln!(
+                    "Failed to read message from client: request too large ({} bytes)!",
+                    request_len
+                );
                 return;
             }
 
