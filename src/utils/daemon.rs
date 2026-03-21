@@ -6,6 +6,7 @@ use crate::{
     },
     utils::pipewire::{create_link, get_device},
 };
+use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
 use std::{error::Error, fs};
 use tokio::{
@@ -84,6 +85,7 @@ pub fn create_runtime_dir() -> Result<(), Box<dyn Error>> {
     if !runtime_dir.exists() {
         fs::create_dir_all(&runtime_dir)?;
     }
+    fs::set_permissions(&runtime_dir, fs::Permissions::from_mode(0o700))?;
 
     Ok(())
 }
