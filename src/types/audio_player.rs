@@ -280,16 +280,18 @@ impl AudioPlayer {
     ) -> Result<u32, Box<dyn Error>> {
         let path_buf = file_path.to_path_buf();
 
-        let decoder_result = tokio::task::spawn_blocking(move || -> Result<_, Box<dyn Error + Send + Sync>> {
-            if !path_buf.exists() {
-                return Err(format!("File does not exist: {}", path_buf.display()).into());
-            }
+        let decoder_result =
+            tokio::task::spawn_blocking(move || -> Result<_, Box<dyn Error + Send + Sync>> {
+                if !path_buf.exists() {
+                    return Err(format!("File does not exist: {}", path_buf.display()).into());
+                }
 
-            let file = fs::File::open(&path_buf)?;
-            let decoder = Decoder::try_from(file).map_err(|e| Box::new(e) as Box<dyn Error + Send + Sync>)?;
-            Ok(decoder)
-        })
-        .await?;
+                let file = fs::File::open(&path_buf)?;
+                let decoder = Decoder::try_from(file)
+                    .map_err(|e| Box::new(e) as Box<dyn Error + Send + Sync>)?;
+                Ok(decoder)
+            })
+            .await?;
 
         match decoder_result {
             Ok(source) => {
@@ -387,10 +389,17 @@ impl AudioPlayer {
         for id in restarts {
             if let Some(sound) = self.tracks.get(&id) {
                 let path = sound.path.clone();
-                let handle = tokio::task::spawn_blocking(move || {
-                    if let Ok(file) = fs::File::open(&path) {
-                        if let Ok(source) = Decoder::try_from(file) {
-                            return Some((id, source));
+                let handle = tokio::spawn(async move {
+                    if let Ok(file) = tokio::fs::File::open(&path).await {
+                        let std_file = file.into_std().await;
+                        let inner_handle = tokio::task::spawn_blocking(move || {
+                            if let Ok(source) = Decoder::try_from(std_file) {
+                                return Some((id, source));
+                            }
+                            None
+                        });
+                        if let Ok(res) = inner_handle.await {
+                            return res;
                         }
                     }
                     None
