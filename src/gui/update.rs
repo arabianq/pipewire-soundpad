@@ -23,7 +23,7 @@ impl App for SoundpadGui {
         // Save directories if changed
         if !self.config.dirs.eq(&self.app_state.dirs) {
             self.config.dirs = self.app_state.dirs.clone();
-            self.config.save_to_file().ok();
+            self.config.save_to_file();
         }
 
         // Seek and volume requests
@@ -89,7 +89,7 @@ impl App for SoundpadGui {
         self.config.scale_factor = new_scale_factor;
 
         if new_scale_factor != old_scale_factor && self.config.save_scale_factor {
-            self.config.save_to_file().ok();
+            self.config.save_to_file();
         }
 
         // Handle input

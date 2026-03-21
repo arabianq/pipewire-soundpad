@@ -78,7 +78,7 @@ impl SoundpadGui {
                 || save_scale_response.changed()
                 || pause_on_exit_response.changed()
             {
-                self.config.save_to_file().ok();
+                self.config.save_to_file();
             }
             // --------------------------------
 
@@ -291,7 +291,7 @@ impl SoundpadGui {
             }
 
             if vertical_separator_response.drag_stopped() {
-                self.config.save_to_file().ok();
+                self.config.save_to_file();
             }
 
             let files_size = Vec2::new(ui.available_width(), ui.available_height() - 40.0);

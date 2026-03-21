@@ -16,7 +16,7 @@ use tokio::time::{Duration, sleep};
 pub fn get_gui_config() -> GuiConfig {
     GuiConfig::load_from_file().unwrap_or_else(|_| {
         let mut config = GuiConfig::default();
-        config.save_to_file().ok();
+        config.save_to_file();
         config
     })
 }

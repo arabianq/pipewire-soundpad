@@ -92,7 +92,7 @@ impl SoundpadGui {
             }
             self.app_state.dirs = self.app_state.dirs.iter().unique().cloned().collect();
             self.config.dirs = self.app_state.dirs.clone();
-            self.config.save_to_file().ok();
+            self.config.save_to_file();
         }
     }
 
