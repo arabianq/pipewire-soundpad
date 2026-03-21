@@ -153,8 +153,7 @@ pub async fn get_all_devices() -> Result<(Vec<AudioDevice>, Vec<AudioDevice>), B
                 for port in ports {
                     let node_id = port.node_id;
 
-                    if input_devices.contains_key(&node_id) {
-                        let input_device = input_devices.get_mut(&node_id).unwrap();
+                    if let Some(input_device) = input_devices.get_mut(&node_id) {
                         match port.name.as_str() {
                             "input_FL" => input_device.input_fl = Some(port),
                             "input_FR" => input_device.input_fr = Some(port),
@@ -172,8 +171,7 @@ pub async fn get_all_devices() -> Result<(Vec<AudioDevice>, Vec<AudioDevice>), B
                             }
                             _ => {}
                         }
-                    } else if output_devices.contains_key(&node_id) {
-                        let output_device = output_devices.get_mut(&node_id).unwrap();
+                    } else if let Some(output_device) = output_devices.get_mut(&node_id) {
                         match port.name.as_str() {
                             "input_FL" => output_device.input_fl = Some(port),
                             "input_FR" => output_device.input_fr = Some(port),
