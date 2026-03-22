@@ -31,16 +31,20 @@ async fn main() -> Result<(), Box<dyn Error>> {
         eprintln!("Failed to initialize audio player: {}", err);
     } // Initialize audio player
 
-    let max_retries = 5;
-    for i in 0..=max_retries {
-        match link_player_to_virtual_mic().await {
-            Ok(_) => break,
-            Err(e) => println!("{e}\t{i}/{max_retries}"),
-        }
+    tokio::spawn(async {
+        let max_retries = 60;
+        for i in 0..=max_retries {
+            match link_player_to_virtual_mic().await {
+                Ok(_) => {
+                    println!("Successfully linked player to virtual mic.");
+                    break;
+                }
+                Err(e) => println!("{e}\t{i}/{max_retries}"),
+            }
 
-        sleep(Duration::from_millis(300 * i)).await;
-    }
-    link_player_to_virtual_mic().await?;
+            sleep(Duration::from_millis(1000)).await;
+        }
+    });
 
     let runtime_dir = get_runtime_dir();
 
@@ -97,7 +101,10 @@ async fn commands_loop(listener: UnixListener) -> Result<(), Box<dyn Error>> {
             let request_len = u32::from_le_bytes(len_bytes) as usize;
 
             if request_len > 10 * 1024 * 1024 {
-                eprintln!("Failed to read message from client: request too large ({} bytes)!", request_len);
+                eprintln!(
+                    "Failed to read message from client: request too large ({} bytes)!",
+                    request_len
+                );
                 return;
             }
 
