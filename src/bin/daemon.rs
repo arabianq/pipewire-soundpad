@@ -31,16 +31,20 @@ async fn main() -> Result<(), Box<dyn Error>> {
         eprintln!("Failed to initialize audio player: {}", err);
     } // Initialize audio player
 
-    let max_retries = 5;
-    for i in 0..=max_retries {
-        match link_player_to_virtual_mic().await {
-            Ok(_) => break,
-            Err(e) => println!("{e}\t{i}/{max_retries}"),
-        }
+    tokio::spawn(async {
+        let max_retries = 60;
+        for i in 0..=max_retries {
+            match link_player_to_virtual_mic().await {
+                Ok(_) => {
+                    println!("Successfully linked player to virtual mic.");
+                    break;
+                }
+                Err(e) => println!("{e}\t{i}/{max_retries}"),
+            }
 
-        sleep(Duration::from_millis(300 * i)).await;
-    }
-    link_player_to_virtual_mic().await?;
+            sleep(Duration::from_millis(1000)).await;
+        }
+    });
 
     let runtime_dir = get_runtime_dir();
 
