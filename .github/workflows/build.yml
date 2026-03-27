@@ -111,8 +111,8 @@ jobs:
 
       - name: Install Flatpak dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y flatpak flatpak-builder
+          apt-get update
+          apt-get install -y flatpak flatpak-builder
 
       - name: Configure Flathub remote
         run: |
