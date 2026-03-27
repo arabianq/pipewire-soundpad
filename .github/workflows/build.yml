@@ -102,9 +102,6 @@ jobs:
 
   flatpak-build:
     runs-on: ubuntu-latest
-    container:
-      image: bilelmoussaoui/flatpak-github-actions:freedesktop-25.08
-      options: --privileged
 
     steps:
       - uses: actions/checkout@v4
