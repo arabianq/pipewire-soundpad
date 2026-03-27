@@ -8,7 +8,7 @@ use pwsp::{
 use std::time::{Duration, Instant};
 
 impl App for SoundpadGui {
-    fn update(&mut self, ctx: &Context, _frame: &mut EFrame) {
+    fn logic(&mut self, ctx: &Context, _frame: &mut EFrame) {
         // Remove directories
         for path in self.app_state.dirs_to_remove.drain() {
             self.app_state.dirs.retain(|x| x != &path);
@@ -97,9 +97,11 @@ impl App for SoundpadGui {
 
         // Handle input
         self.handle_input(ctx);
+    }
 
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut EFrame) {
         // Draw UI
-        CentralPanel::default().show(ctx, |ui| {
+        CentralPanel::default().show_inside(ui, |ui| {
             if !self.audio_player_state.is_daemon_running {
                 self.draw_waiting_for_daemon(ui);
                 return;
@@ -114,6 +116,6 @@ impl App for SoundpadGui {
         });
 
         // Request repaint
-        ctx.request_repaint_after_secs(1.0 / 60.0);
+        ui.request_repaint_after_secs(1.0 / 60.0);
     }
 }

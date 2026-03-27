@@ -19,13 +19,13 @@ enum TrackAction {
 impl SoundpadGui {
     fn get_volume_icon(volume: f32) -> &'static str {
         if volume > 0.7 {
-            ICON_VOLUME_UP
+            ICON_VOLUME_UP.codepoint
         } else if volume <= 0.0 {
-            ICON_VOLUME_OFF
+            ICON_VOLUME_OFF.codepoint
         } else if volume < 0.3 {
-            ICON_VOLUME_MUTE
+            ICON_VOLUME_MUTE.codepoint
         } else {
-            ICON_VOLUME_DOWN
+            ICON_VOLUME_DOWN.codepoint
         }
     }
 
@@ -313,7 +313,7 @@ impl SoundpadGui {
                     let path = item.clone();
                     ui.horizontal(|ui| {
                         handle.ui(ui, |ui| {
-                            ui.label(ICON_DRAG_INDICATOR);
+                            ui.label(ICON_DRAG_INDICATOR.codepoint);
                         });
                         let name = path
                             .file_name()
@@ -345,7 +345,7 @@ impl SoundpadGui {
                         // Context menu
                         dir_button_response.context_menu(|ui| {
                             if ui
-                                .button(format!("{} {}", ICON_OPEN_IN_NEW, "Show"))
+                                .button(format!("{} {}", ICON_OPEN_IN_NEW.codepoint, "Show"))
                                 .clicked()
                             {
                                 self.open_dir(&path);
@@ -354,7 +354,7 @@ impl SoundpadGui {
                             if ui
                                 .button(format!(
                                     "{} {}",
-                                    ICON_OPEN_IN_BROWSER, "Open in File Manager"
+                                    ICON_OPEN_IN_BROWSER.codepoint, "Open in File Manager"
                                 ))
                                 .clicked()
                             {
@@ -365,7 +365,10 @@ impl SoundpadGui {
 
                             ui.separator();
 
-                            if ui.button(format!("{} {}", ICON_DELETE, "Remove")).clicked() {
+                            if ui
+                                .button(format!("{} {}", ICON_DELETE.codepoint, "Remove"))
+                                .clicked()
+                            {
                                 self.app_state.dirs_to_remove.insert(path.clone());
                             }
                         });
@@ -452,20 +455,23 @@ impl SoundpadGui {
                         // Context menu
                         file_button_response.context_menu(|ui| {
                             if ui
-                                .button(format!("{} {}", ICON_BOLT, "Play Solo"))
+                                .button(format!("{} {}", ICON_BOLT.codepoint, "Play Solo"))
                                 .clicked()
                             {
                                 self.play_file(&entry_path, false);
                                 self.app_state.selected_file = Some(entry_path.clone());
                             }
 
-                            if ui.button(format!("{} {}", ICON_ADD, "Add New")).clicked() {
+                            if ui
+                                .button(format!("{} {}", ICON_ADD.codepoint, "Add New"))
+                                .clicked()
+                            {
                                 self.play_file(&entry_path, true);
                                 self.app_state.selected_file = Some(entry_path.clone());
                             }
 
                             if ui
-                                .button(format!("{} {}", ICON_SWAP_HORIZ, "Replace Last"))
+                                .button(format!("{} {}", ICON_SWAP_HORIZ.codepoint, "Replace Last"))
                                 .clicked()
                                 && let Some(last_track) = self.audio_player_state.tracks.last()
                             {
@@ -479,7 +485,7 @@ impl SoundpadGui {
                             if ui
                                 .button(format!(
                                     "{} {}",
-                                    ICON_OPEN_IN_BROWSER, "Show in File Manager"
+                                    ICON_OPEN_IN_BROWSER.codepoint, "Show in File Manager"
                                 ))
                                 .clicked()
                             {
