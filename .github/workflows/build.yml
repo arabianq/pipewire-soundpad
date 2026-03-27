@@ -103,7 +103,7 @@ jobs:
   flatpak-build:
     runs-on: ubuntu-latest
     container:
-      image: bilelmoussaoui/flatpak-github-actions:freedesktop-24.08
+      image: bilelmoussaoui/flatpak-github-actions:freedesktop-25.08
       options: --privileged
 
     steps:
