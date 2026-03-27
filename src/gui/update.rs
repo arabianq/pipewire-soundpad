@@ -1,6 +1,6 @@
 use crate::gui::SoundpadGui;
 use eframe::{App, Frame as EFrame};
-use egui::{CentralPanel, Context};
+use egui::CentralPanel;
 use pwsp::{
     types::socket::Request,
     utils::{daemon::get_daemon_config, gui::make_request_async},
@@ -8,7 +8,7 @@ use pwsp::{
 use std::time::{Duration, Instant};
 
 impl App for SoundpadGui {
-    fn logic(&mut self, ctx: &egui::Context, frame: &mut EFrame) {
+    fn logic(&mut self, ctx: &egui::Context, _frame: &mut EFrame) {
         // Remove directories
         for path in self.app_state.dirs_to_remove.drain() {
             self.app_state.dirs.retain(|x| x != &path);
@@ -99,7 +99,7 @@ impl App for SoundpadGui {
         self.handle_input(ctx);
     }
 
-    fn ui(&mut self, ui: &mut egui::Ui, frame: &mut EFrame) {
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut EFrame) {
         // Draw UI
         CentralPanel::default().show(ui.ctx(), |ui| {
             if !self.audio_player_state.is_daemon_running {
