@@ -39,11 +39,11 @@ rfd = { version = "0.17.2", default-features = false, features = [
 ] }
 opener = { version = "0.8.4", features = ["reveal"] }
 
-egui = { version = "0.33.3", default-features = false, features = [
+egui = { version = "0.34.1", default-features = false, features = [
     "default_fonts",
     "rayon",
 ] }
-eframe = { version = "0.33.3", default-features = false, features = [
+eframe = { version = "0.34.1", default-features = false, features = [
     "default_fonts",
     "glow",
     "x11",
