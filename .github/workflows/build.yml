@@ -33,7 +33,7 @@ jobs:
       - name: Setup Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: 1.94.1
 
       - name: Extract all binary names
         id: cargo-meta
