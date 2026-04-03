@@ -173,6 +173,29 @@ impl Request {
     pub fn get_full_state() -> Self {
         Request::new("get_full_state", vec![])
     }
+
+    pub fn get_hotkeys() -> Self {
+        Request::new("get_hotkeys", vec![])
+    }
+
+    pub fn set_hotkey(slot: &str, file_path: &str) -> Self {
+        Request::new("set_hotkey", vec![("slot", slot), ("file_path", file_path)])
+    }
+
+    pub fn set_hotkey_key(slot: &str, key_chord: &str) -> Self {
+        Request::new(
+            "set_hotkey_key",
+            vec![("slot", slot), ("key_chord", key_chord)],
+        )
+    }
+
+    pub fn clear_hotkey(slot: &str) -> Self {
+        Request::new("clear_hotkey", vec![("slot", slot)])
+    }
+
+    pub fn play_hotkey(slot: &str) -> Self {
+        Request::new("play_hotkey", vec![("slot", slot)])
+    }
 }
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]

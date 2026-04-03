@@ -72,6 +72,28 @@ pub fn parse_command(request: &Request) -> Option<Box<dyn Executable + Send>> {
         "toggle_loop" => Some(Box::new(ToggleLoopCommand { id })),
         "get_daemon_version" => Some(Box::new(GetDaemonVersionCommand {})),
         "get_full_state" => Some(Box::new(GetFullStateCommand {})),
+        "get_hotkeys" => Some(Box::new(GetHotkeysCommand {})),
+        "set_hotkey" => {
+            let slot = request.args.get("slot").cloned();
+            let file_path = request
+                .args
+                .get("file_path")
+                .and_then(|s| s.parse::<PathBuf>().ok());
+            Some(Box::new(SetHotkeyCommand { slot, file_path }))
+        }
+        "set_hotkey_key" => {
+            let slot = request.args.get("slot").cloned();
+            let key_chord = request.args.get("key_chord").cloned();
+            Some(Box::new(SetHotkeyKeyCommand { slot, key_chord }))
+        }
+        "clear_hotkey" => {
+            let slot = request.args.get("slot").cloned();
+            Some(Box::new(ClearHotkeyCommand { slot }))
+        }
+        "play_hotkey" => {
+            let slot = request.args.get("slot").cloned();
+            Some(Box::new(PlayHotkeyCommand { slot }))
+        }
         _ => None,
     }
 }

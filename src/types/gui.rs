@@ -1,4 +1,7 @@
-use crate::types::audio_player::{PlayerState, TrackInfo};
+use crate::types::{
+    audio_player::{PlayerState, TrackInfo},
+    hotkeys::HotkeyConfig,
+};
 
 use egui::Id;
 
@@ -42,6 +45,13 @@ pub struct AppState {
 
     pub selected_file: Option<PathBuf>,
     pub files: HashSet<PathBuf>,
+
+    pub show_hotkeys: bool,
+    pub hotkey_config: HotkeyConfig,
+    pub hotkey_search_query: String,
+    pub assigning_hotkey_slot: Option<String>,
+    pub assigning_hotkey_for_file: Option<PathBuf>,
+    pub hotkey_capture_active: bool,
 }
 
 #[derive(Default, Debug, Clone)]

@@ -1,6 +1,7 @@
 use crate::{
     types::{
         audio_player::{FullState, PlayerState},
+        hotkeys::HotkeyConfig,
         socket::Response,
     },
     utils::{
@@ -89,6 +90,26 @@ pub struct ToggleLoopCommand {
 pub struct GetDaemonVersionCommand {}
 
 pub struct GetFullStateCommand {}
+
+pub struct GetHotkeysCommand {}
+
+pub struct SetHotkeyCommand {
+    pub slot: Option<String>,
+    pub file_path: Option<PathBuf>,
+}
+
+pub struct SetHotkeyKeyCommand {
+    pub slot: Option<String>,
+    pub key_chord: Option<String>,
+}
+
+pub struct ClearHotkeyCommand {
+    pub slot: Option<String>,
+}
+
+pub struct PlayHotkeyCommand {
+    pub slot: Option<String>,
+}
 
 #[async_trait]
 impl Executable for PingCommand {
@@ -478,6 +499,124 @@ impl Executable for GetFullStateCommand {
         match serde_json::to_string(&full_state) {
             Ok(json) => Response::new(true, json),
             Err(err) => Response::new(false, format!("Failed to serialize full state: {}", err)),
+        }
+    }
+}
+
+#[async_trait]
+impl Executable for GetHotkeysCommand {
+    async fn execute(&self) -> Response {
+        match HotkeyConfig::load() {
+            Ok(config) => match serde_json::to_string(&config) {
+                Ok(json) => Response::new(true, json),
+                Err(err) => {
+                    Response::new(false, format!("Failed to serialize hotkeys: {}", err))
+                }
+            },
+            Err(err) => Response::new(false, format!("Failed to load hotkeys: {}", err)),
+        }
+    }
+}
+
+#[async_trait]
+impl Executable for SetHotkeyCommand {
+    async fn execute(&self) -> Response {
+        let Some(slot) = &self.slot else {
+            return Response::new(false, "Missing slot name");
+        };
+        let Some(file_path) = &self.file_path else {
+            return Response::new(false, "Missing file path");
+        };
+
+        let mut config = match HotkeyConfig::load() {
+            Ok(c) => c,
+            Err(err) => return Response::new(false, format!("Failed to load hotkeys: {}", err)),
+        };
+
+        config.set_slot(slot.clone(), file_path.clone());
+
+        match config.save() {
+            Ok(_) => Response::new(true, format!("Hotkey slot '{}' set", slot)),
+            Err(err) => Response::new(false, format!("Failed to save hotkeys: {}", err)),
+        }
+    }
+}
+
+#[async_trait]
+impl Executable for SetHotkeyKeyCommand {
+    async fn execute(&self) -> Response {
+        let Some(slot) = &self.slot else {
+            return Response::new(false, "Missing slot name");
+        };
+        let Some(key_chord) = &self.key_chord else {
+            return Response::new(false, "Missing key chord");
+        };
+
+        let mut config = match HotkeyConfig::load() {
+            Ok(c) => c,
+            Err(err) => return Response::new(false, format!("Failed to load hotkeys: {}", err)),
+        };
+
+        if !config.set_key_chord(slot, Some(key_chord.clone())) {
+            return Response::new(false, format!("Slot '{}' not found", slot));
+        }
+
+        match config.save() {
+            Ok(_) => Response::new(true, format!("Key chord for slot '{}' set to '{}'", slot, key_chord)),
+            Err(err) => Response::new(false, format!("Failed to save hotkeys: {}", err)),
+        }
+    }
+}
+
+#[async_trait]
+impl Executable for ClearHotkeyCommand {
+    async fn execute(&self) -> Response {
+        let Some(slot) = &self.slot else {
+            return Response::new(false, "Missing slot name");
+        };
+
+        let mut config = match HotkeyConfig::load() {
+            Ok(c) => c,
+            Err(err) => return Response::new(false, format!("Failed to load hotkeys: {}", err)),
+        };
+
+        if config.remove_slot(slot) {
+            match config.save() {
+                Ok(_) => Response::new(true, format!("Hotkey slot '{}' cleared", slot)),
+                Err(err) => Response::new(false, format!("Failed to save hotkeys: {}", err)),
+            }
+        } else {
+            Response::new(false, format!("Slot '{}' not found", slot))
+        }
+    }
+}
+
+#[async_trait]
+impl Executable for PlayHotkeyCommand {
+    async fn execute(&self) -> Response {
+        let Some(slot) = &self.slot else {
+            return Response::new(false, "Missing slot name");
+        };
+
+        let config = match HotkeyConfig::load() {
+            Ok(c) => c,
+            Err(err) => return Response::new(false, format!("Failed to load hotkeys: {}", err)),
+        };
+
+        let Some(hotkey_slot) = config.find_slot(slot) else {
+            return Response::new(false, format!("Slot '{}' not found", slot));
+        };
+
+        let file_path = hotkey_slot.sound_path.clone();
+
+        let mut audio_player = match get_audio_player().await {
+            Ok(player) => player.lock().await,
+            Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+        };
+
+        match audio_player.play(&file_path, false).await {
+            Ok(id) => Response::new(true, id.to_string()),
+            Err(err) => Response::new(false, err.to_string()),
         }
     }
 }

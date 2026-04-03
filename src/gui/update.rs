@@ -112,6 +112,11 @@ impl App for SoundpadGui {
                 return;
             }
 
+            if self.app_state.show_hotkeys {
+                self.draw_hotkeys(ui);
+                return;
+            }
+
             self.draw(ui).ok();
         });
 
