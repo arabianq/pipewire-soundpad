@@ -1,6 +1,7 @@
 use crate::gui::SoundpadGui;
 use egui::{Context, Id, Key, Modifiers};
 use pwsp::types::socket::Request;
+use pwsp::utils::gui::make_request_async;
 
 use std::path::PathBuf;
 
@@ -208,10 +209,10 @@ impl SoundpadGui {
 
             if let Some(chord) = captured {
                 if let Some(slot) = self.app_state.assigning_hotkey_slot.take() {
+                    make_request_async(Request::set_hotkey_key(&slot, &chord));
                     self.app_state
                         .hotkey_config
                         .set_key_chord(&slot, Some(chord));
-                    self.save_hotkey_config();
                 } else if let Some(file_path) = self.app_state.assigning_hotkey_for_file.take() {
                     // Auto-create a slot from the file name
                     let slot_name = file_path
@@ -219,14 +220,15 @@ impl SoundpadGui {
                         .unwrap_or_default()
                         .to_string_lossy()
                         .to_string();
-                    self.app_state.hotkey_config.set_slot(
-                        slot_name.clone(),
-                        Request::play(&file_path.to_string_lossy(), false),
-                    );
+                    let action = Request::play(&file_path.to_string_lossy(), false);
+                    make_request_async(Request::set_hotkey_action(&slot_name, &action));
+                    make_request_async(Request::set_hotkey_key(&slot_name, &chord));
+                    self.app_state
+                        .hotkey_config
+                        .set_slot(slot_name.clone(), action);
                     self.app_state
                         .hotkey_config
                         .set_key_chord(&slot_name, Some(chord));
-                    self.save_hotkey_config();
                 }
                 self.app_state.hotkey_capture_active = false;
             }

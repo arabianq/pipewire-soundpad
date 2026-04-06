@@ -1,7 +1,7 @@
 use crate::{
     types::{
         audio_player::FullState,
-        config::GuiConfig,
+        config::{GuiConfig, HotkeyConfig},
         gui::AudioPlayerState,
         socket::{Request, Response},
     },
@@ -10,6 +10,7 @@ use crate::{
 use std::{
     error::Error,
     sync::{Arc, Mutex},
+    time::Instant,
 };
 use tokio::time::{Duration, sleep};
 
@@ -49,6 +50,7 @@ pub fn format_time_pair(position: f32, duration: f32) -> String {
 pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerState>>) {
     tokio::spawn(async move {
         let sleep_duration = Duration::from_secs_f32(1.0 / 60.0);
+        let mut last_hotkey_poll = Instant::now();
 
         loop {
             let is_running = is_daemon_running().unwrap_or(false);
@@ -103,6 +105,20 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
                 }
 
                 guard.is_daemon_running = true;
+            }
+
+            // Poll hotkey config at a lower frequency (~every 2 seconds)
+            if last_hotkey_poll.elapsed() >= Duration::from_secs(2) {
+                let hotkey_res = make_request(Request::get_hotkeys()).await.unwrap_or_default();
+                if hotkey_res.status {
+                    if let Ok(config) = serde_json::from_str::<HotkeyConfig>(&hotkey_res.message) {
+                        let mut guard = audio_player_state_shared
+                            .lock()
+                            .unwrap_or_else(|e| e.into_inner());
+                        guard.hotkey_config = Some(config);
+                    }
+                }
+                last_hotkey_poll = Instant::now();
             }
 
             sleep(sleep_duration).await;

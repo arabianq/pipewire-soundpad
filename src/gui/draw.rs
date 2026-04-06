@@ -7,7 +7,7 @@ use egui_dnd::dnd;
 use egui_material_icons::icons::*;
 use pwsp::types::socket::Request;
 use pwsp::types::{audio_player::TrackInfo, gui::AppState};
-use pwsp::utils::gui::format_time_pair;
+use pwsp::utils::gui::{format_time_pair, make_request_async};
 use std::{
     error::Error,
     path::{Path, PathBuf},
@@ -120,22 +120,6 @@ impl SoundpadGui {
 
             ui.separator();
 
-            // Capture overlay
-            if self.app_state.hotkey_capture_active {
-                ui.add_space(20.0);
-                ui.vertical_centered(|ui| {
-                    ui.label(
-                        RichText::new("Press a key combination (e.g. Ctrl+Alt+1)")
-                            .size(18.0)
-                            .color(Color32::YELLOW)
-                            .monospace(),
-                    );
-                    ui.add_space(5.0);
-                    ui.label("Press Escape to cancel");
-                });
-                return;
-            }
-
             // Search and Add Command
             ui.horizontal(|ui| {
                 ui.menu_button(format!("{} Add Command", ICON_ADD.codepoint), |ui| {
@@ -157,10 +141,10 @@ impl SoundpadGui {
                     }
 
                     if let Some((slot_name, req)) = selected_cmd {
+                        make_request_async(Request::set_hotkey_action(slot_name, &req));
                         self.app_state
                             .hotkey_config
                             .set_slot(slot_name.to_string(), req);
-                        self.save_hotkey_config();
                         self.app_state.assigning_hotkey_slot = Some(slot_name.to_string());
                         self.app_state.hotkey_capture_active = true;
                         ui.close();
@@ -349,16 +333,16 @@ impl SoundpadGui {
             if let Some(action) = action {
                 match action {
                     HotkeyAction::Remove(slot) => {
+                        make_request_async(Request::clear_hotkey(&slot));
                         self.app_state.hotkey_config.remove_slot(&slot);
-                        self.save_hotkey_config();
                     }
                     HotkeyAction::Capture(slot) => {
                         self.app_state.assigning_hotkey_slot = Some(slot);
                         self.app_state.hotkey_capture_active = true;
                     }
                     HotkeyAction::ClearChord(slot) => {
+                        make_request_async(Request::clear_hotkey_key(&slot));
                         self.app_state.hotkey_config.set_key_chord(&slot, None);
-                        self.save_hotkey_config();
                     }
                     HotkeyAction::Play(slot) => {
                         self.play_hotkey_slot(&slot);

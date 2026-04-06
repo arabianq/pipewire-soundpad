@@ -150,10 +150,6 @@ impl SoundpadGui {
         make_request_async(Request::stop(id));
     }
 
-    pub fn save_hotkey_config(&mut self) {
-        self.app_state.hotkey_config.save().ok();
-    }
-
     pub fn play_hotkey_slot(&mut self, slot: &str) {
         make_request_async(Request::play_hotkey(slot));
     }

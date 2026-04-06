@@ -112,6 +112,15 @@ pub struct PlayHotkeyCommand {
     pub slot: Option<String>,
 }
 
+pub struct SetHotkeyActionCommand {
+    pub slot: Option<String>,
+    pub action: Option<Request>,
+}
+
+pub struct ClearHotkeyKeyCommand {
+    pub slot: Option<String>,
+}
+
 #[async_trait]
 impl Executable for PingCommand {
     async fn execute(&self) -> Response {
@@ -618,6 +627,53 @@ impl Executable for PlayHotkeyCommand {
             cmd.execute().await
         } else {
             Response::new(false, "Unknown command in hotkey slot".to_string())
+        }
+    }
+}
+
+#[async_trait]
+impl Executable for SetHotkeyActionCommand {
+    async fn execute(&self) -> Response {
+        let Some(slot) = &self.slot else {
+            return Response::new(false, "Missing slot name");
+        };
+        let Some(action) = &self.action else {
+            return Response::new(false, "Missing or invalid action");
+        };
+
+        let mut config = match HotkeyConfig::load() {
+            Ok(c) => c,
+            Err(err) => return Response::new(false, format!("Failed to load hotkeys: {}", err)),
+        };
+
+        config.set_slot(slot.clone(), action.clone());
+
+        match config.save() {
+            Ok(_) => Response::new(true, format!("Hotkey slot '{}' set", slot)),
+            Err(err) => Response::new(false, format!("Failed to save hotkeys: {}", err)),
+        }
+    }
+}
+
+#[async_trait]
+impl Executable for ClearHotkeyKeyCommand {
+    async fn execute(&self) -> Response {
+        let Some(slot) = &self.slot else {
+            return Response::new(false, "Missing slot name");
+        };
+
+        let mut config = match HotkeyConfig::load() {
+            Ok(c) => c,
+            Err(err) => return Response::new(false, format!("Failed to load hotkeys: {}", err)),
+        };
+
+        if !config.set_key_chord(slot, None) {
+            return Response::new(false, format!("Slot '{}' not found", slot));
+        }
+
+        match config.save() {
+            Ok(_) => Response::new(true, format!("Key chord for slot '{}' cleared", slot)),
+            Err(err) => Response::new(false, format!("Failed to save hotkeys: {}", err)),
         }
     }
 }

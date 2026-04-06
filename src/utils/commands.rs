@@ -94,6 +94,18 @@ pub fn parse_command(request: &Request) -> Option<Box<dyn Executable + Send>> {
             let slot = request.args.get("slot").cloned();
             Some(Box::new(PlayHotkeyCommand { slot }))
         }
+        "set_hotkey_action" => {
+            let slot = request.args.get("slot").cloned();
+            let action = request
+                .args
+                .get("action")
+                .and_then(|s| serde_json::from_str::<Request>(s).ok());
+            Some(Box::new(SetHotkeyActionCommand { slot, action }))
+        }
+        "clear_hotkey_key" => {
+            let slot = request.args.get("slot").cloned();
+            Some(Box::new(ClearHotkeyKeyCommand { slot }))
+        }
         _ => None,
     }
 }

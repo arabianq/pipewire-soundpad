@@ -77,10 +77,13 @@ impl App for SoundpadGui {
 
         // Sync audio player state
         {
-            let guard = self
+            let mut guard = self
                 .audio_player_state_shared
                 .lock()
                 .unwrap_or_else(|e| e.into_inner());
+            if let Some(config) = guard.hotkey_config.take() {
+                self.app_state.hotkey_config = config;
+            }
             self.audio_player_state = guard.clone();
         }
 

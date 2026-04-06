@@ -196,6 +196,18 @@ impl Request {
     pub fn play_hotkey(slot: &str) -> Self {
         Request::new("play_hotkey", vec![("slot", slot)])
     }
+
+    pub fn set_hotkey_action(slot: &str, action: &Request) -> Self {
+        let action_json = serde_json::to_string(action).unwrap_or_default();
+        Request::new(
+            "set_hotkey_action",
+            vec![("slot", slot), ("action", &action_json)],
+        )
+    }
+
+    pub fn clear_hotkey_key(slot: &str) -> Self {
+        Request::new("clear_hotkey_key", vec![("slot", slot)])
+    }
 }
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
