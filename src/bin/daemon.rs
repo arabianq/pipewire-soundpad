@@ -6,6 +6,7 @@ use pwsp::{
             create_runtime_dir, get_audio_player, get_daemon_config, get_runtime_dir,
             is_daemon_running, link_player_to_virtual_mic,
         },
+        global_hotkeys::start_global_hotkey_listener,
         pipewire::create_virtual_mic,
     },
 };
@@ -44,6 +45,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
             sleep(Duration::from_millis(1000)).await;
         }
+    });
+
+    tokio::spawn(async {
+        start_global_hotkey_listener().await;
     });
 
     let runtime_dir = get_runtime_dir();
