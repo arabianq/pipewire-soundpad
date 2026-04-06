@@ -1,6 +1,6 @@
 use crate::types::{
     audio_player::{PlayerState, TrackInfo},
-    hotkeys::HotkeyConfig,
+    config::HotkeyConfig,
 };
 
 use egui::Id;

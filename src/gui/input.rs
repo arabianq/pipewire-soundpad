@@ -1,5 +1,6 @@
 use crate::gui::SoundpadGui;
 use egui::{Context, Id, Key, Modifiers};
+use pwsp::types::socket::Request;
 
 use std::path::PathBuf;
 
@@ -57,8 +58,8 @@ fn chord_from_event(modifiers: &Modifiers, key: &Key) -> Option<String> {
         _ => return None,
     };
 
-    // Require at least one modifier for hotkey chords
-    if !modifiers.ctrl && !modifiers.alt && !modifiers.shift && !modifiers.command {
+    // Require at least one modifier for hotkey chords (ignoring command/Super due to Wayland/Niri bug)
+    if !modifiers.ctrl && !modifiers.alt && !modifiers.shift {
         return None;
     }
 
@@ -72,9 +73,9 @@ fn chord_from_event(modifiers: &Modifiers, key: &Key) -> Option<String> {
     if modifiers.shift {
         parts.push("Shift");
     }
-    if modifiers.command {
-        parts.push("Super");
-    }
+    // We intentionally ignore modifiers.command (Super) here to bypass a Wayland/Niri bug
+    // where the Super key modifier is constantly active.
+
     parts.push(key_name);
 
     Some(parts.join("+"))
@@ -207,7 +208,9 @@ impl SoundpadGui {
 
             if let Some(chord) = captured {
                 if let Some(slot) = self.app_state.assigning_hotkey_slot.take() {
-                    self.app_state.hotkey_config.set_key_chord(&slot, Some(chord));
+                    self.app_state
+                        .hotkey_config
+                        .set_key_chord(&slot, Some(chord));
                     self.save_hotkey_config();
                 } else if let Some(file_path) = self.app_state.assigning_hotkey_for_file.take() {
                     // Auto-create a slot from the file name
@@ -216,9 +219,10 @@ impl SoundpadGui {
                         .unwrap_or_default()
                         .to_string_lossy()
                         .to_string();
-                    self.app_state
-                        .hotkey_config
-                        .set_slot(slot_name.clone(), file_path);
+                    self.app_state.hotkey_config.set_slot(
+                        slot_name.clone(),
+                        Request::play(&file_path.to_string_lossy(), false),
+                    );
                     self.app_state
                         .hotkey_config
                         .set_key_chord(&slot_name, Some(chord));

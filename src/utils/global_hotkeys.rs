@@ -1,5 +1,4 @@
-use crate::types::hotkeys::HotkeyConfig;
-use crate::utils::daemon::get_audio_player;
+use crate::{types::config::HotkeyConfig, utils::commands::parse_command};
 use evdev::{Device, EventStream, EventSummary, KeyCode};
 
 struct ModifierState {
@@ -139,10 +138,7 @@ async fn handle_device_events(mut stream: EventStream) {
                     }
 
                     // Only trigger on press, skip modifiers and bare keys
-                    if value != 1
-                        || ModifierState::is_modifier(key)
-                        || !modifiers.any_active()
-                    {
+                    if value != 1 || ModifierState::is_modifier(key) || !modifiers.any_active() {
                         continue;
                     }
 
@@ -159,10 +155,8 @@ async fn handle_device_events(mut stream: EventStream) {
 
                     let slots = config.slots_for_chord(&chord);
                     for slot in slots {
-                        let file_path = slot.sound_path.clone();
-                        if let Ok(player_mutex) = get_audio_player().await {
-                            let mut player = player_mutex.lock().await;
-                            player.play(&file_path, false).await.ok();
+                        if let Some(cmd) = parse_command(&slot.action) {
+                            cmd.execute().await;
                         }
                     }
                 }
@@ -200,11 +194,7 @@ pub async fn start_global_hotkey_listener() {
                 tokio::spawn(handle_device_events(stream));
             }
             Err(e) => {
-                eprintln!(
-                    "Global hotkeys: failed to open {}: {}",
-                    path.display(),
-                    e
-                );
+                eprintln!("Global hotkeys: failed to open {}: {}", path.display(), e);
             }
         }
     }

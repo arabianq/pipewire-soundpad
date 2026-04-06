@@ -1,13 +1,18 @@
 use crate::gui::SoundpadGui;
 use egui::{
-    Align, AtomExt, Button, CollapsingHeader, Color32, ComboBox, CursorIcon, FontFamily, Label,
-    Layout, RichText, ScrollArea, Sense, Slider, TextEdit, Ui, Vec2,
+    Align, AtomExt, Button, CollapsingHeader, Color32, ComboBox, CursorIcon, FontFamily, Grid,
+    Label, Layout, RichText, ScrollArea, Sense, Slider, TextEdit, Ui, Vec2,
 };
 use egui_dnd::dnd;
 use egui_material_icons::icons::*;
+use pwsp::types::socket::Request;
 use pwsp::types::{audio_player::TrackInfo, gui::AppState};
 use pwsp::utils::gui::format_time_pair;
-use std::{error::Error, path::PathBuf, time::Instant};
+use std::{
+    error::Error,
+    path::{Path, PathBuf},
+    time::Instant,
+};
 
 enum TrackAction {
     Pause(u32),
@@ -96,7 +101,10 @@ impl SoundpadGui {
     }
 
     pub fn draw_hotkeys(&mut self, ui: &mut Ui) {
+        let area_size = ui.available_size();
         ui.vertical(|ui| {
+            ui.set_min_width(area_size.x);
+            ui.set_min_height(area_size.y);
             ui.spacing_mut().item_spacing.y = 5.0;
 
             // Header
@@ -128,8 +136,39 @@ impl SoundpadGui {
                 return;
             }
 
-            // Search
+            // Search and Add Command
             ui.horizontal(|ui| {
+                ui.menu_button(format!("{} Add Command", ICON_ADD.codepoint), |ui| {
+                    let mut selected_cmd = None;
+                    if ui.button("Toggle Pause").clicked() {
+                        selected_cmd = Some(("cmd_toggle_pause", Request::toggle_pause(None)));
+                    }
+                    if ui.button("Stop Playback").clicked() {
+                        selected_cmd = Some(("cmd_stop", Request::stop(None)));
+                    }
+                    if ui.button("Pause Playback").clicked() {
+                        selected_cmd = Some(("cmd_pause", Request::pause(None)));
+                    }
+                    if ui.button("Resume Playback").clicked() {
+                        selected_cmd = Some(("cmd_resume", Request::resume(None)));
+                    }
+                    if ui.button("Toggle Loop").clicked() {
+                        selected_cmd = Some(("cmd_toggle_loop", Request::toggle_loop(None)));
+                    }
+
+                    if let Some((slot_name, req)) = selected_cmd {
+                        self.app_state
+                            .hotkey_config
+                            .set_slot(slot_name.to_string(), req);
+                        self.save_hotkey_config();
+                        self.app_state.assigning_hotkey_slot = Some(slot_name.to_string());
+                        self.app_state.hotkey_capture_active = true;
+                        ui.close();
+                    }
+                });
+
+                ui.add_space(10.0);
+
                 ui.add_sized(
                     [ui.available_width(), 22.0],
                     TextEdit::singleline(&mut self.app_state.hotkey_search_query)
@@ -150,147 +189,161 @@ impl SoundpadGui {
 
             // Slots table
             let mut action: Option<HotkeyAction> = None;
+            let area_size = ui.available_size();
 
             ScrollArea::vertical().show(ui, |ui| {
-                // Table header
-                ui.horizontal(|ui| {
-                    ui.label(
-                        RichText::new("Slot")
-                            .strong()
-                            .monospace()
-                            .color(Color32::LIGHT_GRAY),
-                    );
-                    ui.add_space(80.0);
-                    ui.label(
-                        RichText::new("Sound")
-                            .strong()
-                            .monospace()
-                            .color(Color32::LIGHT_GRAY),
-                    );
-                    ui.add_space(150.0);
-                    ui.label(
-                        RichText::new("Key Chord")
-                            .strong()
-                            .monospace()
-                            .color(Color32::LIGHT_GRAY),
-                    );
-                });
-                ui.separator();
+                ui.set_min_width(area_size.x);
+                Grid::new("hotkeys_grid")
+                    .striped(true)
+                    .num_columns(4)
+                    .max_col_width(area_size.x)
+                    .min_col_width(area_size.x / 4.0)
+                    .spacing([40.0, 10.0])
+                    .show(ui, |ui| {
+                        // Table header
+                        ui.label(
+                            RichText::new("Slot")
+                                .strong()
+                                .monospace()
+                                .color(Color32::LIGHT_GRAY),
+                        );
+                        ui.label(
+                            RichText::new("Sound")
+                                .strong()
+                                .monospace()
+                                .color(Color32::LIGHT_GRAY),
+                        );
+                        ui.label(
+                            RichText::new("Key Chord")
+                                .strong()
+                                .monospace()
+                                .color(Color32::LIGHT_GRAY),
+                        );
+                        ui.label(
+                            RichText::new("Actions")
+                                .strong()
+                                .monospace()
+                                .color(Color32::LIGHT_GRAY),
+                        );
+                        ui.end_row();
 
-                let slots: Vec<_> = self
-                    .app_state
-                    .hotkey_config
-                    .slots
-                    .iter()
-                    .filter(|s| {
-                        if search.is_empty() {
-                            return true;
-                        }
-                        s.slot.to_lowercase().contains(&search)
-                            || s.sound_path
-                                .to_string_lossy()
-                                .to_lowercase()
-                                .contains(&search)
-                            || s.key_chord
-                                .as_deref()
-                                .unwrap_or("")
-                                .to_lowercase()
-                                .contains(&search)
-                    })
-                    .cloned()
-                    .collect();
+                        let slots: Vec<_> = self
+                            .app_state
+                            .hotkey_config
+                            .slots
+                            .iter()
+                            .filter(|s| {
+                                if search.is_empty() {
+                                    return true;
+                                }
+                                s.slot.to_lowercase().contains(&search)
+                                    || format!("{:?}", s.action).to_lowercase().contains(&search)
+                                    || s.key_chord
+                                        .as_deref()
+                                        .unwrap_or("")
+                                        .to_lowercase()
+                                        .contains(&search)
+                            })
+                            .cloned()
+                            .collect();
 
-                for slot in &slots {
-                    ui.horizontal(|ui| {
-                        // Conflict badge
-                        if conflict_slots.contains(&slot.slot) {
-                            ui.label(
-                                RichText::new(ICON_WARNING.codepoint)
-                                    .color(Color32::from_rgb(255, 165, 0)),
-                            )
-                            .on_hover_text("Key chord conflict");
-                        }
+                        for slot in &slots {
+                            ui.horizontal(|ui| {
+                                // Conflict badge
+                                if conflict_slots.contains(&slot.slot) {
+                                    ui.label(
+                                        RichText::new(ICON_WARNING.codepoint)
+                                            .color(Color32::from_rgb(255, 165, 0)),
+                                    )
+                                    .on_hover_text("Key chord conflict");
+                                }
 
-                        // Slot name
-                        let slot_text = RichText::new(&slot.slot).monospace();
-                        ui.label(slot_text);
+                                // Slot name
+                                let slot_text = RichText::new(&slot.slot).monospace();
+                                ui.label(slot_text);
+                            });
 
-                        ui.add_space(20.0);
+                            // Action description
+                            let action_name = match slot.action.name.as_str() {
+                                "play" => {
+                                    if let Some(file_path_str) = slot.action.args.get("file_path") {
+                                        Path::new(file_path_str)
+                                            .file_name()
+                                            .unwrap_or_default()
+                                            .to_string_lossy()
+                                            .to_string()
+                                    } else {
+                                        "Play".to_string()
+                                    }
+                                }
+                                "toggle_pause" => "Toggle Pause".to_string(),
+                                "pause" => "Pause Playback".to_string(),
+                                "resume" => "Resume Playback".to_string(),
+                                "stop" => "Stop Playback".to_string(),
+                                "toggle_loop" => "Toggle Loop".to_string(),
+                                other => other.to_string(),
+                            };
+                            ui.add(Label::new(RichText::new(action_name).monospace()).truncate());
 
-                        // Sound file name
-                        let file_name = slot
-                            .sound_path
-                            .file_name()
-                            .unwrap_or_default()
-                            .to_string_lossy()
-                            .to_string();
-                        ui.label(RichText::new(file_name).monospace());
+                            // Key chord
+                            let chord_text = slot.key_chord.as_deref().unwrap_or("(none)");
+                            ui.label(RichText::new(chord_text).monospace().color(
+                                if slot.key_chord.is_some() {
+                                    Color32::from_rgb(100, 200, 100)
+                                } else {
+                                    Color32::GRAY
+                                },
+                            ));
 
-                        ui.add_space(20.0);
-
-                        // Key chord
-                        let chord_text = slot
-                            .key_chord
-                            .as_deref()
-                            .unwrap_or("(none)");
-                        ui.label(RichText::new(chord_text).monospace().color(
-                            if slot.key_chord.is_some() {
-                                Color32::from_rgb(100, 200, 100)
-                            } else {
-                                Color32::GRAY
-                            },
-                        ));
-
-                        ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
-                            // Delete button
-                            if ui
-                                .add(Button::new(ICON_DELETE).frame(false))
-                                .on_hover_text("Remove slot")
-                                .clicked()
-                            {
-                                action = Some(HotkeyAction::Remove(slot.slot.clone()));
-                            }
-
-                            // Set key chord button
-                            if ui
-                                .add(Button::new(ICON_KEYBOARD).frame(false))
-                                .on_hover_text("Set key chord")
-                                .clicked()
-                            {
-                                action = Some(HotkeyAction::Capture(slot.slot.clone()));
-                            }
-
-                            // Clear key chord
-                            if slot.key_chord.is_some()
-                                && ui
-                                    .add(Button::new(ICON_BACKSPACE).frame(false))
-                                    .on_hover_text("Clear key chord")
+                            ui.horizontal(|ui| {
+                                // Delete button
+                                if ui
+                                    .add(Button::new(ICON_DELETE).frame(false))
+                                    .on_hover_text("Remove slot")
                                     .clicked()
-                            {
-                                action = Some(HotkeyAction::ClearChord(slot.slot.clone()));
-                            }
+                                {
+                                    action = Some(HotkeyAction::Remove(slot.slot.clone()));
+                                }
 
-                            // Play button
-                            if ui
-                                .add(Button::new(ICON_PLAY_ARROW).frame(false))
-                                .on_hover_text("Play")
-                                .clicked()
-                            {
-                                action = Some(HotkeyAction::Play(slot.slot.clone()));
-                            }
-                        });
-                    });
-                    ui.separator();
-                }
+                                // Set key chord button
+                                if ui
+                                    .add(Button::new(ICON_KEYBOARD).frame(false))
+                                    .on_hover_text("Set key chord")
+                                    .clicked()
+                                {
+                                    action = Some(HotkeyAction::Capture(slot.slot.clone()));
+                                }
 
-                if slots.is_empty() {
-                    ui.add_space(20.0);
-                    ui.vertical_centered(|ui| {
-                        ui.label("No hotkey slots configured.");
-                        ui.add_space(5.0);
-                        ui.label("Right-click a sound file and choose \"Assign Hotkey\" to add one.");
+                                // Clear key chord
+                                if slot.key_chord.is_some()
+                                    && ui
+                                        .add(Button::new(ICON_BACKSPACE).frame(false))
+                                        .on_hover_text("Clear key chord")
+                                        .clicked()
+                                {
+                                    action = Some(HotkeyAction::ClearChord(slot.slot.clone()));
+                                }
+
+                                // Play button
+                                if ui
+                                    .add(Button::new(ICON_PLAY_ARROW).frame(false))
+                                    .on_hover_text("Play")
+                                    .clicked()
+                                {
+                                    action = Some(HotkeyAction::Play(slot.slot.clone()));
+                                }
+                            });
+                            ui.end_row();
+                        }
+
+                        if slots.is_empty() {
+                            ui.label("No hotkey slots configured.");
+                            ui.label("");
+                            ui.label("");
+                            ui.label("");
+                            ui.end_row();
+                        }
                     });
-                }
             });
 
             if let Some(action) = action {
@@ -316,6 +369,33 @@ impl SoundpadGui {
     }
 
     pub fn draw(&mut self, ui: &mut Ui) -> Result<(), Box<dyn Error>> {
+        if self.app_state.hotkey_capture_active {
+            ui.vertical_centered(|ui| {
+                ui.add_space(ui.available_height() / 3.0);
+                ui.label(
+                    RichText::new("Press a key combination (e.g. Ctrl+Alt+1)")
+                        .size(18.0)
+                        .color(Color32::YELLOW)
+                        .monospace(),
+                );
+                ui.add_space(10.0);
+                let target = if let Some(slot) = &self.app_state.assigning_hotkey_slot {
+                    format!("for slot '{}'", slot)
+                } else if let Some(path) = &self.app_state.assigning_hotkey_for_file {
+                    format!(
+                        "for '{}'",
+                        path.file_name().unwrap_or_default().to_string_lossy()
+                    )
+                } else {
+                    String::new()
+                };
+                ui.label(RichText::new(target).size(16.0));
+                ui.add_space(10.0);
+                ui.label("Press Escape to cancel");
+            });
+            return Ok(());
+        }
+
         self.draw_header(ui);
         self.draw_body(ui);
         ui.separator();
@@ -655,100 +735,104 @@ impl SoundpadGui {
                             .to_string();
 
                         ui.horizontal(|ui| {
-                        // Hotkey badge
-                        let hotkey_badge = self.get_hotkey_badge(&entry_path);
-                        if let Some(badge) = &hotkey_badge {
-                            ui.label(
-                                RichText::new(badge)
-                                    .small()
-                                    .monospace()
-                                    .color(Color32::from_rgb(100, 200, 100)),
-                            );
-                        }
-
-                        let mut file_button_text = RichText::new(&file_name);
-                        if let Some(current_file) = &self.app_state.selected_file {
-                            if current_file.eq(&entry_path) {
-                                file_button_text = file_button_text.color(Color32::WHITE);
+                            // Hotkey badge
+                            let hotkey_badge = self.get_hotkey_badge(&entry_path);
+                            if let Some(badge) = &hotkey_badge {
+                                ui.label(
+                                    RichText::new(badge)
+                                        .small()
+                                        .monospace()
+                                        .color(Color32::from_rgb(100, 200, 100)),
+                                );
                             }
-                        }
 
-                        let file_button = Button::new(file_button_text).frame(false);
-                        let file_button_response = ui.add(file_button);
-                        if file_button_response.clicked() {
-                            ui.input(|i| {
-                                if i.modifiers.ctrl {
+                            let mut file_button_text = RichText::new(&file_name);
+                            if let Some(current_file) = &self.app_state.selected_file {
+                                if current_file.eq(&entry_path) {
+                                    file_button_text = file_button_text.color(Color32::WHITE);
+                                }
+                            }
+
+                            let file_button = Button::new(file_button_text).frame(false);
+                            let file_button_response = ui.add(file_button);
+                            if file_button_response.clicked() {
+                                ui.input(|i| {
+                                    if i.modifiers.ctrl {
+                                        self.play_file(&entry_path, true);
+                                    } else if i.modifiers.shift
+                                        && let Some(last_track) =
+                                            self.audio_player_state.tracks.last()
+                                    {
+                                        self.stop(Some(last_track.id));
+                                        self.play_file(&entry_path, true);
+                                    } else {
+                                        self.play_file(&entry_path, false);
+                                    }
+                                });
+                                self.app_state.selected_file = Some(entry_path.clone());
+                            }
+
+                            // Context menu
+                            file_button_response.context_menu(|ui| {
+                                if ui
+                                    .button(format!("{} {}", ICON_BOLT.codepoint, "Play Solo"))
+                                    .clicked()
+                                {
+                                    self.play_file(&entry_path, false);
+                                    self.app_state.selected_file = Some(entry_path.clone());
+                                }
+
+                                if ui
+                                    .button(format!("{} {}", ICON_ADD.codepoint, "Add New"))
+                                    .clicked()
+                                {
                                     self.play_file(&entry_path, true);
-                                } else if i.modifiers.shift
+                                    self.app_state.selected_file = Some(entry_path.clone());
+                                }
+
+                                if ui
+                                    .button(format!(
+                                        "{} {}",
+                                        ICON_SWAP_HORIZ.codepoint, "Replace Last"
+                                    ))
+                                    .clicked()
                                     && let Some(last_track) = self.audio_player_state.tracks.last()
                                 {
                                     self.stop(Some(last_track.id));
                                     self.play_file(&entry_path, true);
-                                } else {
-                                    self.play_file(&entry_path, false);
+                                    self.app_state.selected_file = Some(entry_path.clone());
+                                }
+
+                                ui.separator();
+
+                                if ui
+                                    .button(format!(
+                                        "{} {}",
+                                        ICON_OPEN_IN_BROWSER.codepoint, "Show in File Manager"
+                                    ))
+                                    .clicked()
+                                {
+                                    if let Err(e) = opener::reveal(&entry_path) {
+                                        eprintln!("Failed to open file manager: {}", e);
+                                    }
+                                }
+
+                                ui.separator();
+
+                                if ui
+                                    .button(format!(
+                                        "{} {}",
+                                        ICON_KEYBOARD.codepoint, "Assign Hotkey"
+                                    ))
+                                    .clicked()
+                                {
+                                    self.app_state.assigning_hotkey_for_file =
+                                        Some(entry_path.clone());
+                                    self.app_state.hotkey_capture_active = true;
+                                    ui.close();
                                 }
                             });
-                            self.app_state.selected_file = Some(entry_path.clone());
-                        }
-
-                        // Context menu
-                        file_button_response.context_menu(|ui| {
-                            if ui
-                                .button(format!("{} {}", ICON_BOLT.codepoint, "Play Solo"))
-                                .clicked()
-                            {
-                                self.play_file(&entry_path, false);
-                                self.app_state.selected_file = Some(entry_path.clone());
-                            }
-
-                            if ui
-                                .button(format!("{} {}", ICON_ADD.codepoint, "Add New"))
-                                .clicked()
-                            {
-                                self.play_file(&entry_path, true);
-                                self.app_state.selected_file = Some(entry_path.clone());
-                            }
-
-                            if ui
-                                .button(format!("{} {}", ICON_SWAP_HORIZ.codepoint, "Replace Last"))
-                                .clicked()
-                                && let Some(last_track) = self.audio_player_state.tracks.last()
-                            {
-                                self.stop(Some(last_track.id));
-                                self.play_file(&entry_path, true);
-                                self.app_state.selected_file = Some(entry_path.clone());
-                            }
-
-                            ui.separator();
-
-                            if ui
-                                .button(format!(
-                                    "{} {}",
-                                    ICON_OPEN_IN_BROWSER.codepoint, "Show in File Manager"
-                                ))
-                                .clicked()
-                            {
-                                if let Err(e) = opener::reveal(&entry_path) {
-                                    eprintln!("Failed to open file manager: {}", e);
-                                }
-                            }
-
-                            ui.separator();
-
-                            if ui
-                                .button(format!(
-                                    "{} {}",
-                                    ICON_KEYBOARD.codepoint, "Assign Hotkey"
-                                ))
-                                .clicked()
-                            {
-                                self.app_state.assigning_hotkey_for_file =
-                                    Some(entry_path.clone());
-                                self.app_state.hotkey_capture_active = true;
-                                ui.close();
-                            }
                         });
-                    });
                     }
                 });
             });
@@ -757,11 +841,15 @@ impl SoundpadGui {
 
     fn get_hotkey_badge(&self, path: &PathBuf) -> Option<String> {
         for slot in &self.app_state.hotkey_config.slots {
-            if slot.sound_path == *path {
-                if let Some(chord) = &slot.key_chord {
-                    return Some(format!("[{}]", chord));
-                } else {
-                    return Some(format!("[{}]", slot.slot));
+            if slot.action.name == "play" {
+                if let Some(file_path_str) = slot.action.args.get("file_path") {
+                    if Path::new(file_path_str) == path.as_path() {
+                        if let Some(chord) = &slot.key_chord {
+                            return Some(format!("[{}]", chord));
+                        } else {
+                            return Some(format!("[{}]", slot.slot));
+                        }
+                    }
                 }
             }
         }
@@ -824,9 +912,7 @@ impl SoundpadGui {
             }
             // ------------------------------------------
 
-            ui.add_space(
-                ui.available_width() - 18.0 * 2.0 - ui.spacing().item_spacing.x * 2.0,
-            );
+            ui.add_space(ui.available_width() - 18.0 * 2.0 - ui.spacing().item_spacing.x * 2.0);
 
             // ---------- Hotkeys button ----------
             let hotkeys_button =

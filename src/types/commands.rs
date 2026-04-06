@@ -1,10 +1,11 @@
 use crate::{
     types::{
         audio_player::{FullState, PlayerState},
-        hotkeys::HotkeyConfig,
-        socket::Response,
+        config::HotkeyConfig,
+        socket::{Request, Response},
     },
     utils::{
+        commands::parse_command,
         daemon::get_audio_player,
         pipewire::{get_all_devices, get_device},
     },
@@ -509,9 +510,7 @@ impl Executable for GetHotkeysCommand {
         match HotkeyConfig::load() {
             Ok(config) => match serde_json::to_string(&config) {
                 Ok(json) => Response::new(true, json),
-                Err(err) => {
-                    Response::new(false, format!("Failed to serialize hotkeys: {}", err))
-                }
+                Err(err) => Response::new(false, format!("Failed to serialize hotkeys: {}", err)),
             },
             Err(err) => Response::new(false, format!("Failed to load hotkeys: {}", err)),
         }
@@ -533,7 +532,10 @@ impl Executable for SetHotkeyCommand {
             Err(err) => return Response::new(false, format!("Failed to load hotkeys: {}", err)),
         };
 
-        config.set_slot(slot.clone(), file_path.clone());
+        config.set_slot(
+            slot.clone(),
+            Request::play(&file_path.to_string_lossy(), false),
+        );
 
         match config.save() {
             Ok(_) => Response::new(true, format!("Hotkey slot '{}' set", slot)),
@@ -562,7 +564,10 @@ impl Executable for SetHotkeyKeyCommand {
         }
 
         match config.save() {
-            Ok(_) => Response::new(true, format!("Key chord for slot '{}' set to '{}'", slot, key_chord)),
+            Ok(_) => Response::new(
+                true,
+                format!("Key chord for slot '{}' set to '{}'", slot, key_chord),
+            ),
             Err(err) => Response::new(false, format!("Failed to save hotkeys: {}", err)),
         }
     }
@@ -607,16 +612,12 @@ impl Executable for PlayHotkeyCommand {
             return Response::new(false, format!("Slot '{}' not found", slot));
         };
 
-        let file_path = hotkey_slot.sound_path.clone();
+        let action = hotkey_slot.action.clone();
 
-        let mut audio_player = match get_audio_player().await {
-            Ok(player) => player.lock().await,
-            Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
-        };
-
-        match audio_player.play(&file_path, false).await {
-            Ok(id) => Response::new(true, id.to_string()),
-            Err(err) => Response::new(false, err.to_string()),
+        if let Some(cmd) = parse_command(&action) {
+            cmd.execute().await
+        } else {
+            Response::new(false, "Unknown command in hotkey slot".to_string())
         }
     }
 }

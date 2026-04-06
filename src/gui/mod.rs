@@ -9,8 +9,8 @@ use pwsp::{
     types::{
         audio_player::PlayerState,
         config::GuiConfig,
+        config::HotkeyConfig,
         gui::{AppState, AudioPlayerState},
-        hotkeys::HotkeyConfig,
         socket::Request,
     },
     utils::{
@@ -53,8 +53,7 @@ impl SoundpadGui {
         };
 
         soundpad_gui.app_state.dirs = config.dirs;
-        soundpad_gui.app_state.hotkey_config =
-            HotkeyConfig::load().unwrap_or_default();
+        soundpad_gui.app_state.hotkey_config = HotkeyConfig::load().unwrap_or_default();
 
         soundpad_gui
     }
