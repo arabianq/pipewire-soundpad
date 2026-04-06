@@ -68,6 +68,10 @@ enum Actions {
         #[clap(short, long)]
         id: Option<u32>,
     },
+    /// Play a sound by hotkey slot name
+    PlayHotkey { slot: String },
+    /// Remove a hotkey slot
+    ClearHotkey { slot: String },
 }
 
 #[derive(Subcommand, Debug)]
@@ -101,6 +105,8 @@ enum GetCommands {
     DaemonVersion,
     /// Full player state
     FullState,
+    /// All hotkey slots
+    Hotkeys,
 }
 
 #[derive(Subcommand, Debug)]
@@ -125,6 +131,10 @@ enum SetCommands {
         #[clap(short, long)]
         id: Option<u32>,
     },
+    /// Assign a sound file to a hotkey slot
+    Hotkey { slot: String, file_path: PathBuf },
+    /// Set the key chord for a hotkey slot (e.g. "Ctrl+Alt+1")
+    HotkeyKey { slot: String, key_chord: String },
 }
 
 #[tokio::main]
@@ -146,6 +156,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 concurrent,
             } => Request::play(&file_path.to_string_lossy(), concurrent),
             Actions::ToggleLoop { id } => Request::toggle_loop(id),
+            Actions::PlayHotkey { slot } => Request::play_hotkey(&slot),
+            Actions::ClearHotkey { slot } => Request::clear_hotkey(&slot),
         },
         Commands::Get { parameter } => match parameter {
             GetCommands::IsPaused => Request::get_is_paused(),
@@ -158,12 +170,19 @@ async fn main() -> Result<(), Box<dyn Error>> {
             GetCommands::Inputs => Request::get_inputs(),
             GetCommands::DaemonVersion => Request::get_daemon_version(),
             GetCommands::FullState => Request::get_full_state(),
+            GetCommands::Hotkeys => Request::get_hotkeys(),
         },
         Commands::Set { parameter } => match parameter {
             SetCommands::Volume { volume, id } => Request::set_volume(volume, id),
             SetCommands::Position { position, id } => Request::seek(position, id),
             SetCommands::Input { name } => Request::set_input(&name),
             SetCommands::Loop { enabled, id } => Request::set_loop(&enabled, id),
+            SetCommands::Hotkey { slot, file_path } => {
+                Request::set_hotkey(&slot, &file_path.to_string_lossy())
+            }
+            SetCommands::HotkeyKey { slot, key_chord } => {
+                Request::set_hotkey_key(&slot, &key_chord)
+            }
         },
     };
 

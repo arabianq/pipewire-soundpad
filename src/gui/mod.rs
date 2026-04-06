@@ -9,6 +9,7 @@ use pwsp::{
     types::{
         audio_player::PlayerState,
         config::GuiConfig,
+        config::HotkeyConfig,
         gui::{AppState, AudioPlayerState},
         socket::Request,
     },
@@ -52,6 +53,7 @@ impl SoundpadGui {
         };
 
         soundpad_gui.app_state.dirs = config.dirs;
+        soundpad_gui.app_state.hotkey_config = HotkeyConfig::load().unwrap_or_default();
 
         soundpad_gui
     }
@@ -146,6 +148,10 @@ impl SoundpadGui {
 
     pub fn stop(&mut self, id: Option<u32>) {
         make_request_async(Request::stop(id));
+    }
+
+    pub fn play_hotkey_slot(&mut self, slot: &str) {
+        make_request_async(Request::play_hotkey(slot));
     }
 
     pub fn get_filtered_files(&self) -> Vec<PathBuf> {
