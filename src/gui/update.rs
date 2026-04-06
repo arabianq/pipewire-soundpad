@@ -110,6 +110,11 @@ impl App for SoundpadGui {
                 return;
             }
 
+            if self.app_state.hotkey_capture_active {
+                self.draw_hotkey_capture(ui);
+                return;
+            }
+
             if self.app_state.show_settings {
                 self.draw_settings(ui);
                 return;
@@ -120,7 +125,7 @@ impl App for SoundpadGui {
                 return;
             }
 
-            self.draw(ui).ok();
+            self.draw(ui);
         });
 
         // Request repaint

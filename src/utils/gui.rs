@@ -109,7 +109,9 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
 
             // Poll hotkey config at a lower frequency (~every 2 seconds)
             if last_hotkey_poll.elapsed() >= Duration::from_secs(2) {
-                let hotkey_res = make_request(Request::get_hotkeys()).await.unwrap_or_default();
+                let hotkey_res = make_request(Request::get_hotkeys())
+                    .await
+                    .unwrap_or_default();
                 if hotkey_res.status {
                     if let Ok(config) = serde_json::from_str::<HotkeyConfig>(&hotkey_res.message) {
                         let mut guard = audio_player_state_shared

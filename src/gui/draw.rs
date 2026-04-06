@@ -9,7 +9,6 @@ use pwsp::types::socket::Request;
 use pwsp::types::{audio_player::TrackInfo, gui::AppState};
 use pwsp::utils::gui::{format_time_pair, make_request_async};
 use std::{
-    error::Error,
     path::{Path, PathBuf},
     time::Instant,
 };
@@ -41,6 +40,13 @@ impl SoundpadGui {
         }
     }
 
+    pub fn draw(&mut self, ui: &mut Ui) {
+        self.draw_header(ui);
+        self.draw_body(ui);
+        ui.separator();
+        self.draw_footer(ui);
+    }
+
     pub fn draw_waiting_for_daemon(&mut self, ui: &mut Ui) {
         ui.centered_and_justified(|ui| {
             ui.label(
@@ -48,6 +54,32 @@ impl SoundpadGui {
                     .size(34.0)
                     .monospace(),
             );
+        });
+    }
+
+    pub fn draw_hotkey_capture(&mut self, ui: &mut Ui) {
+        ui.vertical_centered(|ui| {
+            ui.add_space(ui.available_height() / 3.0);
+            ui.label(
+                RichText::new("Press a key combination (e.g. Ctrl+Alt+1)")
+                    .size(18.0)
+                    .color(Color32::YELLOW)
+                    .monospace(),
+            );
+            ui.add_space(10.0);
+            let target = if let Some(slot) = &self.app_state.assigning_hotkey_slot {
+                format!("for slot '{}'", slot)
+            } else if let Some(path) = &self.app_state.assigning_hotkey_for_file {
+                format!(
+                    "for '{}'",
+                    path.file_name().unwrap_or_default().to_string_lossy()
+                )
+            } else {
+                String::new()
+            };
+            ui.label(RichText::new(target).size(16.0));
+            ui.add_space(10.0);
+            ui.label("Press Escape to cancel");
         });
     }
 
@@ -350,41 +382,6 @@ impl SoundpadGui {
                 }
             }
         });
-    }
-
-    pub fn draw(&mut self, ui: &mut Ui) -> Result<(), Box<dyn Error>> {
-        if self.app_state.hotkey_capture_active {
-            ui.vertical_centered(|ui| {
-                ui.add_space(ui.available_height() / 3.0);
-                ui.label(
-                    RichText::new("Press a key combination (e.g. Ctrl+Alt+1)")
-                        .size(18.0)
-                        .color(Color32::YELLOW)
-                        .monospace(),
-                );
-                ui.add_space(10.0);
-                let target = if let Some(slot) = &self.app_state.assigning_hotkey_slot {
-                    format!("for slot '{}'", slot)
-                } else if let Some(path) = &self.app_state.assigning_hotkey_for_file {
-                    format!(
-                        "for '{}'",
-                        path.file_name().unwrap_or_default().to_string_lossy()
-                    )
-                } else {
-                    String::new()
-                };
-                ui.label(RichText::new(target).size(16.0));
-                ui.add_space(10.0);
-                ui.label("Press Escape to cancel");
-            });
-            return Ok(());
-        }
-
-        self.draw_header(ui);
-        self.draw_body(ui);
-        ui.separator();
-        self.draw_footer(ui);
-        Ok(())
     }
 
     fn draw_header(&mut self, ui: &mut Ui) {
