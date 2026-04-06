@@ -25,8 +25,8 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-const SUPPORTED_EXTENSIONS: [&str; 11] = [
-    "mp3", "wav", "ogg", "flac", "mp4", "m4a", "aac", "mov", "mkv", "webm", "avi",
+const SUPPORTED_EXTENSIONS: [&str; 12] = [
+    "mp3", "wav", "ogg", "flac", "mp4", "m4a", "aac", "mov", "mkv", "mka", "webm", "avi",
 ];
 
 struct SoundpadGui {
