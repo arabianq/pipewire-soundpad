@@ -711,7 +711,7 @@ impl SoundpadGui {
                     for entry_path in files {
                         let file_name = entry_path
                             .file_name()
-                            .unwrap()
+                            .unwrap_or_default()
                             .to_string_lossy()
                             .to_string();
 
