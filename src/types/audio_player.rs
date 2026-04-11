@@ -53,7 +53,7 @@ pub struct PlayingSound {
 }
 
 pub struct AudioPlayer {
-    pub stream_handle: MixerDeviceSink,
+    stream_handle: Option<MixerDeviceSink>,
     pub tracks: HashMap<u32, PlayingSound>,
     pub next_id: u32,
 
@@ -68,10 +68,8 @@ impl AudioPlayer {
         let daemon_config = get_daemon_config();
         let default_volume = daemon_config.default_volume.unwrap_or(1.0);
 
-        let stream_handle = DeviceSinkBuilder::open_default_sink()?;
-
         let mut audio_player = AudioPlayer {
-            stream_handle,
+            stream_handle: None,
             tracks: HashMap::new(),
             next_id: 1,
 
@@ -86,6 +84,21 @@ impl AudioPlayer {
         }
 
         Ok(audio_player)
+    }
+
+    fn ensure_stream(&mut self) -> Result<&MixerDeviceSink, Box<dyn Error>> {
+        if self.stream_handle.is_none() {
+            let mut sink = DeviceSinkBuilder::open_default_sink()?;
+            sink.log_on_drop(false);
+            self.stream_handle = Some(sink);
+        }
+        Ok(self.stream_handle.as_ref().unwrap())
+    }
+
+    fn drop_stream(&mut self) {
+        if self.stream_handle.is_some() {
+            self.stream_handle = None;
+        }
     }
 
     fn abort_link_thread(&mut self) {
@@ -178,6 +191,9 @@ impl AudioPlayer {
             self.tracks.remove(&id);
         } else {
             self.tracks.clear();
+        }
+        if self.tracks.is_empty() {
+            self.drop_stream();
         }
     }
 
@@ -299,12 +315,15 @@ impl AudioPlayer {
                     self.tracks.clear();
                 }
 
+                self.ensure_stream()?;
+
                 let id = self.next_id;
                 self.next_id += 1;
 
                 let duration = source.total_duration().map(|d| d.as_secs_f32());
 
-                let sink = Player::connect_new(self.stream_handle.mixer());
+                let mixer = self.stream_handle.as_ref().unwrap().mixer();
+                let sink = Player::connect_new(mixer);
                 sink.set_volume(self.volume); // Default volume is 1.0 * master
                 sink.append(source);
                 sink.play();
@@ -358,20 +377,23 @@ impl AudioPlayer {
         tracks
     }
 
-    pub async fn update(&mut self) {
-        if let Some(input_device_name) = &self.input_device_name {
-            // Unlink devices if selected input device was removed
-            if self.input_link_sender.is_some() && get_device(input_device_name).await.is_err() {
-                // Selected input device was removed
-                eprintln!(
-                    "Selected input device {} was removed, unlinking devices",
-                    input_device_name
-                );
-                self.abort_link_thread();
-            }
-            // Link devices if not linked
-            else if self.input_link_sender.is_none() {
-                self.link_devices().await.ok();
+    pub async fn update(&mut self, check_devices: bool) {
+        if check_devices {
+            if let Some(input_device_name) = &self.input_device_name {
+                // Unlink devices if selected input device was removed
+                if self.input_link_sender.is_some()
+                    && get_device(input_device_name).await.is_err()
+                {
+                    eprintln!(
+                        "Selected input device {} was removed, unlinking devices",
+                        input_device_name
+                    );
+                    self.abort_link_thread();
+                }
+                // Link devices if not linked
+                else if self.input_link_sender.is_none() {
+                    self.link_devices().await.ok();
+                }
             }
         }
 
@@ -412,6 +434,10 @@ impl AudioPlayer {
 
         self.tracks
             .retain(|_, sound| !sound.sink.empty() || sound.looped);
+
+        if self.tracks.is_empty() {
+            self.drop_stream();
+        }
     }
 
     pub async fn set_current_input_device(&mut self, name: &str) -> Result<(), Box<dyn Error>> {

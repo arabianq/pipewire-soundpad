@@ -40,7 +40,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     println!("Successfully linked player to virtual mic.");
                     break;
                 }
-                Err(e) => println!("{e}\t{i}/{max_retries}"),
+                Err(e) => {
+                    if i == 0 || i == max_retries {
+                        eprintln!("{e} (attempt {i}/{max_retries})");
+                    }
+                }
             }
 
             sleep(Duration::from_millis(1000)).await;
@@ -174,19 +178,25 @@ async fn commands_loop(listener: UnixListener) -> Result<(), Box<dyn Error>> {
 }
 
 async fn player_loop() {
+    let mut device_check_counter: u32 = 0;
     loop {
-        match get_audio_player().await {
+        let is_idle = match get_audio_player().await {
             Ok(player_mutex) => {
                 let mut audio_player = player_mutex.lock().await;
-                audio_player.update().await;
+                let check_devices = device_check_counter == 0;
+                audio_player.update(check_devices).await;
+                audio_player.tracks.is_empty()
             }
-            Err(_err) => {
-                // To avoid spamming logs every 100ms when audio player fails to init
-                // we can just sleep, or you might prefer to print the error.
-                // Assuming it failed to initialize, no player update is possible.
-            }
-        }
+            Err(_err) => true,
+        };
 
-        sleep(Duration::from_millis(100)).await;
+        if is_idle {
+            device_check_counter = 0;
+            sleep(Duration::from_secs(2)).await;
+        } else {
+            // Check devices every ~5 seconds (50 * 100ms) while playing
+            device_check_counter = (device_check_counter + 1) % 50;
+            sleep(Duration::from_millis(100)).await;
+        }
     }
 }
