@@ -221,16 +221,21 @@ impl SoundpadGui {
                         .to_string_lossy()
                         .to_string();
                     let action = Request::play(&file_path.to_string_lossy(), false);
-                    make_request_async(Request::set_hotkey_action(&slot_name, &action));
-                    make_request_async(Request::set_hotkey_key(&slot_name, &chord));
+
+                    make_request_async(Request::set_hotkey_action_and_key(
+                        &slot_name, &action, &chord,
+                    ));
+
                     self.app_state
                         .hotkey_config
                         .set_slot(slot_name.clone(), action);
                     self.app_state
                         .hotkey_config
-                        .set_key_chord(&slot_name, Some(chord));
+                        .set_key_chord(&slot_name, Some(chord.clone()));
                 }
                 self.app_state.hotkey_capture_active = false;
+                self.app_state.assigning_hotkey_slot = None;
+                self.app_state.assigning_hotkey_for_file = None;
             }
             return;
         }

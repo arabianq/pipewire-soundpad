@@ -99,22 +99,28 @@ pub struct SetHotkeyCommand {
     pub file_path: Option<PathBuf>,
 }
 
+pub struct SetHotkeyActionCommand {
+    pub slot: Option<String>,
+    pub action: Option<Request>,
+}
+
 pub struct SetHotkeyKeyCommand {
     pub slot: Option<String>,
     pub key_chord: Option<String>,
 }
 
-pub struct ClearHotkeyCommand {
+pub struct SetHotkeyActionAndKeyCommand {
     pub slot: Option<String>,
+    pub action: Option<Request>,
+    pub key_chord: Option<String>,
 }
 
 pub struct PlayHotkeyCommand {
     pub slot: Option<String>,
 }
 
-pub struct SetHotkeyActionCommand {
+pub struct ClearHotkeyCommand {
     pub slot: Option<String>,
-    pub action: Option<Request>,
 }
 
 pub struct ClearHotkeyKeyCommand {
@@ -554,6 +560,30 @@ impl Executable for SetHotkeyCommand {
 }
 
 #[async_trait]
+impl Executable for SetHotkeyActionCommand {
+    async fn execute(&self) -> Response {
+        let Some(slot) = &self.slot else {
+            return Response::new(false, "Missing slot name");
+        };
+        let Some(action) = &self.action else {
+            return Response::new(false, "Missing or invalid action");
+        };
+
+        let mut config = match HotkeyConfig::load() {
+            Ok(c) => c,
+            Err(err) => return Response::new(false, format!("Failed to load hotkeys: {}", err)),
+        };
+
+        config.set_slot(slot.clone(), action.clone());
+
+        match config.save() {
+            Ok(_) => Response::new(true, format!("Hotkey slot '{}' set", slot)),
+            Err(err) => Response::new(false, format!("Failed to save hotkeys: {}", err)),
+        }
+    }
+}
+
+#[async_trait]
 impl Executable for SetHotkeyKeyCommand {
     async fn execute(&self) -> Response {
         let Some(slot) = &self.slot else {
@@ -583,10 +613,16 @@ impl Executable for SetHotkeyKeyCommand {
 }
 
 #[async_trait]
-impl Executable for ClearHotkeyCommand {
+impl Executable for SetHotkeyActionAndKeyCommand {
     async fn execute(&self) -> Response {
         let Some(slot) = &self.slot else {
             return Response::new(false, "Missing slot name");
+        };
+        let Some(action) = &self.action else {
+            return Response::new(false, "Missing or invalid action");
+        };
+        let Some(key_chord) = &self.key_chord else {
+            return Response::new(false, "Missing key chord");
         };
 
         let mut config = match HotkeyConfig::load() {
@@ -594,13 +630,24 @@ impl Executable for ClearHotkeyCommand {
             Err(err) => return Response::new(false, format!("Failed to load hotkeys: {}", err)),
         };
 
-        if config.remove_slot(slot) {
-            match config.save() {
-                Ok(_) => Response::new(true, format!("Hotkey slot '{}' cleared", slot)),
-                Err(err) => Response::new(false, format!("Failed to save hotkeys: {}", err)),
-            }
-        } else {
-            Response::new(false, format!("Slot '{}' not found", slot))
+        // Set the action and then the key chord
+        config.set_slot(slot.clone(), action.clone());
+        if !config.set_key_chord(slot, Some(key_chord.clone())) {
+            return Response::new(
+                false,
+                format!("Slot '{}' not found after setting action", slot),
+            );
+        }
+
+        match config.save() {
+            Ok(_) => Response::new(
+                true,
+                format!(
+                    "Hotkey slot '{}' set with action and key chord '{}'",
+                    slot, key_chord
+                ),
+            ),
+            Err(err) => Response::new(false, format!("Failed to save hotkeys: {}", err)),
         }
     }
 }
@@ -632,13 +679,10 @@ impl Executable for PlayHotkeyCommand {
 }
 
 #[async_trait]
-impl Executable for SetHotkeyActionCommand {
+impl Executable for ClearHotkeyCommand {
     async fn execute(&self) -> Response {
         let Some(slot) = &self.slot else {
             return Response::new(false, "Missing slot name");
-        };
-        let Some(action) = &self.action else {
-            return Response::new(false, "Missing or invalid action");
         };
 
         let mut config = match HotkeyConfig::load() {
@@ -646,11 +690,13 @@ impl Executable for SetHotkeyActionCommand {
             Err(err) => return Response::new(false, format!("Failed to load hotkeys: {}", err)),
         };
 
-        config.set_slot(slot.clone(), action.clone());
-
-        match config.save() {
-            Ok(_) => Response::new(true, format!("Hotkey slot '{}' set", slot)),
-            Err(err) => Response::new(false, format!("Failed to save hotkeys: {}", err)),
+        if config.remove_slot(slot) {
+            match config.save() {
+                Ok(_) => Response::new(true, format!("Hotkey slot '{}' cleared", slot)),
+                Err(err) => Response::new(false, format!("Failed to save hotkeys: {}", err)),
+            }
+        } else {
+            Response::new(false, format!("Slot '{}' not found", slot))
         }
     }
 }
