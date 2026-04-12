@@ -98,7 +98,6 @@ impl GuiConfig {
 pub struct HotkeySlot {
     pub slot: String,
     pub action: Request,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub key_chord: Option<String>,
 }
 
@@ -121,7 +120,7 @@ impl HotkeyConfig {
         let bytes = fs::read(&path)?;
         match serde_json::from_slice::<HotkeyConfig>(&bytes) {
             Ok(config) => Ok(config),
-            Err(_) => Ok(HotkeyConfig::default()),
+            Err(e) => Err(e.into()),
         }
     }
 
