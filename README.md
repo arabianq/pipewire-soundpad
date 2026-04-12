@@ -40,8 +40,8 @@ three main components:
     * Creating and managing virtual audio devices.
     * Linking these devices within the PipeWire graph.
     * Handling all audio playback.
+* **UnixSocket**. This is how you interact with your sound collection, control playback, and configure settings.
 * **pwsp-gui**: This is the graphical user interface. It acts as a client that communicates with pwsp-daemon via a
-  **UnixSocket**. This is how you interact with your sound collection, control playback, and configure settings.
 * **pwsp-cli**: This is the command-line interface, also acting as a client. It provides a way to control the daemon
   without a GUI, allowing for scripting or quick command-based actions.
 
