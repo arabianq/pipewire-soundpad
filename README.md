@@ -27,6 +27,8 @@ chats on platforms like **Discord, Zoom, or Teamspeak**.
 * **Collapsible Audio Tracks**: You can collapse every audio track to save space.
 * **Drag and Drop Directories**: Reorder your sound directories easily using drag and drop.
 * **Automatic Device Detection**: PWSP automatically detects when an input device is connected or disconnected and handles linking/unlinking.
+* **Global Hotkeys**: Assign custom keyboard shortcuts to any sound file (or action) to trigger playback instantly, even when the application is not in focus.
+
 
 # **⚙️ How It Works**
 
