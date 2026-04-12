@@ -381,8 +381,7 @@ impl AudioPlayer {
         if check_devices {
             if let Some(input_device_name) = &self.input_device_name {
                 // Unlink devices if selected input device was removed
-                if self.input_link_sender.is_some()
-                    && get_device(input_device_name).await.is_err()
+                if self.input_link_sender.is_some() && get_device(input_device_name).await.is_err()
                 {
                     eprintln!(
                         "Selected input device {} was removed, unlinking devices",
