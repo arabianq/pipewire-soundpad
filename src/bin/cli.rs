@@ -70,8 +70,10 @@ enum Actions {
     },
     /// Play a sound by hotkey slot name
     PlayHotkey { slot: String },
-    /// Remove a hotkey slot
+    /// Remove the hotkey slot
     ClearHotkey { slot: String },
+    /// Clear the key chord for a hotkey slot
+    ClearHotkeyKey { slot: String },
 }
 
 #[derive(Subcommand, Debug)]
@@ -135,6 +137,12 @@ enum SetCommands {
     Hotkey { slot: String, file_path: PathBuf },
     /// Set the key chord for a hotkey slot (e.g. "Ctrl+Alt+1")
     HotkeyKey { slot: String, key_chord: String },
+    /// Atomically set the action and key chord for a hotkey slot
+    HotkeyActionAndKey {
+        slot: String,
+        action: String,
+        key_chord: String,
+    },
 }
 
 #[tokio::main]
@@ -158,6 +166,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             Actions::ToggleLoop { id } => Request::toggle_loop(id),
             Actions::PlayHotkey { slot } => Request::play_hotkey(&slot),
             Actions::ClearHotkey { slot } => Request::clear_hotkey(&slot),
+            Actions::ClearHotkeyKey { slot } => Request::clear_hotkey_key(&slot),
         },
         Commands::Get { parameter } => match parameter {
             GetCommands::IsPaused => Request::get_is_paused(),
@@ -183,6 +192,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
             SetCommands::HotkeyKey { slot, key_chord } => {
                 Request::set_hotkey_key(&slot, &key_chord)
             }
+            SetCommands::HotkeyActionAndKey {
+                slot,
+                action,
+                key_chord,
+            } => Request::set_hotkey_action_and_key(
+                &slot,
+                &serde_json::from_str::<Request>(&action)?,
+                &key_chord,
+            ),
         },
     };
 
