@@ -27,6 +27,8 @@ chats on platforms like **Discord, Zoom, or Teamspeak**.
 * **Collapsible Audio Tracks**: You can collapse every audio track to save space.
 * **Drag and Drop Directories**: Reorder your sound directories easily using drag and drop.
 * **Automatic Device Detection**: PWSP automatically detects when an input device is connected or disconnected and handles linking/unlinking.
+* **Global Hotkeys**: Assign custom keyboard shortcuts to any sound file (or action) to trigger playback instantly, even when the application is not in focus.
+
 
 # **⚙️ How It Works**
 
@@ -38,8 +40,8 @@ three main components:
     * Creating and managing virtual audio devices.
     * Linking these devices within the PipeWire graph.
     * Handling all audio playback.
+* **UnixSocket**. This is how you interact with your sound collection, control playback, and configure settings.
 * **pwsp-gui**: This is the graphical user interface. It acts as a client that communicates with pwsp-daemon via a
-  **UnixSocket**. This is how you interact with your sound collection, control playback, and configure settings.
 * **pwsp-cli**: This is the command-line interface, also acting as a client. It provides a way to control the daemon
   without a GUI, allowing for scripting or quick command-based actions.
 
