@@ -2,7 +2,7 @@ use crate::{
     types::pipewire::{DeviceType, Terminate},
     utils::{
         daemon::get_daemon_config,
-        pipewire::{create_link, get_device},
+        pipewire::{create_link, get_device, link_player_to_virtual_mic},
     },
 };
 use rodio::{Decoder, DeviceSinkBuilder, MixerDeviceSink, Player, Source};
@@ -58,6 +58,7 @@ pub struct AudioPlayer {
     pub next_id: u32,
 
     input_link_sender: Option<pipewire::channel::Sender<Terminate>>,
+    player_link_sender: Option<pipewire::channel::Sender<Terminate>>,
     pub input_device_name: Option<String>,
 
     pub volume: f32, // Master volume
@@ -74,6 +75,7 @@ impl AudioPlayer {
             next_id: 1,
 
             input_link_sender: None,
+            player_link_sender: None,
             input_device_name: daemon_config.default_input_name.clone(),
 
             volume: default_volume,
@@ -98,18 +100,43 @@ impl AudioPlayer {
     fn drop_stream(&mut self) {
         if self.stream_handle.is_some() {
             self.stream_handle = None;
+            self.abort_player_link_thread();
         }
     }
 
     fn abort_link_thread(&mut self) {
         if let Some(sender) = &self.input_link_sender {
-            match sender.send(Terminate {}) {
-                Ok(_) => {
-                    println!("Sent terminate signal to link thread");
-                    self.input_link_sender = None;
-                }
-                Err(_) => eprintln!("Failed to send terminate signal to link thread"),
+            if let Ok(_) = sender.send(Terminate {}) {
+                println!("Sent terminate signal to input link thread");
+                self.input_link_sender = None;
+            } else {
+                eprintln!("Failed to send terminate signal to input link thread");
             }
+        }
+    }
+
+    fn abort_player_link_thread(&mut self) {
+        if let Some(sender) = &self.player_link_sender {
+            if let Ok(_) = sender.send(Terminate {}) {
+                println!("Sent terminate signal to player link thread");
+                self.player_link_sender = None;
+            } else {
+                eprintln!("Failed to send terminate signal to player link thread");
+            }
+        }
+    }
+
+    async fn link_player(&mut self) -> Result<(), Box<dyn Error>> {
+        if self.player_link_sender.is_some() {
+            return Ok(());
+        }
+
+        match link_player_to_virtual_mic().await {
+            Ok(sender) => {
+                self.player_link_sender = Some(sender);
+                Ok(())
+            }
+            Err(_) => Ok(()),
         }
     }
 
@@ -316,6 +343,7 @@ impl AudioPlayer {
                 }
 
                 self.ensure_stream()?;
+                self.link_player().await.ok();
 
                 let id = self.next_id;
                 self.next_id += 1;
@@ -394,6 +422,10 @@ impl AudioPlayer {
                     self.link_devices().await.ok();
                 }
             }
+
+            if self.stream_handle.is_some() && self.player_link_sender.is_none() {
+                self.link_player().await.ok();
+            }
         }
 
         // Handle looped sounds
@@ -423,10 +455,12 @@ impl AudioPlayer {
         }
 
         for handle in restart_futures {
-            if let Ok(Some((id, source))) = handle.await {
-                if let Some(sound) = self.tracks.get_mut(&id) {
-                    sound.sink.append(source);
-                    sound.sink.play();
+            if let Ok(res) = handle.await {
+                if let Some((id, source)) = res {
+                    if let Some(sound) = self.tracks.get_mut(&id) {
+                        sound.sink.append(source);
+                        sound.sink.play();
+                    }
                 }
             }
         }

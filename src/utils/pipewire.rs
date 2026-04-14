@@ -258,6 +258,44 @@ pub fn create_virtual_mic() -> Result<pipewire::channel::Sender<Terminate>, Box<
     Ok(pw_sender)
 }
 
+pub async fn link_player_to_virtual_mic(
+) -> Result<pipewire::channel::Sender<Terminate>, Box<dyn Error>> {
+    let pwsp_daemon_output = match get_device("pwsp-daemon").await {
+        Ok(device) => device,
+        Err(_) => {
+            return Err(
+                "Could not find alsa_playback.pwsp-daemon device, skipping device linking".into(),
+            );
+        }
+    };
+
+    let pwsp_daemon_input = match get_device("pwsp-virtual-mic").await {
+        Ok(device) => device,
+        Err(_) => {
+            return Err("Could not find pwsp-virtual-mic device, skipping device linking".into());
+        }
+    };
+
+    let output_fl = match pwsp_daemon_output.output_fl {
+        Some(port) => port,
+        None => return Err("Failed to get pwsp-daemon output_fl".into()),
+    };
+    let output_fr = match pwsp_daemon_output.output_fr {
+        Some(port) => port,
+        None => return Err("Failed to get pwsp-daemon output_fr".into()),
+    };
+    let input_fl = match pwsp_daemon_input.input_fl {
+        Some(port) => port,
+        None => return Err("Failed to get pwsp-virtual-mic input_fl".into()),
+    };
+    let input_fr = match pwsp_daemon_input.input_fr {
+        Some(port) => port,
+        None => return Err("Failed to get pwsp-virtual-mic input_fr".into()),
+    };
+
+    create_link(output_fl, output_fr, input_fl, input_fr)
+}
+
 pub fn create_link(
     output_fl: Port,
     output_fr: Port,

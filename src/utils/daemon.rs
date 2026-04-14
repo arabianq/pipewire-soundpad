@@ -4,7 +4,7 @@ use crate::{
         config::DaemonConfig,
         socket::{Request, Response},
     },
-    utils::pipewire::{create_link, get_device},
+    utils::pipewire::get_device,
 };
 use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
@@ -38,43 +38,6 @@ pub fn get_daemon_config() -> DaemonConfig {
     })
 }
 
-pub async fn link_player_to_virtual_mic() -> Result<(), Box<dyn Error>> {
-    let pwsp_daemon_output;
-    if let Ok(device) = get_device("pwsp-daemon").await {
-        pwsp_daemon_output = device;
-    } else {
-        return Err(
-            "Could not find alsa_playback.pwsp-daemon device, skipping device linking".into(),
-        );
-    }
-
-    let pwsp_daemon_input;
-    if let Ok(device) = get_device("pwsp-virtual-mic").await {
-        pwsp_daemon_input = device;
-    } else {
-        return Err("Could not find pwsp-virtual-mic device, skipping device linking".into());
-    }
-
-    let output_fl = pwsp_daemon_output
-        .clone()
-        .output_fl
-        .expect("Failed to get pwsp-daemon output_fl");
-    let output_fr = pwsp_daemon_output
-        .clone()
-        .output_fr
-        .expect("Failed to get pwsp-daemon output_fl");
-    let input_fl = pwsp_daemon_input
-        .clone()
-        .input_fl
-        .expect("Failed to get pwsp-daemon input_fl");
-    let input_fr = pwsp_daemon_input
-        .clone()
-        .input_fr
-        .expect("Failed to get pwsp-daemon input_fr");
-    create_link(output_fl, output_fr, input_fl, input_fr)?;
-
-    Ok(())
-}
 
 pub fn get_runtime_dir() -> PathBuf {
     dirs::runtime_dir().unwrap_or(PathBuf::from("/run/pwsp"))
