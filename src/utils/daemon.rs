@@ -1,10 +1,7 @@
-use crate::{
-    types::{
-        audio_player::AudioPlayer,
-        config::DaemonConfig,
-        socket::{Request, Response},
-    },
-    utils::pipewire::get_device,
+use crate::types::{
+    audio_player::AudioPlayer,
+    config::DaemonConfig,
+    socket::{Request, Response},
 };
 use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
@@ -37,7 +34,6 @@ pub fn get_daemon_config() -> DaemonConfig {
         config
     })
 }
-
 
 pub fn get_runtime_dir() -> PathBuf {
     dirs::runtime_dir().unwrap_or(PathBuf::from("/run/pwsp"))

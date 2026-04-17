@@ -258,8 +258,8 @@ pub fn create_virtual_mic() -> Result<pipewire::channel::Sender<Terminate>, Box<
     Ok(pw_sender)
 }
 
-pub async fn link_player_to_virtual_mic(
-) -> Result<pipewire::channel::Sender<Terminate>, Box<dyn Error>> {
+pub async fn link_player_to_virtual_mic()
+-> Result<pipewire::channel::Sender<Terminate>, Box<dyn Error>> {
     let pwsp_daemon_output = match get_device("pwsp-daemon").await {
         Ok(device) => device,
         Err(_) => {
