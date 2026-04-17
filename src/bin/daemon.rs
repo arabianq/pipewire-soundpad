@@ -1,10 +1,10 @@
 use pwsp::{
-    types::socket::{Request, Response, MAX_MESSAGE_SIZE},
+    types::socket::{MAX_MESSAGE_SIZE, Request, Response},
     utils::{
         commands::parse_command,
         daemon::{
             create_runtime_dir, get_audio_player, get_daemon_config, get_runtime_dir,
-            is_daemon_running, link_player_to_virtual_mic,
+            is_daemon_running,
         },
         global_hotkeys::start_global_hotkey_listener,
         pipewire::create_virtual_mic,
@@ -31,25 +31,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
     if let Err(err) = get_audio_player().await {
         eprintln!("Failed to initialize audio player: {}", err);
     } // Initialize audio player
-
-    tokio::spawn(async {
-        let max_retries = 60;
-        for i in 0..=max_retries {
-            match link_player_to_virtual_mic().await {
-                Ok(_) => {
-                    println!("Successfully linked player to virtual mic.");
-                    break;
-                }
-                Err(e) => {
-                    if i == 0 || i == max_retries {
-                        eprintln!("{e} (attempt {i}/{max_retries})");
-                    }
-                }
-            }
-
-            sleep(Duration::from_millis(1000)).await;
-        }
-    });
 
     tokio::spawn(async {
         start_global_hotkey_listener().await;
