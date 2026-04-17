@@ -1,5 +1,5 @@
 use pwsp::{
-    types::socket::{Request, Response, MAX_MESSAGE_SIZE},
+    types::socket::{MAX_MESSAGE_SIZE, Request, Response},
     utils::{
         commands::parse_command,
         daemon::{

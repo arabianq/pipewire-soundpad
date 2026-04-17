@@ -8,8 +8,11 @@ use std::path::PathBuf;
 /// Convert an egui Key + Modifiers to a normalized chord string like "Ctrl+Shift+A".
 fn chord_from_event(modifiers: &Modifiers, key: &Key) -> Option<String> {
     let key_name = key.name();
-    let is_valid = (key_name.len() == 1 && key_name.chars().next().unwrap().is_ascii_alphanumeric())
-        || (key_name.starts_with('F') && key_name.len() > 1 && key_name[1..].chars().all(|c| c.is_ascii_digit()));
+    let is_valid = (key_name.len() == 1
+        && key_name.chars().next().unwrap().is_ascii_alphanumeric())
+        || (key_name.starts_with('F')
+            && key_name.len() > 1
+            && key_name[1..].chars().all(|c| c.is_ascii_digit()));
     if !is_valid {
         return None;
     }
@@ -56,8 +59,11 @@ pub fn parse_chord(chord: &str) -> Option<(Modifiers, Key)> {
     }
 
     let key_name = parts[parts.len() - 1];
-    let is_valid = (key_name.len() == 1 && key_name.chars().next().unwrap().is_ascii_alphanumeric())
-        || (key_name.starts_with('F') && key_name.len() > 1 && key_name[1..].chars().all(|c| c.is_ascii_digit()));
+    let is_valid = (key_name.len() == 1
+        && key_name.chars().next().unwrap().is_ascii_alphanumeric())
+        || (key_name.starts_with('F')
+            && key_name.len() > 1
+            && key_name[1..].chars().all(|c| c.is_ascii_digit()));
 
     if !is_valid {
         return None;

@@ -1,9 +1,11 @@
-use crate::types::{
-    audio_player::AudioPlayer,
-    config::DaemonConfig,
-    socket::{Request, Response, MAX_MESSAGE_SIZE},
-    utils::pipewire::{create_link, get_device},
+use crate::{
+    types::{
+        audio_player::AudioPlayer,
+        config::DaemonConfig,
+        socket::{MAX_MESSAGE_SIZE, Request, Response},
+    },
 };
+
 use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
 use std::{error::Error, fs};
