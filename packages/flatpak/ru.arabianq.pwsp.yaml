@@ -29,11 +29,8 @@ build-options:
 modules:
   - name: pwsp
     buildsystem: simple
-    build-options:
-      env:
-        CARGO_HOME: $PWD/cargo
     build-commands:
-      - cargo build --release --offline
+      - export CARGO_HOME=$PWD/cargo && cargo build --release --offline
       - install -Dm755 target/release/pwsp-daemon /app/bin/pwsp-daemon
       - install -Dm755 target/release/pwsp-cli /app/bin/pwsp-cli
       - install -Dm755 target/release/pwsp-gui /app/bin/pwsp-gui
