@@ -5,5 +5,5 @@ Exec=pwsp-wrapper.py %u
 Icon=ru.arabianq.pwsp
 Terminal=false
 Type=Application
-Categories=Audio;Utility;
+Categories=AudioVideo;Audio;
 Keywords=soundpad;pipewire;audio;
