@@ -38,7 +38,6 @@ modules:
       - install -Dm644 packages/flatpak/ru.arabianq.pwsp.desktop /app/share/applications/ru.arabianq.pwsp.desktop
       - install -Dm644 packages/flatpak/ru.arabianq.pwsp.metainfo.xml /app/share/metainfo/ru.arabianq.pwsp.metainfo.xml
     sources:
-      - type: archive
-        url: https://github.com/arabianq/pipewire-soundpad/archive/refs/tags/v1.7.2.tar.gz
-        sha256: d4e5608384a51cb66e872a91bb57c893304249ead61f086f92b74b1a08157761
+      - type: dir
+        path: ../../
       - cargo-sources.json
