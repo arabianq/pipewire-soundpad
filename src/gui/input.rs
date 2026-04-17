@@ -7,57 +7,12 @@ use std::path::PathBuf;
 
 /// Convert an egui Key + Modifiers to a normalized chord string like "Ctrl+Shift+A".
 fn chord_from_event(modifiers: &Modifiers, key: &Key) -> Option<String> {
-    let key_name = match key {
-        Key::A => "A",
-        Key::B => "B",
-        Key::C => "C",
-        Key::D => "D",
-        Key::E => "E",
-        Key::F => "F",
-        Key::G => "G",
-        Key::H => "H",
-        Key::I => "I",
-        Key::J => "J",
-        Key::K => "K",
-        Key::L => "L",
-        Key::M => "M",
-        Key::N => "N",
-        Key::O => "O",
-        Key::P => "P",
-        Key::Q => "Q",
-        Key::R => "R",
-        Key::S => "S",
-        Key::T => "T",
-        Key::U => "U",
-        Key::V => "V",
-        Key::W => "W",
-        Key::X => "X",
-        Key::Y => "Y",
-        Key::Z => "Z",
-        Key::Num0 => "0",
-        Key::Num1 => "1",
-        Key::Num2 => "2",
-        Key::Num3 => "3",
-        Key::Num4 => "4",
-        Key::Num5 => "5",
-        Key::Num6 => "6",
-        Key::Num7 => "7",
-        Key::Num8 => "8",
-        Key::Num9 => "9",
-        Key::F1 => "F1",
-        Key::F2 => "F2",
-        Key::F3 => "F3",
-        Key::F4 => "F4",
-        Key::F5 => "F5",
-        Key::F6 => "F6",
-        Key::F7 => "F7",
-        Key::F8 => "F8",
-        Key::F9 => "F9",
-        Key::F10 => "F10",
-        Key::F11 => "F11",
-        Key::F12 => "F12",
-        _ => return None,
-    };
+    let key_name = key.name();
+    let is_valid = (key_name.len() == 1 && key_name.chars().next().unwrap().is_ascii_alphanumeric())
+        || (key_name.starts_with('F') && key_name.len() > 1 && key_name[1..].chars().all(|c| c.is_ascii_digit()));
+    if !is_valid {
+        return None;
+    }
 
     // Require at least one modifier for hotkey chords (ignoring command/Super due to Wayland/Niri bug)
     if !modifiers.ctrl && !modifiers.alt && !modifiers.shift {
@@ -100,57 +55,15 @@ pub fn parse_chord(chord: &str) -> Option<(Modifiers, Key)> {
         }
     }
 
-    let key = match parts[parts.len() - 1] {
-        "A" => Key::A,
-        "B" => Key::B,
-        "C" => Key::C,
-        "D" => Key::D,
-        "E" => Key::E,
-        "F" => Key::F,
-        "G" => Key::G,
-        "H" => Key::H,
-        "I" => Key::I,
-        "J" => Key::J,
-        "K" => Key::K,
-        "L" => Key::L,
-        "M" => Key::M,
-        "N" => Key::N,
-        "O" => Key::O,
-        "P" => Key::P,
-        "Q" => Key::Q,
-        "R" => Key::R,
-        "S" => Key::S,
-        "T" => Key::T,
-        "U" => Key::U,
-        "V" => Key::V,
-        "W" => Key::W,
-        "X" => Key::X,
-        "Y" => Key::Y,
-        "Z" => Key::Z,
-        "0" => Key::Num0,
-        "1" => Key::Num1,
-        "2" => Key::Num2,
-        "3" => Key::Num3,
-        "4" => Key::Num4,
-        "5" => Key::Num5,
-        "6" => Key::Num6,
-        "7" => Key::Num7,
-        "8" => Key::Num8,
-        "9" => Key::Num9,
-        "F1" => Key::F1,
-        "F2" => Key::F2,
-        "F3" => Key::F3,
-        "F4" => Key::F4,
-        "F5" => Key::F5,
-        "F6" => Key::F6,
-        "F7" => Key::F7,
-        "F8" => Key::F8,
-        "F9" => Key::F9,
-        "F10" => Key::F10,
-        "F11" => Key::F11,
-        "F12" => Key::F12,
-        _ => return None,
-    };
+    let key_name = parts[parts.len() - 1];
+    let is_valid = (key_name.len() == 1 && key_name.chars().next().unwrap().is_ascii_alphanumeric())
+        || (key_name.starts_with('F') && key_name.len() > 1 && key_name[1..].chars().all(|c| c.is_ascii_digit()));
+
+    if !is_valid {
+        return None;
+    }
+
+    let key = Key::from_name(key_name)?;
 
     Some((modifiers, key))
 }

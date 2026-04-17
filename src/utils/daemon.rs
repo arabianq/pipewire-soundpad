@@ -1,7 +1,8 @@
 use crate::types::{
     audio_player::AudioPlayer,
     config::DaemonConfig,
-    socket::{Request, Response},
+    socket::{Request, Response, MAX_MESSAGE_SIZE},
+    utils::pipewire::{create_link, get_device},
 };
 use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
@@ -93,6 +94,14 @@ pub async fn make_request(request: Request) -> Result<Response, Box<dyn Error + 
         return Err("Failed to read response length".into());
     }
     let response_len = u32::from_le_bytes(len_bytes) as usize;
+
+    if response_len > MAX_MESSAGE_SIZE {
+        eprintln!(
+            "Failed to read response from daemon: response too large ({} bytes)!",
+            response_len
+        );
+        return Err("Response too large".into());
+    }
 
     let mut buffer = vec![0u8; response_len];
     if stream.read_exact(&mut buffer).await.is_err() {
