@@ -15,7 +15,6 @@ finish-args:
   - --filesystem=xdg-run/pwsp:create
   - --filesystem=xdg-run/app/ru.arabianq.pwsp:create
   - --filesystem=home
-  - --device=all
   - --device=dri
   - --talk-name=org.freedesktop.portal.Desktop
   - --talk-name=org.freedesktop.portal.Documents
