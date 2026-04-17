@@ -1,6 +1,6 @@
 [package]
 name = "pwsp"
-version = "1.7.1"
+version = "1.7.2"
 edition = "2024"
 authors = ["arabian"]
 description = "PWSP lets you play audio files through your microphone. Has both CLI and GUI clients."
@@ -12,13 +12,13 @@ keywords = ["soundpad", "pipewire", "linux", "cli", "gui"]
 
 
 [dependencies]
-tokio = { version = "1.51.1", features = ["full"] }
+tokio = { version = "1.52.1", features = ["full"] }
 async-trait = "0.1.89"
 
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.149"
 
-clap = { version = "4.6.0", default-features = false, features = [
+clap = { version = "4.6.1", default-features = false, features = [
     "std",
     "suggestions",
     "help",
