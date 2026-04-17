@@ -15,11 +15,17 @@
     <launchable type="desktop-id">ru.arabianq.pwsp.desktop</launchable>
     <screenshots>
         <screenshot type="default">
-            <image>
-                https://raw.githubusercontent.com/arabianq/pipewire-soundpad/master/assets/screenshot.png</image>
+            <image>https://raw.githubusercontent.com/arabianq/pipewire-soundpad/master/assets/screenshot.png</image>
         </screenshot>
     </screenshots>
     <url type="homepage">https://pwsp.arabianq.ru</url>
-    <developer_name>arabian</developer_name>
+    <url type="bugtracker">https://github.com/arabianq/pipewire-soundpad/issues</url>
+    <url type="vcs-browser">https://github.com/arabianq/pipewire-soundpad</url>
+    <developer id="ru.arabianq">
+        <name>arabian</name>
+    </developer>
+    <releases>
+        <release version="1.7.2" date="2025-01-01" />
+    </releases>
     <content_rating type="oars-1.1" />
 </component>

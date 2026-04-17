@@ -14,10 +14,9 @@ finish-args:
   - --filesystem=xdg-run/pipewire-0
   - --filesystem=xdg-run/pwsp:create
   - --filesystem=xdg-run/app/ru.arabianq.pwsp:create
-  - --filesystem=host
+  - --filesystem=home
   - --device=all
   - --device=dri
-  - --share=network
   - --talk-name=org.freedesktop.portal.Desktop
   - --talk-name=org.freedesktop.portal.Documents
 
@@ -30,11 +29,8 @@ build-options:
 modules:
   - name: pwsp
     buildsystem: simple
-    build-options:
-      build-args:
-        - --share=network
     build-commands:
-      - cargo build --release
+      - export CARGO_HOME=$PWD/cargo && cargo build --release --offline
       - install -Dm755 target/release/pwsp-daemon /app/bin/pwsp-daemon
       - install -Dm755 target/release/pwsp-cli /app/bin/pwsp-cli
       - install -Dm755 target/release/pwsp-gui /app/bin/pwsp-gui
@@ -45,3 +41,4 @@ modules:
     sources:
       - type: dir
         path: ../../
+      - cargo-sources.json
