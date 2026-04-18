@@ -1,9 +1,7 @@
-use crate::{
-    types::{
-        audio_player::AudioPlayer,
-        config::DaemonConfig,
-        socket::{MAX_MESSAGE_SIZE, Request, Response},
-    },
+use crate::types::{
+    audio_player::AudioPlayer,
+    config::DaemonConfig,
+    socket::{MAX_MESSAGE_SIZE, Request, Response},
 };
 
 use std::os::unix::fs::PermissionsExt;
