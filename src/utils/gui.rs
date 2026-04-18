@@ -112,13 +112,13 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
                 let hotkey_res = make_request(Request::get_hotkeys())
                     .await
                     .unwrap_or_default();
-                if hotkey_res.status {
-                    if let Ok(config) = serde_json::from_str::<HotkeyConfig>(&hotkey_res.message) {
-                        let mut guard = audio_player_state_shared
-                            .lock()
-                            .unwrap_or_else(|e| e.into_inner());
-                        guard.hotkey_config = Some(config);
-                    }
+                if hotkey_res.status
+                    && let Ok(config) = serde_json::from_str::<HotkeyConfig>(&hotkey_res.message)
+                {
+                    let mut guard = audio_player_state_shared
+                        .lock()
+                        .unwrap_or_else(|e| e.into_inner());
+                    guard.hotkey_config = Some(config);
                 }
                 last_hotkey_poll = Instant::now();
             }

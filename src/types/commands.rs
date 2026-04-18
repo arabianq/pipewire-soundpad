@@ -673,7 +673,7 @@ impl Executable for PlayHotkeyCommand {
         if let Some(cmd) = parse_command(&action) {
             cmd.execute().await
         } else {
-            Response::new(false, "Unknown command in hotkey slot".to_string())
+            Response::new(false, "Unknown command in hotkey slot")
         }
     }
 }
