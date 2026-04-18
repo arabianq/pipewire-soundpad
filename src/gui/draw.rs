@@ -609,10 +609,10 @@ impl SoundpadGui {
                             .unwrap_or_else(|| path.to_string_lossy().to_string());
 
                         let mut dir_button_text = RichText::new(name.clone());
-                        if let Some(current_dir) = &self.app_state.current_dir {
-                            if current_dir.eq(&path) {
-                                dir_button_text = dir_button_text.color(Color32::WHITE);
-                            }
+                        if let Some(current_dir) = &self.app_state.current_dir
+                            && current_dir.eq(&path)
+                        {
+                            dir_button_text = dir_button_text.color(Color32::WHITE);
                         }
 
                         let dir_button =
@@ -645,10 +645,9 @@ impl SoundpadGui {
                                     ICON_OPEN_IN_BROWSER.codepoint, "Open in File Manager"
                                 ))
                                 .clicked()
+                                && let Err(e) = opener::open(&path)
                             {
-                                if let Err(e) = opener::open(&path) {
-                                    eprintln!("Failed to open file manager: {}", e);
-                                }
+                                eprintln!("Failed to open file manager: {}", e);
                             }
 
                             ui.separator();
@@ -728,10 +727,10 @@ impl SoundpadGui {
                             }
 
                             let mut file_button_text = RichText::new(&file_name);
-                            if let Some(current_file) = &self.app_state.selected_file {
-                                if current_file.eq(&entry_path) {
-                                    file_button_text = file_button_text.color(Color32::WHITE);
-                                }
+                            if let Some(current_file) = &self.app_state.selected_file
+                                && current_file.eq(&entry_path)
+                            {
+                                file_button_text = file_button_text.color(Color32::WHITE);
                             }
 
                             let file_button = Button::new(file_button_text).frame(false);
@@ -792,10 +791,9 @@ impl SoundpadGui {
                                         ICON_OPEN_IN_BROWSER.codepoint, "Show in File Manager"
                                     ))
                                     .clicked()
+                                    && let Err(e) = opener::reveal(&entry_path)
                                 {
-                                    if let Err(e) = opener::reveal(&entry_path) {
-                                        eprintln!("Failed to open file manager: {}", e);
-                                    }
+                                    eprintln!("Failed to open file manager: {}", e);
                                 }
 
                                 ui.separator();
@@ -822,15 +820,14 @@ impl SoundpadGui {
 
     fn get_hotkey_badge(&self, path: &PathBuf) -> Option<String> {
         for slot in &self.app_state.hotkey_config.slots {
-            if slot.action.name == "play" {
-                if let Some(file_path_str) = slot.action.args.get("file_path") {
-                    if Path::new(file_path_str) == path.as_path() {
-                        if let Some(chord) = &slot.key_chord {
-                            return Some(format!("[{}]", chord));
-                        } else {
-                            return Some(format!("[{}]", slot.slot));
-                        }
-                    }
+            if slot.action.name == "play"
+                && let Some(file_path_str) = slot.action.args.get("file_path")
+                && Path::new(file_path_str) == path.as_path()
+            {
+                if let Some(chord) = &slot.key_chord {
+                    return Some(format!("[{}]", chord));
+                } else {
+                    return Some(format!("[{}]", slot.slot));
                 }
             }
         }
