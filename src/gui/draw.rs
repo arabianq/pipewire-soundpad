@@ -196,10 +196,8 @@ impl SoundpadGui {
             ui.add_space(5.0);
 
             let conflicts = self.app_state.hotkey_config.find_conflicts();
-            let conflict_slots: std::collections::HashSet<String> = conflicts
-                .iter()
-                .flat_map(|(a, b)| vec![a.clone(), b.clone()])
-                .collect();
+            let conflict_slots: std::collections::HashSet<&str> =
+                conflicts.into_iter().flat_map(|(a, b)| [a, b]).collect();
 
             let search = self.app_state.hotkey_search_query.to_lowercase();
 
@@ -266,7 +264,7 @@ impl SoundpadGui {
                         for slot in &slots {
                             ui.horizontal(|ui| {
                                 // Conflict badge
-                                if conflict_slots.contains(&slot.slot) {
+                                if conflict_slots.contains(slot.slot.as_str()) {
                                     ui.label(
                                         RichText::new(ICON_WARNING.codepoint)
                                             .color(Color32::from_rgb(255, 165, 0)),

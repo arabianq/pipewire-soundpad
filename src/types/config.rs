@@ -172,7 +172,7 @@ impl HotkeyConfig {
     }
 
     /// Returns pairs of slot names that share the same key chord.
-    pub fn find_conflicts(&self) -> Vec<(String, String)> {
+    pub fn find_conflicts(&self) -> Vec<(&str, &str)> {
         let mut conflicts = vec![];
         let mut chord_map: HashMap<&str, Vec<&str>> = HashMap::new();
 
@@ -186,7 +186,7 @@ impl HotkeyConfig {
             if slots.len() > 1 {
                 for i in 0..slots.len() {
                     for j in (i + 1)..slots.len() {
-                        conflicts.push((slots[i].to_string(), slots[j].to_string()));
+                        conflicts.push((slots[i], slots[j]));
                     }
                 }
             }
