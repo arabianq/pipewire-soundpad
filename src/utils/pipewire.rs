@@ -56,20 +56,20 @@ fn parse_global_object(
                 (None, None)
             };
             // Check if the object is a port
-        } else if props.get("port.direction").is_some() {
-            if let (Some(node_id), Some(port_id), Some(port_name)) = (
+        } else if props.get("port.direction").is_some()
+            && let (Some(node_id), Some(port_id), Some(port_name)) = (
                 props.get("node.id").and_then(|id| id.parse::<u32>().ok()),
                 props.get("port.id").and_then(|id| id.parse::<u32>().ok()),
                 props.get("port.name"),
-            ) {
-                let port = Port {
-                    node_id,
-                    port_id,
-                    name: port_name.to_string(),
-                };
+            )
+        {
+            let port = Port {
+                node_id,
+                port_id,
+                name: port_name.to_string(),
+            };
 
-                return (None, Some(port));
-            }
+            return (None, Some(port));
         }
     }
     (None, None)

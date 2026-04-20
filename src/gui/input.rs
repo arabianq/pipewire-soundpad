@@ -192,18 +192,18 @@ impl SoundpadGui {
             }
 
             // Play selected file on Enter
-            if self.key_pressed(ctx, Key::Enter) {
-                if let Some(path) = self.app_state.selected_file.clone() {
-                    if modifiers.ctrl {
-                        self.play_file(&path, true);
-                    } else if modifiers.shift
-                        && let Some(last_track) = self.audio_player_state.tracks.last()
-                    {
-                        self.stop(Some(last_track.id));
-                        self.play_file(&path, true);
-                    } else {
-                        self.play_file(&path, false);
-                    }
+            if self.key_pressed(ctx, Key::Enter)
+                && let Some(path) = self.app_state.selected_file.clone()
+            {
+                if modifiers.ctrl {
+                    self.play_file(&path, true);
+                } else if modifiers.shift
+                    && let Some(last_track) = self.audio_player_state.tracks.last()
+                {
+                    self.stop(Some(last_track.id));
+                    self.play_file(&path, true);
+                } else {
+                    self.play_file(&path, false);
                 }
             }
 
@@ -212,7 +212,7 @@ impl SoundpadGui {
             let arrow_down_pressed = self.key_pressed(ctx, Key::ArrowDown);
             if modifiers.ctrl && (arrow_up_pressed || arrow_down_pressed) {
                 if modifiers.shift && !self.app_state.dirs.is_empty() {
-                    let mut dirs: Vec<PathBuf> = self.app_state.dirs.iter().cloned().collect();
+                    let mut dirs: Vec<PathBuf> = self.app_state.dirs.to_vec();
                     dirs.sort();
 
                     let current_dir_index = self

@@ -13,10 +13,10 @@ impl DaemonConfig {
     pub fn save_to_file(&self) -> Result<(), Box<dyn Error>> {
         let config_path = get_config_path()?.join("daemon.json");
 
-        if let Some(config_dir) = config_path.parent() {
-            if !config_path.exists() {
-                fs::create_dir_all(config_dir)?;
-            }
+        if let Some(config_dir) = config_path.parent()
+            && !config_path.exists()
+        {
+            fs::create_dir_all(config_dir)?;
         }
 
         let config_json = serde_json::to_string_pretty(self)?;
@@ -68,10 +68,10 @@ impl GuiConfig {
     pub fn save_to_file(&mut self) -> Result<(), Box<dyn Error>> {
         let config_path = get_config_path()?.join("gui.json");
 
-        if let Some(config_dir) = config_path.parent() {
-            if !config_path.exists() {
-                fs::create_dir_all(config_dir)?;
-            }
+        if let Some(config_dir) = config_path.parent()
+            && !config_path.exists()
+        {
+            fs::create_dir_all(config_dir)?;
         }
 
         // Do not save scale factor if user does not want to
