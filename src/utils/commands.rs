@@ -122,3 +122,88 @@ pub fn parse_command(request: &Request) -> Option<Box<dyn Executable + Send>> {
         _ => None,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::types::socket::Request;
+    use std::collections::HashMap;
+
+    #[test]
+    fn test_parse_set_volume_valid() {
+        let mut args = HashMap::new();
+        args.insert("volume".to_string(), "0.5".to_string());
+        args.insert("id".to_string(), "1".to_string());
+        let request = Request {
+            name: "set_volume".to_string(),
+            args,
+        };
+
+        let cmd = parse_command(&request);
+        assert!(cmd.is_some());
+    }
+
+    #[test]
+    fn test_parse_set_volume_missing_volume() {
+        let mut args = HashMap::new();
+        args.insert("id".to_string(), "1".to_string());
+        let request = Request {
+            name: "set_volume".to_string(),
+            args,
+        };
+
+        let cmd = parse_command(&request);
+        assert!(cmd.is_some());
+    }
+
+    #[test]
+    fn test_parse_set_volume_invalid_volume() {
+        let mut args = HashMap::new();
+        args.insert("volume".to_string(), "not-a-float".to_string());
+        let request = Request {
+            name: "set_volume".to_string(),
+            args,
+        };
+
+        let cmd = parse_command(&request);
+        assert!(cmd.is_some());
+    }
+
+    #[test]
+    fn test_parse_set_volume_missing_id() {
+        let mut args = HashMap::new();
+        args.insert("volume".to_string(), "0.5".to_string());
+        let request = Request {
+            name: "set_volume".to_string(),
+            args,
+        };
+
+        let cmd = parse_command(&request);
+        assert!(cmd.is_some());
+    }
+
+    #[test]
+    fn test_parse_set_volume_invalid_id() {
+        let mut args = HashMap::new();
+        args.insert("id".to_string(), "not-an-int".to_string());
+        args.insert("volume".to_string(), "0.5".to_string());
+        let request = Request {
+            name: "set_volume".to_string(),
+            args,
+        };
+
+        let cmd = parse_command(&request);
+        assert!(cmd.is_some());
+    }
+
+    #[test]
+    fn test_parse_set_volume_empty_args() {
+        let request = Request {
+            name: "set_volume".to_string(),
+            args: HashMap::new(),
+        };
+
+        let cmd = parse_command(&request);
+        assert!(cmd.is_some());
+    }
+}
