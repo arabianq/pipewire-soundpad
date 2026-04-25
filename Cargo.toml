@@ -50,6 +50,7 @@ eframe = { version = "0.34.1", default-features = false, features = [
     "x11",
     "wayland",
 ] }
+egui_extras = "0.34.1"
 egui_material_icons = "0.6.0"
 egui_dnd = "0.15.0"
 
