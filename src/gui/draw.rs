@@ -731,7 +731,7 @@ impl SoundpadGui {
                                 file_button_text = file_button_text.color(Color32::WHITE);
                             }
 
-                            let file_button = Button::new(file_button_text).frame(false);
+                            let file_button = Button::new(file_button_text).frame(false).truncate();
                             let file_button_response = ui.add(file_button);
                             if file_button_response.clicked() {
                                 ui.input(|i| {
