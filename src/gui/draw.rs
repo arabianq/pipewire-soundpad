@@ -1,9 +1,10 @@
 use crate::gui::SoundpadGui;
 use egui::{
-    Align, AtomExt, Button, CollapsingHeader, Color32, ComboBox, CursorIcon, FontFamily, Grid,
-    Label, Layout, RichText, ScrollArea, Sense, Slider, TextEdit, Ui, Vec2,
+    Align, AtomExt, Button, CollapsingHeader, Color32, ComboBox, CursorIcon, FontFamily, Label,
+    Layout, RichText, ScrollArea, Sense, Slider, TextEdit, Ui, Vec2,
 };
 use egui_dnd::dnd;
+use egui_extras::{Column, TableBuilder};
 use egui_material_icons::icons::*;
 use pwsp::types::socket::Request;
 use pwsp::types::{audio_player::TrackInfo, gui::AppState};
@@ -133,26 +134,24 @@ impl SoundpadGui {
     }
 
     pub fn draw_hotkeys(&mut self, ui: &mut Ui) {
-        let area_size = ui.available_size();
         ui.vertical(|ui| {
-            ui.set_min_width(area_size.x);
-            ui.set_min_height(area_size.y);
             ui.spacing_mut().item_spacing.y = 5.0;
 
-            // Header
-            ui.horizontal_top(|ui| {
+            // --- Header ---
+            ui.horizontal(|ui| {
                 let back_button = Button::new(ICON_ARROW_BACK).frame(false);
                 if ui.add(back_button).clicked() {
                     self.app_state.show_hotkeys = false;
                 }
 
-                ui.add_space(ui.available_width() / 2.0 - 40.0);
-                ui.label(RichText::new("Hotkeys").color(Color32::WHITE).monospace());
+                ui.vertical_centered(|ui| {
+                    ui.label(RichText::new("Hotkeys").color(Color32::WHITE).monospace());
+                });
             });
 
             ui.separator();
 
-            // Search and Add Command
+            // --- Search and Add Command ---
             ui.horizontal(|ui| {
                 ui.menu_button(format!("{} Add Command", ICON_ADD.codepoint), |ui| {
                     let mut selected_cmd = None;
@@ -185,10 +184,10 @@ impl SoundpadGui {
 
                 ui.add_space(10.0);
 
-                ui.add_sized(
-                    [ui.available_width(), 22.0],
+                ui.add(
                     TextEdit::singleline(&mut self.app_state.hotkey_search_query)
-                        .hint_text("Search hotkeys..."),
+                        .hint_text("Search hotkeys...")
+                        .desired_width(f32::INFINITY),
                 );
             });
 
@@ -200,165 +199,186 @@ impl SoundpadGui {
                 conflicts.into_iter().flat_map(|(a, b)| [a, b]).collect();
 
             let search = self.app_state.hotkey_search_query.to_lowercase();
-
-            // Slots table
             let mut action: Option<HotkeyAction> = None;
-            let area_size = ui.available_size();
 
-            ScrollArea::vertical().show(ui, |ui| {
-                ui.set_min_width(area_size.x);
-                Grid::new("hotkeys_grid")
-                    .striped(true)
-                    .num_columns(4)
-                    .max_col_width(area_size.x)
-                    .min_col_width(area_size.x / 4.0)
-                    .spacing([40.0, 10.0])
-                    .show(ui, |ui| {
-                        // Table header
+            let slots: Vec<_> = self
+                .app_state
+                .hotkey_config
+                .slots
+                .iter()
+                .filter(|s| {
+                    if search.is_empty() {
+                        return true;
+                    }
+                    s.slot.to_lowercase().contains(&search)
+                        || format!("{:?}", s.action).to_lowercase().contains(&search)
+                        || s.key_chord
+                            .as_deref()
+                            .unwrap_or("")
+                            .to_lowercase()
+                            .contains(&search)
+                })
+                .cloned()
+                .collect();
+
+            let available_width = ui.available_width();
+            let col_width = (available_width / 4.0).max(80.0);
+
+            TableBuilder::new(ui)
+                .striped(true)
+                .column(Column::exact(col_width).clip(true)) // Slot
+                .column(Column::exact(col_width).clip(true)) // Sound / Action name
+                .column(Column::exact(col_width).clip(true)) // Key Chord
+                .column(Column::exact(col_width).clip(true)) // Actions
+                .header(30.0, |mut header| {
+                    header.col(|ui| {
                         ui.label(
                             RichText::new("Slot")
                                 .strong()
                                 .monospace()
                                 .color(Color32::LIGHT_GRAY),
                         );
+                    });
+                    header.col(|ui| {
                         ui.label(
                             RichText::new("Sound")
                                 .strong()
                                 .monospace()
                                 .color(Color32::LIGHT_GRAY),
                         );
+                    });
+                    header.col(|ui| {
                         ui.label(
                             RichText::new("Key Chord")
                                 .strong()
                                 .monospace()
                                 .color(Color32::LIGHT_GRAY),
                         );
+                    });
+                    header.col(|ui| {
                         ui.label(
                             RichText::new("Actions")
                                 .strong()
                                 .monospace()
                                 .color(Color32::LIGHT_GRAY),
                         );
-                        ui.end_row();
-
-                        let slots: Vec<_> = self
-                            .app_state
-                            .hotkey_config
-                            .slots
-                            .iter()
-                            .filter(|s| {
-                                if search.is_empty() {
-                                    return true;
-                                }
-                                s.slot.to_lowercase().contains(&search)
-                                    || format!("{:?}", s.action).to_lowercase().contains(&search)
-                                    || s.key_chord
-                                        .as_deref()
-                                        .unwrap_or("")
-                                        .to_lowercase()
-                                        .contains(&search)
-                            })
-                            .cloned()
-                            .collect();
-
-                        for slot in &slots {
-                            ui.horizontal(|ui| {
-                                // Conflict badge
-                                if conflict_slots.contains(slot.slot.as_str()) {
-                                    ui.label(
-                                        RichText::new(ICON_WARNING.codepoint)
-                                            .color(Color32::from_rgb(255, 165, 0)),
-                                    )
-                                    .on_hover_text("Key chord conflict");
-                                }
-
-                                // Slot name
-                                let slot_text = RichText::new(&slot.slot).monospace();
-                                ui.label(slot_text);
-                            });
-
-                            // Action description
-                            let action_name = match slot.action.name.as_str() {
-                                "play" => {
-                                    if let Some(file_path_str) = slot.action.args.get("file_path") {
-                                        Path::new(file_path_str)
-                                            .file_name()
-                                            .unwrap_or_default()
-                                            .to_string_lossy()
-                                            .to_string()
-                                    } else {
-                                        "Play".to_string()
-                                    }
-                                }
-                                "toggle_pause" => "Toggle Pause".to_string(),
-                                "pause" => "Pause Playback".to_string(),
-                                "resume" => "Resume Playback".to_string(),
-                                "stop" => "Stop Playback".to_string(),
-                                "toggle_loop" => "Toggle Loop".to_string(),
-                                other => other.to_string(),
-                            };
-                            ui.add(Label::new(RichText::new(action_name).monospace()).truncate());
-
-                            // Key chord
-                            let chord_text = slot.key_chord.as_deref().unwrap_or("(none)");
-                            ui.label(RichText::new(chord_text).monospace().color(
-                                if slot.key_chord.is_some() {
-                                    Color32::from_rgb(100, 200, 100)
-                                } else {
-                                    Color32::GRAY
-                                },
-                            ));
-
-                            ui.horizontal(|ui| {
-                                // Delete button
-                                if ui
-                                    .add(Button::new(ICON_DELETE).frame(false))
-                                    .on_hover_text("Remove slot")
-                                    .clicked()
-                                {
-                                    action = Some(HotkeyAction::Remove(slot.slot.clone()));
-                                }
-
-                                // Set key chord button
-                                if ui
-                                    .add(Button::new(ICON_KEYBOARD).frame(false))
-                                    .on_hover_text("Set key chord")
-                                    .clicked()
-                                {
-                                    action = Some(HotkeyAction::Capture(slot.slot.clone()));
-                                }
-
-                                // Clear key chord
-                                if slot.key_chord.is_some()
-                                    && ui
-                                        .add(Button::new(ICON_BACKSPACE).frame(false))
-                                        .on_hover_text("Clear key chord")
-                                        .clicked()
-                                {
-                                    action = Some(HotkeyAction::ClearChord(slot.slot.clone()));
-                                }
-
-                                // Play button
-                                if ui
-                                    .add(Button::new(ICON_PLAY_ARROW).frame(false))
-                                    .on_hover_text("Play")
-                                    .clicked()
-                                {
-                                    action = Some(HotkeyAction::Play(slot.slot.clone()));
-                                }
-                            });
-                            ui.end_row();
-                        }
-
-                        if slots.is_empty() {
-                            ui.label("No hotkey slots configured.");
-                            ui.label("");
-                            ui.label("");
-                            ui.label("");
-                            ui.end_row();
-                        }
                     });
-            });
+                })
+                .body(|mut body| {
+                    if slots.is_empty() {
+                        body.row(30.0, |mut row| {
+                            row.col(|_| {});
+                            row.col(|ui| {
+                                ui.label(
+                                    RichText::new("No hotkey slots configured.")
+                                        .color(Color32::GRAY),
+                                );
+                            });
+                            row.col(|_| {});
+                            row.col(|_| {});
+                        });
+                        return;
+                    }
+
+                    for slot in &slots {
+                        body.row(30.0, |mut row| {
+                            // Column 1: Slot
+                            row.col(|ui| {
+                                ui.horizontal(|ui| {
+                                    if conflict_slots.contains(slot.slot.as_str()) {
+                                        ui.label(
+                                            RichText::new(ICON_WARNING.codepoint)
+                                                .color(Color32::from_rgb(255, 165, 0)),
+                                        )
+                                        .on_hover_text("Key chord conflict");
+                                    }
+                                    ui.add(
+                                        Label::new(RichText::new(&slot.slot).monospace())
+                                            .truncate(),
+                                    );
+                                });
+                            });
+
+                            // Column 2: Sound / Action name
+                            row.col(|ui| {
+                                let action_name = match slot.action.name.as_str() {
+                                    "play" => {
+                                        if let Some(file_path_str) =
+                                            slot.action.args.get("file_path")
+                                        {
+                                            Path::new(file_path_str)
+                                                .file_name()
+                                                .unwrap_or_default()
+                                                .to_string_lossy()
+                                                .to_string()
+                                        } else {
+                                            "Play".to_string()
+                                        }
+                                    }
+                                    "toggle_pause" => "Toggle Pause".to_string(),
+                                    "pause" => "Pause Playback".to_string(),
+                                    "resume" => "Resume Playback".to_string(),
+                                    "stop" => "Stop Playback".to_string(),
+                                    "toggle_loop" => "Toggle Loop".to_string(),
+                                    other => other.to_string(),
+                                };
+                                ui.add(
+                                    Label::new(RichText::new(action_name).monospace()).truncate(),
+                                );
+                            });
+
+                            // Column 3: Key Chord
+                            row.col(|ui| {
+                                let chord_text = slot.key_chord.as_deref().unwrap_or("(none)");
+                                ui.add(
+                                    Label::new(RichText::new(chord_text).monospace().color(
+                                        if slot.key_chord.is_some() {
+                                            Color32::from_rgb(100, 200, 100)
+                                        } else {
+                                            Color32::GRAY
+                                        },
+                                    ))
+                                    .truncate(),
+                                );
+                            });
+
+                            // Column 4: Actions
+                            row.col(|ui| {
+                                ui.horizontal(|ui| {
+                                    if ui
+                                        .add(Button::new(ICON_DELETE).frame(false))
+                                        .on_hover_text("Remove slot")
+                                        .clicked()
+                                    {
+                                        action = Some(HotkeyAction::Remove(slot.slot.clone()));
+                                    }
+                                    if ui
+                                        .add(Button::new(ICON_KEYBOARD).frame(false))
+                                        .on_hover_text("Set key chord")
+                                        .clicked()
+                                    {
+                                        action = Some(HotkeyAction::Capture(slot.slot.clone()));
+                                    }
+                                    if slot.key_chord.is_some()
+                                        && ui
+                                            .add(Button::new(ICON_BACKSPACE).frame(false))
+                                            .on_hover_text("Clear key chord")
+                                            .clicked()
+                                    {
+                                        action = Some(HotkeyAction::ClearChord(slot.slot.clone()));
+                                    }
+                                    if ui
+                                        .add(Button::new(ICON_PLAY_ARROW).frame(false))
+                                        .on_hover_text("Play")
+                                        .clicked()
+                                    {
+                                        action = Some(HotkeyAction::Play(slot.slot.clone()));
+                                    }
+                                });
+                            });
+                        });
+                    }
+                });
 
             if let Some(action) = action {
                 match action {
@@ -731,7 +751,7 @@ impl SoundpadGui {
                                 file_button_text = file_button_text.color(Color32::WHITE);
                             }
 
-                            let file_button = Button::new(file_button_text).frame(false);
+                            let file_button = Button::new(file_button_text).frame(false).truncate();
                             let file_button_response = ui.add(file_button);
                             if file_button_response.clicked() {
                                 ui.input(|i| {
