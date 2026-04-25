@@ -2,9 +2,9 @@ name: Flatter
 
 on:
   push:
-    branches: [main, master]
+    branches: [ main, master ]
   release:
-    types: [published]
+    types: [ published ]
   workflow_dispatch:
 
 jobs:
@@ -40,6 +40,10 @@ jobs:
       - name: Modify Manifest
         run: |
           echo "default-branch: ${{ steps.set_branch.outputs.branch }}" >> packages/flatpak/ru.arabianq.pwsp.yaml
+
+      - name: Install SDK Extensions
+        run: flatpak install -y flathub org.freedesktop.Sdk.Extension.rust-stable//25.08
+          org.freedesktop.Sdk.Extension.llvm20//25.08
 
       - name: Build Flatpak
         uses: andyholmes/flatter@main
