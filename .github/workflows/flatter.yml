@@ -8,11 +8,11 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: "Какой тег собираем? (оставь пустым для сборки из текущей ветки)"
+        description: "TAG (empty to build from current branch)"
         required: false
         type: string
       build_branch:
-        description: "В какую ветку Flatpak собирать?"
+        description: "Flatpak branch to build (stable/nightly)"
         required: true
         type: choice
         options:
