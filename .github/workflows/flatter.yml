@@ -6,6 +6,19 @@ on:
   release:
     types: [ published ]
   workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Какой тег собираем? (оставь пустым для сборки из текущей ветки)"
+        required: false
+        type: string
+      build_branch:
+        description: "В какую ветку Flatpak собирать?"
+        required: true
+        type: choice
+        options:
+          - stable
+          - nightly
+        default: "stable"
 
 jobs:
   flatter:
@@ -20,6 +33,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag_name || github.ref }}
 
       - name: Setup GPG
         id: gpg
@@ -33,12 +48,15 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" == "release" ]; then
             echo "branch=stable" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "branch=${{ inputs.build_branch }}" >> $GITHUB_OUTPUT
           else
             echo "branch=nightly" >> $GITHUB_OUTPUT
           fi
 
       - name: Modify Manifest
         run: |
+          echo "branch: ${{ steps.set_branch.outputs.branch }}" >> packages/flatpak/ru.arabianq.pwsp.yaml
           echo "default-branch: ${{ steps.set_branch.outputs.branch }}" >> packages/flatpak/ru.arabianq.pwsp.yaml
 
       - name: Install SDK Extensions
