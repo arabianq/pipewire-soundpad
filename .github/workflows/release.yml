@@ -174,10 +174,3 @@ jobs:
           cache: true
           branch: master
           build-bundle: true
-
-      - name: Upload Flatpak to release
-        uses: softprops/action-gh-release@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag_name: ${{ needs.prepare.outputs.tag }}
-          files: ru.arabianq.pwsp.flatpak

@@ -52,6 +52,28 @@ three main components:
 You can download pre-built binaries and .deb packages from
 the [releases page](https://github.com/arabianq/pipewire-soundpad/releases).
 
+## **Flatpak**
+
+You can install PWSP via Flatpak from our custom repository hosted on GitHub Pages.
+
+Add the repository:
+
+```bash
+flatpak remote-add --user --if-not-exists arabianq-repo https://arabianq.github.io/pipewire-soundpad/index.flatpakrepo
+```
+
+Install the stable version:
+
+```bash
+flatpak install --user arabianq-repo ru.arabianq.pwsp//stable
+```
+
+Or install the nightly version (latest commit to `main`):
+
+```bash
+flatpak install --user arabianq-repo ru.arabianq.pwsp//nightly
+```
+
 ## **Fedora Linux (and derivatives)**
 
 If you're using Fedora, you can install PWSP from a dedicated repository using DNF.
