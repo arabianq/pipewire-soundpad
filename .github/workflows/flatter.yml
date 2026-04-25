@@ -11,6 +11,8 @@ jobs:
   flatter:
     name: Flatter
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     container:
       image: ghcr.io/andyholmes/flatter/freedesktop:24.08
       options: --privileged
