@@ -107,3 +107,10 @@ assets = [
         "644",
     ],
 ]
+
+[dev-dependencies]
+criterion = "0.5"
+
+[[bench]]
+name = "ui_benchmark"
+harness = false
