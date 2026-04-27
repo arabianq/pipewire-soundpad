@@ -409,10 +409,9 @@ impl SoundpadGui {
                 return;
             }
 
-            let tracks = self.audio_player_state.tracks.clone();
             let mut action = None;
 
-            for track in tracks {
+            for track in &self.audio_player_state.tracks {
                 CollapsingHeader::new(
                     RichText::new(
                         track
