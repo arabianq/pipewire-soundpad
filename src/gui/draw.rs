@@ -10,7 +10,7 @@ use pwsp::types::socket::Request;
 use pwsp::types::{audio_player::TrackInfo, gui::AppState};
 use pwsp::utils::gui::{format_time_pair, make_request_async};
 use std::{
-    path::{Path, PathBuf},
+    path::Path,
     time::Instant,
 };
 
@@ -440,7 +440,7 @@ impl SoundpadGui {
                 )
                 .default_open(true)
                 .show(ui, |ui| {
-                    if let Some(act) = Self::draw_track_control(ui, &mut self.app_state, &track) {
+                    if let Some(act) = Self::draw_track_control(ui, &mut self.app_state, track) {
                         action = Some(act);
                     }
                 });
@@ -866,11 +866,11 @@ impl SoundpadGui {
         });
     }
 
-    fn get_hotkey_badge(&self, path: &PathBuf) -> Option<String> {
+    fn get_hotkey_badge(&self, path: &Path) -> Option<String> {
         for slot in &self.app_state.hotkey_config.slots {
             if slot.action.name == "play"
                 && let Some(file_path_str) = slot.action.args.get("file_path")
-                && Path::new(file_path_str) == path.as_path()
+                && Path::new(file_path_str) == path
             {
                 if let Some(chord) = &slot.key_chord {
                     return Some(format!("[{}]", chord));
