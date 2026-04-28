@@ -21,7 +21,7 @@ use pwsp::{
 use rfd::FileDialog;
 use std::{
     error::Error,
-    path::PathBuf,
+    path::{Path, PathBuf},
     sync::{Arc, Mutex},
 };
 
@@ -120,7 +120,7 @@ impl SoundpadGui {
         }
     }
 
-    pub fn play_file(&mut self, path: &PathBuf, concurrent: bool) {
+    pub fn play_file(&mut self, path: &Path, concurrent: bool) {
         make_request_async(Request::play(&path.to_string_lossy(), concurrent));
     }
 
