@@ -202,6 +202,22 @@ fn compare_optional_str(a: Option<&String>, b: Option<&String>, dir: SortDir) ->
     }
 }
 
+pub fn cycle_sort(
+    current_col: SortColumn,
+    current_dir: SortDir,
+    clicked: SortColumn,
+) -> (SortColumn, SortDir) {
+    if clicked == current_col {
+        let flipped = match current_dir {
+            SortDir::Asc => SortDir::Desc,
+            SortDir::Desc => SortDir::Asc,
+        };
+        (clicked, flipped)
+    } else {
+        (clicked, SortDir::Asc)
+    }
+}
+
 pub fn slot_index_map(files: &HashSet<PathBuf>) -> HashMap<PathBuf, usize> {
     let mut sorted: Vec<PathBuf> = files.iter().cloned().collect();
     sorted.sort();
@@ -361,5 +377,25 @@ mod tests {
         assert_eq!(m.get(&pb("/c/a.mp3")), Some(&1));
         assert_eq!(m.get(&pb("/c/b.mp3")), Some(&2));
         assert_eq!(m.get(&pb("/c/c.mp3")), Some(&3));
+    }
+
+    #[test]
+    fn cycle_sort_clicking_active_flips_direction() {
+        assert_eq!(
+            cycle_sort(SortColumn::Name, SortDir::Asc, SortColumn::Name),
+            (SortColumn::Name, SortDir::Desc)
+        );
+        assert_eq!(
+            cycle_sort(SortColumn::Name, SortDir::Desc, SortColumn::Name),
+            (SortColumn::Name, SortDir::Asc)
+        );
+    }
+
+    #[test]
+    fn cycle_sort_clicking_other_switches_to_it_asc() {
+        assert_eq!(
+            cycle_sort(SortColumn::Name, SortDir::Desc, SortColumn::Modified),
+            (SortColumn::Modified, SortDir::Asc)
+        );
     }
 }
