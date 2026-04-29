@@ -109,6 +109,14 @@ impl SoundpadGui {
         }
     }
 
+    pub fn refresh_files(&mut self) {
+        if let Some(path) = self.app_state.current_dir.clone() {
+            self.open_dir(&path);
+        }
+        self.app_state.file_mtime_cache.clear();
+        self.app_state.mtime_cache_dir = None;
+    }
+
     pub fn open_dir(&mut self, path: &PathBuf) {
         self.app_state.current_dir = Some(path.clone());
         match path.read_dir() {
