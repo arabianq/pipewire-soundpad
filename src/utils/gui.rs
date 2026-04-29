@@ -202,6 +202,19 @@ fn compare_optional_str(a: Option<&String>, b: Option<&String>, dir: SortDir) ->
     }
 }
 
+pub fn format_mtime(time: SystemTime) -> String {
+    use chrono::{DateTime, Local};
+    let dt: DateTime<Local> = time.into();
+    dt.format("%Y-%m-%d %H:%M").to_string()
+}
+
+pub fn format_mtime_opt(time: Option<SystemTime>) -> String {
+    match time {
+        Some(t) => format_mtime(t),
+        None => "—".to_string(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -260,5 +273,22 @@ mod tests {
 
         let desc = sort_files(&files, SortColumn::Hotkey, SortDir::Desc, &HashMap::new(), &hk);
         assert_eq!(desc, vec![pb("/c/a.mp3"), pb("/c/c.mp3"), pb("/c/b.mp3")]);
+    }
+
+    #[test]
+    fn format_mtime_uses_ymd_hm_local() {
+        // We can't pin the local timezone in a test, so just check shape: 16 chars, dashes/colons/space.
+        let s = format_mtime(SystemTime::UNIX_EPOCH + Duration::from_secs(1_700_000_000));
+        assert_eq!(s.len(), 16, "got {:?}", s);
+        let bytes = s.as_bytes();
+        assert_eq!(bytes[4], b'-');
+        assert_eq!(bytes[7], b'-');
+        assert_eq!(bytes[10], b' ');
+        assert_eq!(bytes[13], b':');
+    }
+
+    #[test]
+    fn format_mtime_dash_for_none() {
+        assert_eq!(format_mtime_opt(None), "—");
     }
 }
