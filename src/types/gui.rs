@@ -11,6 +11,32 @@ use std::{
     time::Instant,
 };
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SortColumn {
+    Index,
+    Hotkey,
+    Name,
+    Modified,
+}
+
+impl Default for SortColumn {
+    fn default() -> Self {
+        SortColumn::Index
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SortDir {
+    Asc,
+    Desc,
+}
+
+impl Default for SortDir {
+    fn default() -> Self {
+        SortDir::Asc
+    }
+}
+
 #[derive(Default, Debug)]
 pub struct TrackUiState {
     pub position_slider_value: f32,
