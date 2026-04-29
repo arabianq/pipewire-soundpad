@@ -202,6 +202,20 @@ fn compare_optional_str(a: Option<&String>, b: Option<&String>, dir: SortDir) ->
     }
 }
 
+pub fn refresh_mtime_cache(
+    cache: &mut HashMap<PathBuf, SystemTime>,
+    files: &HashSet<PathBuf>,
+) {
+    cache.clear();
+    for path in files {
+        if let Ok(meta) = std::fs::metadata(path)
+            && let Ok(mtime) = meta.modified()
+        {
+            cache.insert(path.clone(), mtime);
+        }
+    }
+}
+
 pub fn cycle_sort(
     current_col: SortColumn,
     current_dir: SortDir,

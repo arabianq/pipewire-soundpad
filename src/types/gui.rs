@@ -11,30 +11,20 @@ use std::{
     time::{Instant, SystemTime},
 };
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum SortColumn {
+    #[default]
     Index,
     Hotkey,
     Name,
     Modified,
 }
 
-impl Default for SortColumn {
-    fn default() -> Self {
-        SortColumn::Index
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum SortDir {
+    #[default]
     Asc,
     Desc,
-}
-
-impl Default for SortDir {
-    fn default() -> Self {
-        SortDir::Asc
-    }
 }
 
 #[derive(Default, Debug)]
