@@ -8,7 +8,7 @@ use egui::Id;
 use std::{
     collections::{HashMap, HashSet},
     path::PathBuf,
-    time::Instant,
+    time::{Instant, SystemTime},
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -78,6 +78,11 @@ pub struct AppState {
     pub assigning_hotkey_slot: Option<String>,
     pub assigning_hotkey_for_file: Option<PathBuf>,
     pub hotkey_capture_active: bool,
+
+    pub sort_column: SortColumn,
+    pub sort_dir: SortDir,
+    pub file_mtime_cache: HashMap<PathBuf, SystemTime>,
+    pub mtime_cache_dir: Option<PathBuf>,
 }
 
 #[derive(Default, Debug, Clone)]
