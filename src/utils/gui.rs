@@ -202,6 +202,33 @@ fn compare_optional_str(a: Option<&String>, b: Option<&String>, dir: SortDir) ->
     }
 }
 
+pub fn parse_sort_flag(s: &str) -> Result<(SortColumn, SortDir), String> {
+    let parts: Vec<&str> = s.split(':').collect();
+    if parts.is_empty() || parts.len() > 2 || parts[0].is_empty() {
+        return Err(format!("invalid --sort value: {:?}", s));
+    }
+
+    let col = match parts[0].to_lowercase().as_str() {
+        "index" => SortColumn::Index,
+        "hotkey" => SortColumn::Hotkey,
+        "name" => SortColumn::Name,
+        "modified" => SortColumn::Modified,
+        other => return Err(format!("unknown sort column: {:?} (expected index|hotkey|name|modified)", other)),
+    };
+
+    let dir = if parts.len() == 2 {
+        match parts[1].to_lowercase().as_str() {
+            "asc" => SortDir::Asc,
+            "desc" => SortDir::Desc,
+            other => return Err(format!("unknown sort direction: {:?} (expected asc|desc)", other)),
+        }
+    } else {
+        SortDir::Asc
+    };
+
+    Ok((col, dir))
+}
+
 pub fn format_mtime(time: SystemTime) -> String {
     use chrono::{DateTime, Local};
     let dt: DateTime<Local> = time.into();
@@ -290,5 +317,32 @@ mod tests {
     #[test]
     fn format_mtime_dash_for_none() {
         assert_eq!(format_mtime_opt(None), "—");
+    }
+
+    #[test]
+    fn parse_sort_flag_default_dir_is_asc() {
+        assert_eq!(parse_sort_flag("name").unwrap(), (SortColumn::Name, SortDir::Asc));
+        assert_eq!(parse_sort_flag("index").unwrap(), (SortColumn::Index, SortDir::Asc));
+        assert_eq!(parse_sort_flag("hotkey").unwrap(), (SortColumn::Hotkey, SortDir::Asc));
+        assert_eq!(parse_sort_flag("modified").unwrap(), (SortColumn::Modified, SortDir::Asc));
+    }
+
+    #[test]
+    fn parse_sort_flag_with_explicit_dir() {
+        assert_eq!(parse_sort_flag("modified:desc").unwrap(), (SortColumn::Modified, SortDir::Desc));
+        assert_eq!(parse_sort_flag("name:asc").unwrap(), (SortColumn::Name, SortDir::Asc));
+    }
+
+    #[test]
+    fn parse_sort_flag_is_case_insensitive() {
+        assert_eq!(parse_sort_flag("NAME:DESC").unwrap(), (SortColumn::Name, SortDir::Desc));
+    }
+
+    #[test]
+    fn parse_sort_flag_rejects_garbage() {
+        assert!(parse_sort_flag("foo").is_err());
+        assert!(parse_sort_flag("name:upwards").is_err());
+        assert!(parse_sort_flag("name:asc:extra").is_err());
+        assert!(parse_sort_flag("").is_err());
     }
 }
