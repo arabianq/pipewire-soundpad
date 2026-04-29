@@ -10,7 +10,7 @@ use pwsp::{
         audio_player::PlayerState,
         config::GuiConfig,
         config::HotkeyConfig,
-        gui::{AppState, AudioPlayerState},
+        gui::{AppState, AudioPlayerState, SortColumn, SortDir},
         socket::Request,
     },
     utils::{
@@ -37,7 +37,7 @@ struct SoundpadGui {
 }
 
 impl SoundpadGui {
-    fn new(ctx: &Context) -> Self {
+    fn new(ctx: &Context, initial_sort: Option<(SortColumn, SortDir)>) -> Self {
         let audio_player_state = Arc::new(Mutex::new(AudioPlayerState::default()));
         start_app_state_thread(audio_player_state.clone());
 
@@ -54,6 +54,11 @@ impl SoundpadGui {
 
         soundpad_gui.app_state.dirs = config.dirs;
         soundpad_gui.app_state.hotkey_config = HotkeyConfig::load().unwrap_or_default();
+
+        if let Some((col, dir)) = initial_sort {
+            soundpad_gui.app_state.sort_column = col;
+            soundpad_gui.app_state.sort_dir = dir;
+        }
 
         soundpad_gui
     }
@@ -196,7 +201,7 @@ impl SoundpadGui {
     }
 }
 
-pub async fn run() -> Result<(), Box<dyn Error>> {
+pub async fn run(initial_sort: Option<(SortColumn, SortDir)>) -> Result<(), Box<dyn Error>> {
     const ICON: &[u8] = include_bytes!("../../assets/icon.png");
 
     let options = NativeOptions {
@@ -216,9 +221,9 @@ pub async fn run() -> Result<(), Box<dyn Error>> {
     match run_native(
         "Pipewire Soundpad",
         options,
-        Box::new(|cc| {
+        Box::new(move |cc| {
             egui_material_icons::initialize(&cc.egui_ctx);
-            Ok(Box::new(SoundpadGui::new(&cc.egui_ctx)))
+            Ok(Box::new(SoundpadGui::new(&cc.egui_ctx, initial_sort)))
         }),
     ) {
         Ok(_) => {
