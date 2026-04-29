@@ -129,7 +129,7 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
 }
 
 use std::cmp::Ordering;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
 
@@ -200,6 +200,12 @@ fn compare_optional_str(a: Option<&String>, b: Option<&String>, dir: SortDir) ->
         (None, Some(_)) => Ordering::Greater,
         (None, None) => Ordering::Equal,
     }
+}
+
+pub fn slot_index_map(files: &HashSet<PathBuf>) -> HashMap<PathBuf, usize> {
+    let mut sorted: Vec<PathBuf> = files.iter().cloned().collect();
+    sorted.sort();
+    sorted.into_iter().enumerate().map(|(i, p)| (p, i + 1)).collect()
 }
 
 pub fn parse_sort_flag(s: &str) -> Result<(SortColumn, SortDir), String> {
@@ -344,5 +350,16 @@ mod tests {
         assert!(parse_sort_flag("name:upwards").is_err());
         assert!(parse_sort_flag("name:asc:extra").is_err());
         assert!(parse_sort_flag("").is_err());
+    }
+
+    #[test]
+    fn slot_index_map_is_one_based_after_sorting() {
+        let files: std::collections::HashSet<PathBuf> = [
+            pb("/c/c.mp3"), pb("/c/a.mp3"), pb("/c/b.mp3"),
+        ].into_iter().collect();
+        let m = slot_index_map(&files);
+        assert_eq!(m.get(&pb("/c/a.mp3")), Some(&1));
+        assert_eq!(m.get(&pb("/c/b.mp3")), Some(&2));
+        assert_eq!(m.get(&pb("/c/c.mp3")), Some(&3));
     }
 }
