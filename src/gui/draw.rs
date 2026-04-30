@@ -736,13 +736,13 @@ impl SoundpadGui {
     fn header_cell(&mut self, ui: &mut Ui, label: &str, col: SortColumn) {
         let glyph = if self.app_state.sort_column == col {
             match self.app_state.sort_dir {
-                SortDir::Asc => " ▲",
-                SortDir::Desc => " ▼",
+                SortDir::Asc => ICON_ARROW_UPWARD.codepoint,
+                SortDir::Desc => ICON_ARROW_DOWNWARD.codepoint,
             }
         } else {
             ""
         };
-        let text = RichText::new(format!("{}{}", label, glyph)).strong();
+        let text = RichText::new(format!("{} {}", label, glyph)).strong();
         let resp = ui.add(Button::new(text).frame(false));
         if resp.clicked() {
             let (new_col, new_dir) =
@@ -754,13 +754,7 @@ impl SoundpadGui {
 
     fn draw_files(&mut self, ui: &mut Ui, area_size: Vec2) {
         ui.vertical(|ui| {
-            // Search row + refresh button
             ui.horizontal(|ui| {
-                let refresh_clicked = ui
-                    .add(Button::new(RichText::new(ICON_REFRESH.codepoint).family(FontFamily::Name("MaterialIcons".into()))).frame(false))
-                    .on_hover_text("Refresh file list")
-                    .clicked();
-
                 let search_field_response = ui.add_sized(
                     [ui.available_width(), 22.0],
                     TextEdit::singleline(&mut self.app_state.search_query).hint_text("Search..."),
@@ -771,10 +765,6 @@ impl SoundpadGui {
                     self.app_state.force_focus_search = false;
                 }
                 self.app_state.search_field_id = Some(search_field_response.id);
-
-                if refresh_clicked {
-                    self.refresh_files();
-                }
             });
 
             ui.separator();
@@ -958,7 +948,7 @@ impl SoundpadGui {
                             });
                             row.col(|ui| {
                                 ui.label(
-                                    RichText::new(format_mtime_opt(mtime)).monospace().small(),
+                                    RichText::new(format_mtime_opt(mtime)).monospace(),
                                 );
                             });
                         });
