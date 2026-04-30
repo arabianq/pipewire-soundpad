@@ -45,6 +45,10 @@ pub struct GuiConfig {
     pub save_scale_factor: bool,
     pub pause_on_exit: bool,
 
+    pub show_index_column: bool,
+    pub show_hotkey_column: bool,
+    pub show_modified_column: bool,
+
     pub dirs: Vec<PathBuf>,
 }
 
@@ -58,6 +62,10 @@ impl Default for GuiConfig {
             save_input: false,
             save_scale_factor: false,
             pause_on_exit: false,
+
+            show_index_column: true,
+            show_hotkey_column: true,
+            show_modified_column: true,
 
             dirs: vec![],
         }
