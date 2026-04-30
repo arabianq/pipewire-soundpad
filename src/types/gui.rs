@@ -4,6 +4,7 @@ use crate::types::{
 };
 
 use egui::Id;
+use serde::{Deserialize, Serialize};
 
 use std::{
     collections::{HashMap, HashSet},
@@ -11,13 +12,31 @@ use std::{
     time::{Instant, SystemTime},
 };
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum SortColumn {
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+pub enum FilesColumn {
     #[default]
     Index,
     Hotkey,
     Name,
     Modified,
+}
+
+impl FilesColumn {
+    pub const ALL: [FilesColumn; 4] = [
+        FilesColumn::Index,
+        FilesColumn::Hotkey,
+        FilesColumn::Name,
+        FilesColumn::Modified,
+    ];
+
+    pub fn label(self) -> &'static str {
+        match self {
+            FilesColumn::Index => "#",
+            FilesColumn::Hotkey => "Hotkey",
+            FilesColumn::Name => "Name",
+            FilesColumn::Modified => "Last Modified",
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -69,7 +88,7 @@ pub struct AppState {
     pub assigning_hotkey_for_file: Option<PathBuf>,
     pub hotkey_capture_active: bool,
 
-    pub sort_column: SortColumn,
+    pub sort_by: FilesColumn,
     pub sort_dir: SortDir,
     pub file_mtime_cache: HashMap<PathBuf, SystemTime>,
     pub mtime_cache_dir: Option<PathBuf>,

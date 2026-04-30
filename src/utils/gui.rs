@@ -133,11 +133,11 @@ use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
 
-use crate::types::gui::{SortColumn, SortDir};
+use crate::types::gui::{FilesColumn, SortDir};
 
 pub fn sort_files(
     files: &[PathBuf],
-    column: SortColumn,
+    column: FilesColumn,
     dir: SortDir,
     mtimes: &HashMap<PathBuf, SystemTime>,
     hotkeys: &HashMap<PathBuf, String>,
@@ -145,21 +145,21 @@ pub fn sort_files(
     let mut out: Vec<PathBuf> = files.to_vec();
 
     match column {
-        SortColumn::Index => {
+        FilesColumn::Index => {
             if dir == SortDir::Desc {
                 out.reverse();
             }
         }
-        SortColumn::Name => {
+        FilesColumn::Name => {
             out.sort_by(|a, b| compare_name(a, b));
             if dir == SortDir::Desc {
                 out.reverse();
             }
         }
-        SortColumn::Modified => {
+        FilesColumn::Modified => {
             out.sort_by(|a, b| compare_optional(mtimes.get(a), mtimes.get(b), dir));
         }
-        SortColumn::Hotkey => {
+        FilesColumn::Hotkey => {
             out.sort_by(|a, b| compare_optional_str(hotkeys.get(a), hotkeys.get(b), dir));
         }
     }
@@ -168,7 +168,10 @@ pub fn sort_files(
 }
 
 fn name_key(p: &Path) -> String {
-    p.file_name().unwrap_or_default().to_string_lossy().to_lowercase()
+    p.file_name()
+        .unwrap_or_default()
+        .to_string_lossy()
+        .to_lowercase()
 }
 
 fn compare_name(a: &Path, b: &Path) -> Ordering {
@@ -180,7 +183,11 @@ fn compare_optional<T: Ord>(a: Option<&T>, b: Option<&T>, dir: SortDir) -> Order
     match (a, b) {
         (Some(x), Some(y)) => {
             let ord = x.cmp(y);
-            if dir == SortDir::Desc { ord.reverse() } else { ord }
+            if dir == SortDir::Desc {
+                ord.reverse()
+            } else {
+                ord
+            }
         }
         (Some(_), None) => Ordering::Less,
         (None, Some(_)) => Ordering::Greater,
@@ -194,7 +201,11 @@ fn compare_optional_str(a: Option<&String>, b: Option<&String>, dir: SortDir) ->
     match (a, b) {
         (Some(x), Some(y)) => {
             let ord = x.to_lowercase().cmp(&y.to_lowercase());
-            if dir == SortDir::Desc { ord.reverse() } else { ord }
+            if dir == SortDir::Desc {
+                ord.reverse()
+            } else {
+                ord
+            }
         }
         (Some(_), None) => Ordering::Less,
         (None, Some(_)) => Ordering::Greater,
@@ -202,10 +213,7 @@ fn compare_optional_str(a: Option<&String>, b: Option<&String>, dir: SortDir) ->
     }
 }
 
-pub fn refresh_mtime_cache(
-    cache: &mut HashMap<PathBuf, SystemTime>,
-    files: &HashSet<PathBuf>,
-) {
+pub fn refresh_mtime_cache(cache: &mut HashMap<PathBuf, SystemTime>, files: &HashSet<PathBuf>) {
     cache.clear();
     for path in files {
         if let Ok(meta) = std::fs::metadata(path)
@@ -217,10 +225,10 @@ pub fn refresh_mtime_cache(
 }
 
 pub fn cycle_sort(
-    current_col: SortColumn,
+    current_col: FilesColumn,
     current_dir: SortDir,
-    clicked: SortColumn,
-) -> (SortColumn, SortDir) {
+    clicked: FilesColumn,
+) -> (FilesColumn, SortDir) {
     if clicked == current_col {
         let flipped = match current_dir {
             SortDir::Asc => SortDir::Desc,
@@ -235,7 +243,11 @@ pub fn cycle_sort(
 pub fn slot_index_map(files: &HashSet<PathBuf>) -> HashMap<PathBuf, usize> {
     let mut sorted: Vec<PathBuf> = files.iter().cloned().collect();
     sorted.sort();
-    sorted.into_iter().enumerate().map(|(i, p)| (p, i + 1)).collect()
+    sorted
+        .into_iter()
+        .enumerate()
+        .map(|(i, p)| (p, i + 1))
+        .collect()
 }
 
 pub fn format_mtime(time: SystemTime) -> String {
@@ -254,32 +266,55 @@ pub fn format_mtime_opt(time: Option<SystemTime>) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::gui::{SortColumn, SortDir};
+    use crate::types::gui::{FilesColumn, SortDir};
     use std::collections::HashMap;
     use std::path::PathBuf;
     use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-    fn pb(s: &str) -> PathBuf { PathBuf::from(s) }
+    fn pb(s: &str) -> PathBuf {
+        PathBuf::from(s)
+    }
 
     #[test]
     fn sort_index_keeps_input_order() {
         let files = vec![pb("/c/b.mp3"), pb("/c/a.mp3"), pb("/c/d.mp3")];
-        let out = sort_files(&files, SortColumn::Index, SortDir::Asc, &HashMap::new(), &HashMap::new());
+        let out = sort_files(
+            &files,
+            FilesColumn::Index,
+            SortDir::Asc,
+            &HashMap::new(),
+            &HashMap::new(),
+        );
         assert_eq!(out, files);
     }
 
     #[test]
     fn sort_index_desc_reverses() {
         let files = vec![pb("/c/a.mp3"), pb("/c/b.mp3"), pb("/c/c.mp3")];
-        let out = sort_files(&files, SortColumn::Index, SortDir::Desc, &HashMap::new(), &HashMap::new());
+        let out = sort_files(
+            &files,
+            FilesColumn::Index,
+            SortDir::Desc,
+            &HashMap::new(),
+            &HashMap::new(),
+        );
         assert_eq!(out, vec![pb("/c/c.mp3"), pb("/c/b.mp3"), pb("/c/a.mp3")]);
     }
 
     #[test]
     fn sort_name_case_insensitive_asc() {
         let files = vec![pb("/c/Banana.mp3"), pb("/c/apple.mp3"), pb("/c/cherry.mp3")];
-        let out = sort_files(&files, SortColumn::Name, SortDir::Asc, &HashMap::new(), &HashMap::new());
-        assert_eq!(out, vec![pb("/c/apple.mp3"), pb("/c/Banana.mp3"), pb("/c/cherry.mp3")]);
+        let out = sort_files(
+            &files,
+            FilesColumn::Name,
+            SortDir::Asc,
+            &HashMap::new(),
+            &HashMap::new(),
+        );
+        assert_eq!(
+            out,
+            vec![pb("/c/apple.mp3"), pb("/c/Banana.mp3"), pb("/c/cherry.mp3")]
+        );
     }
 
     #[test]
@@ -290,10 +325,22 @@ mod tests {
         mtimes.insert(pb("/c/c.mp3"), UNIX_EPOCH + Duration::from_secs(200));
         // b is missing
 
-        let asc = sort_files(&files, SortColumn::Modified, SortDir::Asc, &mtimes, &HashMap::new());
+        let asc = sort_files(
+            &files,
+            FilesColumn::Modified,
+            SortDir::Asc,
+            &mtimes,
+            &HashMap::new(),
+        );
         assert_eq!(asc, vec![pb("/c/a.mp3"), pb("/c/c.mp3"), pb("/c/b.mp3")]);
 
-        let desc = sort_files(&files, SortColumn::Modified, SortDir::Desc, &mtimes, &HashMap::new());
+        let desc = sort_files(
+            &files,
+            FilesColumn::Modified,
+            SortDir::Desc,
+            &mtimes,
+            &HashMap::new(),
+        );
         assert_eq!(desc, vec![pb("/c/c.mp3"), pb("/c/a.mp3"), pb("/c/b.mp3")]);
     }
 
@@ -304,10 +351,22 @@ mod tests {
         hk.insert(pb("/c/a.mp3"), "F2".to_string());
         hk.insert(pb("/c/c.mp3"), "F1".to_string());
 
-        let asc = sort_files(&files, SortColumn::Hotkey, SortDir::Asc, &HashMap::new(), &hk);
+        let asc = sort_files(
+            &files,
+            FilesColumn::Hotkey,
+            SortDir::Asc,
+            &HashMap::new(),
+            &hk,
+        );
         assert_eq!(asc, vec![pb("/c/c.mp3"), pb("/c/a.mp3"), pb("/c/b.mp3")]);
 
-        let desc = sort_files(&files, SortColumn::Hotkey, SortDir::Desc, &HashMap::new(), &hk);
+        let desc = sort_files(
+            &files,
+            FilesColumn::Hotkey,
+            SortDir::Desc,
+            &HashMap::new(),
+            &hk,
+        );
         assert_eq!(desc, vec![pb("/c/a.mp3"), pb("/c/c.mp3"), pb("/c/b.mp3")]);
     }
 
@@ -330,9 +389,10 @@ mod tests {
 
     #[test]
     fn slot_index_map_is_one_based_after_sorting() {
-        let files: std::collections::HashSet<PathBuf> = [
-            pb("/c/c.mp3"), pb("/c/a.mp3"), pb("/c/b.mp3"),
-        ].into_iter().collect();
+        let files: std::collections::HashSet<PathBuf> =
+            [pb("/c/c.mp3"), pb("/c/a.mp3"), pb("/c/b.mp3")]
+                .into_iter()
+                .collect();
         let m = slot_index_map(&files);
         assert_eq!(m.get(&pb("/c/a.mp3")), Some(&1));
         assert_eq!(m.get(&pb("/c/b.mp3")), Some(&2));
@@ -342,20 +402,20 @@ mod tests {
     #[test]
     fn cycle_sort_clicking_active_flips_direction() {
         assert_eq!(
-            cycle_sort(SortColumn::Name, SortDir::Asc, SortColumn::Name),
-            (SortColumn::Name, SortDir::Desc)
+            cycle_sort(FilesColumn::Name, SortDir::Asc, FilesColumn::Name),
+            (FilesColumn::Name, SortDir::Desc)
         );
         assert_eq!(
-            cycle_sort(SortColumn::Name, SortDir::Desc, SortColumn::Name),
-            (SortColumn::Name, SortDir::Asc)
+            cycle_sort(FilesColumn::Name, SortDir::Desc, FilesColumn::Name),
+            (FilesColumn::Name, SortDir::Asc)
         );
     }
 
     #[test]
     fn cycle_sort_clicking_other_switches_to_it_asc() {
         assert_eq!(
-            cycle_sort(SortColumn::Name, SortDir::Desc, SortColumn::Modified),
-            (SortColumn::Modified, SortDir::Asc)
+            cycle_sort(FilesColumn::Name, SortDir::Desc, FilesColumn::Modified),
+            (FilesColumn::Modified, SortDir::Asc)
         );
     }
 }

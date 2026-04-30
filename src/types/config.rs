@@ -1,4 +1,7 @@
-use crate::{types::socket::Request, utils::config::get_config_path};
+use crate::{
+    types::{gui::FilesColumn, socket::Request},
+    utils::config::get_config_path,
+};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, error::Error, fs, path::PathBuf};
 
@@ -45,9 +48,7 @@ pub struct GuiConfig {
     pub save_scale_factor: bool,
     pub pause_on_exit: bool,
 
-    pub show_index_column: bool,
-    pub show_hotkey_column: bool,
-    pub show_modified_column: bool,
+    pub visible_files_columns: Vec<FilesColumn>,
 
     pub dirs: Vec<PathBuf>,
 }
@@ -63,9 +64,7 @@ impl Default for GuiConfig {
             save_scale_factor: false,
             pause_on_exit: false,
 
-            show_index_column: true,
-            show_hotkey_column: true,
-            show_modified_column: true,
+            visible_files_columns: FilesColumn::ALL.to_vec(),
 
             dirs: vec![],
         }
