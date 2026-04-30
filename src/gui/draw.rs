@@ -811,6 +811,19 @@ impl SoundpadGui {
 
             // Filtered + sorted view
             let filtered = self.get_filtered_files();
+
+            // Fallback: if the active sort column was hidden via settings, revert to Index asc.
+            let active_hidden = match self.app_state.sort_column {
+                SortColumn::Index => !self.config.show_index_column,
+                SortColumn::Hotkey => !self.config.show_hotkey_column,
+                SortColumn::Modified => !self.config.show_modified_column,
+                SortColumn::Name => false,
+            };
+            if active_hidden {
+                self.app_state.sort_column = SortColumn::Index;
+                self.app_state.sort_dir = SortDir::Asc;
+            }
+
             let sorted = sort_files(
                 &filtered,
                 self.app_state.sort_column,
