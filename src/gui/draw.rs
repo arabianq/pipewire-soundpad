@@ -12,8 +12,7 @@ use pwsp::types::{
     gui::{AppState, FilesColumn, SortDir},
 };
 use pwsp::utils::gui::{
-    cycle_sort, format_mtime_opt, format_time_pair, make_request_async, refresh_mtime_cache,
-    slot_index_map, sort_files,
+    cycle_sort, format_mtime, format_time_pair, make_request_async, refresh_mtime_cache, sort_files,
 };
 use std::{path::Path, time::Instant};
 
@@ -811,7 +810,16 @@ impl SoundpadGui {
             }
 
             // Stable slot index over the unfiltered set
-            let slot_idx = slot_index_map(&self.app_state.files);
+            let slot_idx: std::collections::HashMap<std::path::PathBuf, usize> = {
+                let mut sorted: Vec<std::path::PathBuf> =
+                    self.app_state.files.iter().cloned().collect();
+                sorted.sort();
+                sorted
+                    .into_iter()
+                    .enumerate()
+                    .map(|(i, p)| (p, i + 1))
+                    .collect()
+            };
 
             // Filtered + sorted view
             let filtered = self.get_filtered_files();
@@ -892,7 +900,7 @@ impl SoundpadGui {
                                     FilesColumn::Modified => {
                                         row.col(|ui| {
                                             ui.label(
-                                                RichText::new(format_mtime_opt(mtime)).monospace(),
+                                                RichText::new(format_mtime(mtime)).monospace(),
                                             );
                                         });
                                     }

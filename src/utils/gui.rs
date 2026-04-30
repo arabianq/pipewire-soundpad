@@ -2,15 +2,18 @@ use crate::{
     types::{
         audio_player::FullState,
         config::{GuiConfig, HotkeyConfig},
-        gui::AudioPlayerState,
+        gui::{AudioPlayerState, FilesColumn, SortDir},
         socket::{Request, Response},
     },
     utils::daemon::{is_daemon_running, make_request},
 };
 use std::{
+    cmp::Ordering,
+    collections::{HashMap, HashSet},
     error::Error,
+    path::PathBuf,
     sync::{Arc, Mutex},
-    time::Instant,
+    time::{Instant, SystemTime},
 };
 use tokio::time::{Duration, sleep};
 
@@ -128,13 +131,6 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
     });
 }
 
-use std::cmp::Ordering;
-use std::collections::{HashMap, HashSet};
-use std::path::{Path, PathBuf};
-use std::time::SystemTime;
-
-use crate::types::gui::{FilesColumn, SortDir};
-
 pub fn sort_files(
     files: &[PathBuf],
     column: FilesColumn,
@@ -151,7 +147,12 @@ pub fn sort_files(
             }
         }
         FilesColumn::Name => {
-            out.sort_by(|a, b| compare_name(a, b));
+            out.sort_by_key(|p| {
+                p.file_name()
+                    .unwrap_or_default()
+                    .to_string_lossy()
+                    .to_lowercase()
+            });
             if dir == SortDir::Desc {
                 out.reverse();
             }
@@ -160,22 +161,21 @@ pub fn sort_files(
             out.sort_by(|a, b| compare_optional(mtimes.get(a), mtimes.get(b), dir));
         }
         FilesColumn::Hotkey => {
-            out.sort_by(|a, b| compare_optional_str(hotkeys.get(a), hotkeys.get(b), dir));
+            out.sort_by(|a, b| {
+                let ka = hotkeys
+                    .get(a)
+                    .filter(|s| !s.is_empty())
+                    .map(|s| s.to_lowercase());
+                let kb = hotkeys
+                    .get(b)
+                    .filter(|s| !s.is_empty())
+                    .map(|s| s.to_lowercase());
+                compare_optional(ka.as_ref(), kb.as_ref(), dir)
+            });
         }
     }
 
     out
-}
-
-fn name_key(p: &Path) -> String {
-    p.file_name()
-        .unwrap_or_default()
-        .to_string_lossy()
-        .to_lowercase()
-}
-
-fn compare_name(a: &Path, b: &Path) -> Ordering {
-    name_key(a).cmp(&name_key(b))
 }
 
 /// Compare with "missing sorts last" semantics, regardless of asc/desc.
@@ -183,24 +183,6 @@ fn compare_optional<T: Ord>(a: Option<&T>, b: Option<&T>, dir: SortDir) -> Order
     match (a, b) {
         (Some(x), Some(y)) => {
             let ord = x.cmp(y);
-            if dir == SortDir::Desc {
-                ord.reverse()
-            } else {
-                ord
-            }
-        }
-        (Some(_), None) => Ordering::Less,
-        (None, Some(_)) => Ordering::Greater,
-        (None, None) => Ordering::Equal,
-    }
-}
-
-fn compare_optional_str(a: Option<&String>, b: Option<&String>, dir: SortDir) -> Ordering {
-    let a = a.filter(|s| !s.is_empty());
-    let b = b.filter(|s| !s.is_empty());
-    match (a, b) {
-        (Some(x), Some(y)) => {
-            let ord = x.to_lowercase().cmp(&y.to_lowercase());
             if dir == SortDir::Desc {
                 ord.reverse()
             } else {
@@ -240,25 +222,13 @@ pub fn cycle_sort(
     }
 }
 
-pub fn slot_index_map(files: &HashSet<PathBuf>) -> HashMap<PathBuf, usize> {
-    let mut sorted: Vec<PathBuf> = files.iter().cloned().collect();
-    sorted.sort();
-    sorted
-        .into_iter()
-        .enumerate()
-        .map(|(i, p)| (p, i + 1))
-        .collect()
-}
-
-pub fn format_mtime(time: SystemTime) -> String {
+pub fn format_mtime(time: Option<SystemTime>) -> String {
     use chrono::{DateTime, Local};
-    let dt: DateTime<Local> = time.into();
-    dt.format("%Y-%m-%d %H:%M").to_string()
-}
-
-pub fn format_mtime_opt(time: Option<SystemTime>) -> String {
     match time {
-        Some(t) => format_mtime(t),
+        Some(t) => {
+            let dt: DateTime<Local> = t.into();
+            dt.format("%Y-%m-%d %H:%M").to_string()
+        }
         None => "—".to_string(),
     }
 }
@@ -373,7 +343,9 @@ mod tests {
     #[test]
     fn format_mtime_uses_ymd_hm_local() {
         // We can't pin the local timezone in a test, so just check shape: 16 chars, dashes/colons/space.
-        let s = format_mtime(SystemTime::UNIX_EPOCH + Duration::from_secs(1_700_000_000));
+        let s = format_mtime(Some(
+            SystemTime::UNIX_EPOCH + Duration::from_secs(1_700_000_000),
+        ));
         assert_eq!(s.len(), 16, "got {:?}", s);
         let bytes = s.as_bytes();
         assert_eq!(bytes[4], b'-');
@@ -384,19 +356,7 @@ mod tests {
 
     #[test]
     fn format_mtime_dash_for_none() {
-        assert_eq!(format_mtime_opt(None), "—");
-    }
-
-    #[test]
-    fn slot_index_map_is_one_based_after_sorting() {
-        let files: std::collections::HashSet<PathBuf> =
-            [pb("/c/c.mp3"), pb("/c/a.mp3"), pb("/c/b.mp3")]
-                .into_iter()
-                .collect();
-        let m = slot_index_map(&files);
-        assert_eq!(m.get(&pb("/c/a.mp3")), Some(&1));
-        assert_eq!(m.get(&pb("/c/b.mp3")), Some(&2));
-        assert_eq!(m.get(&pb("/c/c.mp3")), Some(&3));
+        assert_eq!(format_mtime(None), "—");
     }
 
     #[test]
