@@ -231,7 +231,6 @@ impl SoundpadGui {
                         .to_lowercase()
                         .contains(&search)
             })
-            .cloned()
             .collect();
 
         let available_width = ui.available_width();
