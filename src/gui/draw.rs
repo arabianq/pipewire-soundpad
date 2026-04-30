@@ -833,30 +833,42 @@ impl SoundpadGui {
             );
 
             // Table
-            let table = TableBuilder::new(ui)
+            let mut table = TableBuilder::new(ui)
                 .striped(false)
                 .resizable(true)
-                .cell_layout(Layout::left_to_right(Align::Center))
-                .column(Column::initial(40.0).at_least(30.0))
-                .column(Column::initial(70.0).at_least(40.0))
-                .column(Column::remainder().clip(true))
-                .column(Column::initial(120.0).at_least(80.0))
-                .min_scrolled_height(area_size.y);
+                .cell_layout(Layout::left_to_right(Align::Center));
+            if self.config.show_index_column {
+                table = table.column(Column::initial(40.0).at_least(30.0));
+            }
+            if self.config.show_hotkey_column {
+                table = table.column(Column::initial(70.0).at_least(40.0));
+            }
+            table = table.column(Column::remainder().clip(true));
+            if self.config.show_modified_column {
+                table = table.column(Column::initial(120.0).at_least(80.0));
+            }
+            let table = table.min_scrolled_height(area_size.y);
 
             table
                 .header(20.0, |mut header| {
-                    header.col(|ui| {
-                        self.header_cell(ui, "#", SortColumn::Index);
-                    });
-                    header.col(|ui| {
-                        self.header_cell(ui, "Hotkey", SortColumn::Hotkey);
-                    });
+                    if self.config.show_index_column {
+                        header.col(|ui| {
+                            self.header_cell(ui, "#", SortColumn::Index);
+                        });
+                    }
+                    if self.config.show_hotkey_column {
+                        header.col(|ui| {
+                            self.header_cell(ui, "Hotkey", SortColumn::Hotkey);
+                        });
+                    }
                     header.col(|ui| {
                         self.header_cell(ui, "Name", SortColumn::Name);
                     });
-                    header.col(|ui| {
-                        self.header_cell(ui, "Last Modified", SortColumn::Modified);
-                    });
+                    if self.config.show_modified_column {
+                        header.col(|ui| {
+                            self.header_cell(ui, "Last Modified", SortColumn::Modified);
+                        });
+                    }
                 })
                 .body(|mut body| {
                     for entry_path in sorted {
@@ -871,19 +883,23 @@ impl SoundpadGui {
                         let mtime = self.app_state.file_mtime_cache.get(&entry_path).copied();
 
                         body.row(20.0, |mut row| {
-                            row.col(|ui| {
-                                ui.label(RichText::new(idx.to_string()).monospace());
-                            });
-                            row.col(|ui| {
-                                if !hotkey_label.is_empty() {
-                                    ui.label(
-                                        RichText::new(&hotkey_label)
-                                            .small()
-                                            .monospace()
-                                            .color(Color32::from_rgb(100, 200, 100)),
-                                    );
-                                }
-                            });
+                            if self.config.show_index_column {
+                                row.col(|ui| {
+                                    ui.label(RichText::new(idx.to_string()).monospace());
+                                });
+                            }
+                            if self.config.show_hotkey_column {
+                                row.col(|ui| {
+                                    if !hotkey_label.is_empty() {
+                                        ui.label(
+                                            RichText::new(&hotkey_label)
+                                                .small()
+                                                .monospace()
+                                                .color(Color32::from_rgb(100, 200, 100)),
+                                        );
+                                    }
+                                });
+                            }
                             row.col(|ui| {
                                 let mut file_button_text = RichText::new(&file_name);
                                 if let Some(current_file) = &self.app_state.selected_file
@@ -975,11 +991,13 @@ impl SoundpadGui {
                                     }
                                 });
                             });
-                            row.col(|ui| {
-                                ui.label(
-                                    RichText::new(format_mtime_opt(mtime)).monospace(),
-                                );
-                            });
+                            if self.config.show_modified_column {
+                                row.col(|ui| {
+                                    ui.label(
+                                        RichText::new(format_mtime_opt(mtime)).monospace(),
+                                    );
+                                });
+                            }
                         });
                     }
                 });
