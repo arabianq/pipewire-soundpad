@@ -121,10 +121,26 @@ impl SoundpadGui {
                 "Pause audio playback when the window is closed",
             );
 
+            ui.add_space(10.0);
+            ui.separator();
+            ui.label(RichText::new("Columns").monospace());
+
+            let show_index_response =
+                ui.checkbox(&mut self.config.show_index_column, "Show # column");
+            let show_hotkey_response =
+                ui.checkbox(&mut self.config.show_hotkey_column, "Show Hotkey column");
+            let show_modified_response = ui.checkbox(
+                &mut self.config.show_modified_column,
+                "Show Last Modified column",
+            );
+
             if save_volume_response.changed()
                 || save_input_response.changed()
                 || save_scale_response.changed()
                 || pause_on_exit_response.changed()
+                || show_index_response.changed()
+                || show_hotkey_response.changed()
+                || show_modified_response.changed()
             {
                 self.config.save_to_file().ok();
             }
