@@ -1,9 +1,7 @@
 use crate::gui::SoundpadGui;
 use egui::{
-    Align, Align2, AtomExt, Button, CollapsingHeader, Color32, ComboBox, CursorIcon, FontFamily,
-    FontId, Id, Label, Layout, Order, Rect, RichText, ScrollArea, Sense, Slider, TextEdit, Ui,
-    Vec2, epaint::Stroke, layers::LayerId,
-
+    Align, AtomExt, Button, CollapsingHeader, Color32, ComboBox, CursorIcon, FontFamily, Label,
+    Layout, RichText, ScrollArea, Sense, Slider, TextEdit, Ui, Vec2,
 };
 use egui_dnd::dnd;
 use egui_extras::{Column, TableBuilder};
@@ -15,30 +13,6 @@ use pwsp::types::{
 };
 use pwsp::utils::gui::{format_mtime, format_time_pair, make_request_async, sort_files};
 use std::{path::Path, time::Instant};
-
-const DRAG_ACCENT: Color32 = Color32::from_rgb(120, 180, 255);
-
-fn find_drop_target(
-    rects: &[(FilesColumn, Rect)],
-    dragging: FilesColumn,
-    pos: egui::Pos2,
-) -> Option<FilesColumn> {
-    rects
-        .iter()
-        .find(|(c, r)| *c != dragging && r.x_range().contains(pos.x))
-        .map(|(c, _)| *c)
-        .or_else(|| {
-            rects
-                .iter()
-                .filter(|(c, _)| *c != dragging)
-                .min_by(|(_, a), (_, b)| {
-                    (a.center().x - pos.x)
-                        .abs()
-                        .total_cmp(&(b.center().x - pos.x).abs())
-                })
-                .map(|(c, _)| *c)
-        })
-}
 
 enum TrackAction {
     Pause(u32),
@@ -775,65 +749,6 @@ impl SoundpadGui {
         });
     }
 
-    fn header_cell(&mut self, ui: &mut Ui, col: FilesColumn) -> Rect {
-        // Stable id keyed on the column variant so the drag interaction
-        // survives reordering (a position-derived id would shift mid-drag).
-        let cell_rect = ui.available_rect_before_wrap();
-        let id = Id::new(("files_header_drag", col));
-        let resp = ui.interact(cell_rect, id, Sense::click_and_drag());
-
-        let dragging = self.app_state.dragging_column == Some(col);
-        let visuals = ui.visuals();
-        if dragging {
-            ui.painter()
-                .rect_filled(cell_rect, 0.0, DRAG_ACCENT.gamma_multiply(0.1));
-        } else if resp.hovered() {
-            ui.painter()
-                .rect_filled(cell_rect, 0.0, visuals.widgets.hovered.bg_fill);
-        }
-
-        let glyph = if self.app_state.sort_by == col {
-            match self.app_state.sort_dir {
-                SortDir::Asc => ICON_ARROW_DOWNWARD.codepoint,
-                SortDir::Desc => ICON_ARROW_UPWARD.codepoint,
-            }
-        } else {
-            ""
-        };
-        let label = format!("{} {}", col.label(), glyph);
-        let text_color = if dragging {
-            DRAG_ACCENT
-        } else {
-            visuals.strong_text_color()
-        };
-        ui.painter().text(
-            cell_rect.center(),
-            Align2::CENTER_CENTER,
-            label,
-            FontId::proportional(13.0),
-            text_color,
-        );
-
-        if resp.dragged() {
-            self.app_state.dragging_column = Some(col);
-        }
-        if self.app_state.dragging_column.is_some() && resp.hovered() {
-            ui.ctx().set_cursor_icon(CursorIcon::Grabbing);
-        }
-        if resp.clicked() {
-            if self.app_state.sort_by == col {
-                self.app_state.sort_dir = match self.app_state.sort_dir {
-                    SortDir::Asc => SortDir::Desc,
-                    SortDir::Desc => SortDir::Asc,
-                };
-            } else {
-                self.app_state.sort_by = col;
-                self.app_state.sort_dir = SortDir::Asc;
-            }
-        }
-        cell_rect
-    }
-
     fn draw_files(&mut self, ui: &mut Ui) {
         ui.vertical(|ui| {
             ui.horizontal(|ui| {
@@ -912,38 +827,99 @@ impl SoundpadGui {
                 &hotkeys,
             );
 
-            let columns = self.config.visible_files_columns.clone();
+            // Render the header outside TableBuilder so egui_dnd can reorder
+            // the columns by drag — same pattern as draw_dirs. Use a single
+            // explicit width for Name in both header and body so they stay
+            // aligned regardless of scrollbar/inner-margin reservations.
+            let scroll_w =
+                ui.spacing().scroll.bar_width + ui.spacing().scroll.bar_outer_margin;
+            let fixed_widths_sum: f32 = self
+                .config
+                .visible_files_columns
+                .iter()
+                .map(|c| match c {
+                    FilesColumn::Index => 40.0,
+                    FilesColumn::Hotkey => 70.0,
+                    FilesColumn::Modified => 150.0,
+                    FilesColumn::Name => 0.0,
+                })
+                .sum();
+            let name_width = (ui.available_width() - scroll_w - fixed_widths_sum).max(80.0);
+            let col_width = |c: FilesColumn| match c {
+                FilesColumn::Index => 40.0,
+                FilesColumn::Hotkey => 70.0,
+                FilesColumn::Modified => 150.0,
+                FilesColumn::Name => name_width,
+            };
+
+            let mut new_columns = self.config.visible_files_columns.clone();
+            ui.horizontal(|ui| {
+                ui.spacing_mut().item_spacing.x = 0.0;
+                dnd(ui, "files_columns_dnd").show_vec(
+                    &mut new_columns,
+                    |ui, col, handle, _state| {
+                        let w = col_width(*col);
+                        let glyph = if self.app_state.sort_by == *col {
+                            match self.app_state.sort_dir {
+                                SortDir::Asc => ICON_ARROW_DOWNWARD.codepoint,
+                                SortDir::Desc => ICON_ARROW_UPWARD.codepoint,
+                            }
+                        } else {
+                            ""
+                        };
+                        let label = format!("{} {}", col.label(), glyph);
+                        ui.allocate_ui_with_layout(
+                            Vec2::new(w, 22.0),
+                            Layout::centered_and_justified(egui::Direction::TopDown),
+                            |ui| {
+                                let resp = handle.sense(Sense::click()).ui(ui, |ui| {
+                                    ui.add(
+                                        Label::new(RichText::new(label).strong())
+                                            .selectable(false),
+                                    );
+                                });
+                                if resp.clicked() {
+                                    if self.app_state.sort_by == *col {
+                                        self.app_state.sort_dir = match self.app_state.sort_dir {
+                                            SortDir::Asc => SortDir::Desc,
+                                            SortDir::Desc => SortDir::Asc,
+                                        };
+                                    } else {
+                                        self.app_state.sort_by = *col;
+                                        self.app_state.sort_dir = SortDir::Asc;
+                                    }
+                                }
+                            },
+                        );
+                    },
+                );
+            });
+            if new_columns != self.config.visible_files_columns {
+                self.config.visible_files_columns = new_columns;
+                self.config.save_to_file().ok();
+            }
 
             // Cap the scroll area so the table never overflows the panel,
             // otherwise the footer and the dirs/files separator below get clipped.
-            // Subtract header (~20) + a small buffer for inner padding.
-            let scroll_max = (ui.available_height() - 24.0).max(40.0);
+            let scroll_max = (ui.available_height() - 4.0).max(40.0);
 
+            let columns = self.config.visible_files_columns.clone();
             let mut table = TableBuilder::new(ui)
                 .striped(false)
-                .resizable(true)
+                .resizable(false)
                 .auto_shrink([false, false])
                 .cell_layout(Layout::left_to_right(Align::Center));
             for col in &columns {
-                table = match col {
-                    FilesColumn::Index => table.column(Column::initial(40.0).at_least(30.0)),
-                    FilesColumn::Hotkey => table.column(Column::initial(70.0).at_least(40.0)),
-                    FilesColumn::Name => table.column(Column::remainder().clip(true)),
-                    FilesColumn::Modified => table.column(Column::initial(120.0).at_least(80.0)),
+                let w = col_width(*col);
+                table = if *col == FilesColumn::Name {
+                    table.column(Column::exact(w).clip(true))
+                } else {
+                    table.column(Column::exact(w))
                 };
             }
             let table = table.max_scroll_height(scroll_max);
 
-            let mut header_rects: Vec<(FilesColumn, Rect)> = Vec::with_capacity(columns.len());
             table
-                .header(20.0, |mut header| {
-                    for col in &columns {
-                        header.col(|ui| {
-                            let rect = self.header_cell(ui, *col);
-                            header_rects.push((*col, rect));
-                        });
-                    }
-                })
                 .body(|mut body| {
                     for entry_path in sorted {
                         let file_name = entry_path
@@ -1085,61 +1061,6 @@ impl SoundpadGui {
                     }
                 });
 
-            if let Some(dragging) = self.app_state.dragging_column {
-                let released = ui.ctx().input(|i| i.pointer.any_released());
-                let pointer = ui.ctx().pointer_latest_pos();
-
-                if !released && let Some(pos) = pointer {
-                    let layer = LayerId::new(Order::Tooltip, Id::new("col_drag_ghost"));
-                    let painter = ui.ctx().layer_painter(layer);
-                    let label = format!(" {} ", dragging.label());
-                    let galley =
-                        painter.layout_no_wrap(label, FontId::proportional(13.0), Color32::WHITE);
-                    let offset = Vec2::new(12.0, 12.0);
-                    let bg_rect = Rect::from_min_size(pos + offset, galley.size()).expand(3.0);
-                    painter.rect_filled(bg_rect, 4.0, Color32::from_black_alpha(200));
-                    painter.galley(pos + offset, galley, Color32::WHITE);
-
-                    if let Some((_, target_rect)) = header_rects
-                        .iter()
-                        .find(|(c, r)| *c != dragging && r.x_range().contains(pos.x))
-                    {
-                        ui.ctx()
-                            .layer_painter(LayerId::new(
-                                Order::Foreground,
-                                Id::new("col_drop_target"),
-                            ))
-                            .rect_stroke(
-                                *target_rect,
-                                2.0,
-                                Stroke::new(2.0, DRAG_ACCENT),
-                                egui::StrokeKind::Inside,
-                            );
-                    }
-
-                    ui.ctx().request_repaint();
-                }
-
-                if released {
-                    if let Some(target) =
-                        pointer.and_then(|pos| find_drop_target(&header_rects, dragging, pos))
-                        && let (Some(from), Some(to)) = (
-                            self.config
-                                .visible_files_columns
-                                .iter()
-                                .position(|c| *c == dragging),
-                            self.config
-                                .visible_files_columns
-                                .iter()
-                                .position(|c| *c == target),
-                        )
-                    {
-                        self.config.visible_files_columns.swap(from, to);
-                        self.config.save_to_file().ok();
-                    }
-                    self.app_state.dragging_column = None;
-                }
-            }
         });
     }
 

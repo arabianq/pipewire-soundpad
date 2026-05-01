@@ -92,8 +92,6 @@ pub struct AppState {
     pub sort_dir: SortDir,
     pub file_mtime_cache: HashMap<PathBuf, SystemTime>,
     pub mtime_cache_dir: Option<PathBuf>,
-
-    pub dragging_column: Option<FilesColumn>,
 }
 
 #[derive(Default, Debug, Clone)]
