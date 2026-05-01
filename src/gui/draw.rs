@@ -827,29 +827,31 @@ impl SoundpadGui {
                 &hotkeys,
             );
 
-            // Render the header outside TableBuilder so egui_dnd can reorder
-            // the columns by drag — same pattern as draw_dirs. Use a single
-            // explicit width for Name in both header and body so they stay
-            // aligned regardless of scrollbar/inner-margin reservations.
-            let scroll_w =
-                ui.spacing().scroll.bar_width + ui.spacing().scroll.bar_outer_margin;
-            let fixed_widths_sum: f32 = self
-                .config
-                .visible_files_columns
-                .iter()
-                .map(|c| match c {
+            // Header lives outside TableBuilder so egui_dnd can own item
+            // placement; widths must mirror the body's, including a manual
+            // reservation for the scrollbar.
+            let scroll_w = ui.spacing().scroll.bar_width + ui.spacing().scroll.bar_outer_margin;
+            let fixed_width = |c: FilesColumn| -> f32 {
+                match c {
                     FilesColumn::Index => 40.0,
                     FilesColumn::Hotkey => 70.0,
                     FilesColumn::Modified => 150.0,
                     FilesColumn::Name => 0.0,
-                })
+                }
+            };
+            let fixed_widths_sum: f32 = self
+                .config
+                .visible_files_columns
+                .iter()
+                .map(|c| fixed_width(*c))
                 .sum();
             let name_width = (ui.available_width() - scroll_w - fixed_widths_sum).max(80.0);
-            let col_width = |c: FilesColumn| match c {
-                FilesColumn::Index => 40.0,
-                FilesColumn::Hotkey => 70.0,
-                FilesColumn::Modified => 150.0,
-                FilesColumn::Name => name_width,
+            let col_width = |c: FilesColumn| {
+                if c == FilesColumn::Name {
+                    name_width
+                } else {
+                    fixed_width(c)
+                }
             };
 
             let mut new_columns = self.config.visible_files_columns.clone();
@@ -899,8 +901,6 @@ impl SoundpadGui {
                 self.config.save_to_file().ok();
             }
 
-            // Cap the scroll area so the table never overflows the panel,
-            // otherwise the footer and the dirs/files separator below get clipped.
             let scroll_max = (ui.available_height() - 4.0).max(40.0);
 
             let columns = self.config.visible_files_columns.clone();
