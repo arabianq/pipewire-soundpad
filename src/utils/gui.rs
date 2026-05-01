@@ -2,15 +2,18 @@ use crate::{
     types::{
         audio_player::FullState,
         config::{GuiConfig, HotkeyConfig},
-        gui::AudioPlayerState,
+        gui::{AudioPlayerState, FilesColumn, SortDir},
         socket::{Request, Response},
     },
     utils::daemon::{is_daemon_running, make_request},
 };
 use std::{
+    cmp::Ordering,
+    collections::HashMap,
     error::Error,
+    path::PathBuf,
     sync::{Arc, Mutex},
-    time::Instant,
+    time::{Instant, SystemTime},
 };
 use tokio::time::{Duration, sleep};
 
@@ -126,4 +129,201 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
             sleep(sleep_duration).await;
         }
     });
+}
+
+pub fn sort_files(
+    files: &[PathBuf],
+    column: FilesColumn,
+    dir: SortDir,
+    mtimes: &HashMap<PathBuf, SystemTime>,
+    hotkeys: &HashMap<PathBuf, String>,
+) -> Vec<PathBuf> {
+    // "missing sorts last" regardless of asc/desc
+    fn cmp_opt<T: Ord>(a: Option<&T>, b: Option<&T>, dir: SortDir) -> Ordering {
+        match (a, b) {
+            (Some(x), Some(y)) if dir == SortDir::Desc => y.cmp(x),
+            (Some(x), Some(y)) => x.cmp(y),
+            (Some(_), None) => Ordering::Less,
+            (None, Some(_)) => Ordering::Greater,
+            (None, None) => Ordering::Equal,
+        }
+    }
+
+    let mut out: Vec<PathBuf> = files.to_vec();
+
+    match column {
+        FilesColumn::Index => {
+            if dir == SortDir::Desc {
+                out.reverse();
+            }
+        }
+        FilesColumn::Name => {
+            out.sort_by_key(|p| {
+                p.file_name()
+                    .unwrap_or_default()
+                    .to_string_lossy()
+                    .to_lowercase()
+            });
+            if dir == SortDir::Desc {
+                out.reverse();
+            }
+        }
+        FilesColumn::Modified => {
+            out.sort_by(|a, b| cmp_opt(mtimes.get(a), mtimes.get(b), dir));
+        }
+        FilesColumn::Hotkey => {
+            out.sort_by(|a, b| {
+                let ka = hotkeys
+                    .get(a)
+                    .filter(|s| !s.is_empty())
+                    .map(|s| s.to_lowercase());
+                let kb = hotkeys
+                    .get(b)
+                    .filter(|s| !s.is_empty())
+                    .map(|s| s.to_lowercase());
+                cmp_opt(ka.as_ref(), kb.as_ref(), dir)
+            });
+        }
+    }
+
+    out
+}
+
+pub fn format_mtime(time: Option<SystemTime>) -> String {
+    use chrono::{DateTime, Local};
+    match time {
+        Some(t) => {
+            let dt: DateTime<Local> = t.into();
+            dt.format("%Y-%m-%d %H:%M").to_string()
+        }
+        None => "—".to_string(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::types::gui::{FilesColumn, SortDir};
+    use std::collections::HashMap;
+    use std::path::PathBuf;
+    use std::time::{Duration, SystemTime, UNIX_EPOCH};
+
+    fn pb(s: &str) -> PathBuf {
+        PathBuf::from(s)
+    }
+
+    #[test]
+    fn sort_index_keeps_input_order() {
+        let files = vec![pb("/c/b.mp3"), pb("/c/a.mp3"), pb("/c/d.mp3")];
+        let out = sort_files(
+            &files,
+            FilesColumn::Index,
+            SortDir::Asc,
+            &HashMap::new(),
+            &HashMap::new(),
+        );
+        assert_eq!(out, files);
+    }
+
+    #[test]
+    fn sort_index_desc_reverses() {
+        let files = vec![pb("/c/a.mp3"), pb("/c/b.mp3"), pb("/c/c.mp3")];
+        let out = sort_files(
+            &files,
+            FilesColumn::Index,
+            SortDir::Desc,
+            &HashMap::new(),
+            &HashMap::new(),
+        );
+        assert_eq!(out, vec![pb("/c/c.mp3"), pb("/c/b.mp3"), pb("/c/a.mp3")]);
+    }
+
+    #[test]
+    fn sort_name_case_insensitive_asc() {
+        let files = vec![pb("/c/Banana.mp3"), pb("/c/apple.mp3"), pb("/c/cherry.mp3")];
+        let out = sort_files(
+            &files,
+            FilesColumn::Name,
+            SortDir::Asc,
+            &HashMap::new(),
+            &HashMap::new(),
+        );
+        assert_eq!(
+            out,
+            vec![pb("/c/apple.mp3"), pb("/c/Banana.mp3"), pb("/c/cherry.mp3")]
+        );
+    }
+
+    #[test]
+    fn sort_modified_missing_goes_last_in_both_dirs() {
+        let files = vec![pb("/c/a.mp3"), pb("/c/b.mp3"), pb("/c/c.mp3")];
+        let mut mtimes = HashMap::new();
+        mtimes.insert(pb("/c/a.mp3"), UNIX_EPOCH + Duration::from_secs(100));
+        mtimes.insert(pb("/c/c.mp3"), UNIX_EPOCH + Duration::from_secs(200));
+        // b is missing
+
+        let asc = sort_files(
+            &files,
+            FilesColumn::Modified,
+            SortDir::Asc,
+            &mtimes,
+            &HashMap::new(),
+        );
+        assert_eq!(asc, vec![pb("/c/a.mp3"), pb("/c/c.mp3"), pb("/c/b.mp3")]);
+
+        let desc = sort_files(
+            &files,
+            FilesColumn::Modified,
+            SortDir::Desc,
+            &mtimes,
+            &HashMap::new(),
+        );
+        assert_eq!(desc, vec![pb("/c/c.mp3"), pb("/c/a.mp3"), pb("/c/b.mp3")]);
+    }
+
+    #[test]
+    fn sort_hotkey_empty_goes_last() {
+        let files = vec![pb("/c/a.mp3"), pb("/c/b.mp3"), pb("/c/c.mp3")];
+        let mut hk = HashMap::new();
+        hk.insert(pb("/c/a.mp3"), "F2".to_string());
+        hk.insert(pb("/c/c.mp3"), "F1".to_string());
+
+        let asc = sort_files(
+            &files,
+            FilesColumn::Hotkey,
+            SortDir::Asc,
+            &HashMap::new(),
+            &hk,
+        );
+        assert_eq!(asc, vec![pb("/c/c.mp3"), pb("/c/a.mp3"), pb("/c/b.mp3")]);
+
+        let desc = sort_files(
+            &files,
+            FilesColumn::Hotkey,
+            SortDir::Desc,
+            &HashMap::new(),
+            &hk,
+        );
+        assert_eq!(desc, vec![pb("/c/a.mp3"), pb("/c/c.mp3"), pb("/c/b.mp3")]);
+    }
+
+    #[test]
+    fn format_mtime_uses_ymd_hm_local() {
+        // We can't pin the local timezone in a test, so just check shape: 16 chars, dashes/colons/space.
+        let s = format_mtime(Some(
+            SystemTime::UNIX_EPOCH + Duration::from_secs(1_700_000_000),
+        ));
+        assert_eq!(s.len(), 16, "got {:?}", s);
+        let bytes = s.as_bytes();
+        assert_eq!(bytes[4], b'-');
+        assert_eq!(bytes[7], b'-');
+        assert_eq!(bytes[10], b' ');
+        assert_eq!(bytes[13], b':');
+    }
+
+    #[test]
+    fn format_mtime_dash_for_none() {
+        assert_eq!(format_mtime(None), "—");
+    }
+
 }
