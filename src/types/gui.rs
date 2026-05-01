@@ -12,7 +12,7 @@ use std::{
     time::{Instant, SystemTime},
 };
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default, Serialize, Deserialize)]
 pub enum FilesColumn {
     #[default]
     Index,
@@ -92,6 +92,8 @@ pub struct AppState {
     pub sort_dir: SortDir,
     pub file_mtime_cache: HashMap<PathBuf, SystemTime>,
     pub mtime_cache_dir: Option<PathBuf>,
+
+    pub dragging_column: Option<FilesColumn>,
 }
 
 #[derive(Default, Debug, Clone)]

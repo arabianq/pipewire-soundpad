@@ -1,7 +1,9 @@
 use crate::gui::SoundpadGui;
 use egui::{
-    Align, AtomExt, Button, CollapsingHeader, Color32, ComboBox, CursorIcon, FontFamily, Label,
-    Layout, RichText, ScrollArea, Sense, Slider, TextEdit, Ui, Vec2,
+    Align, Align2, AtomExt, Button, CollapsingHeader, Color32, ComboBox, CursorIcon, FontFamily,
+    FontId, Id, Label, Layout, Order, Rect, RichText, ScrollArea, Sense, Slider, TextEdit, Ui,
+    Vec2, epaint::Stroke, layers::LayerId,
+
 };
 use egui_dnd::dnd;
 use egui_extras::{Column, TableBuilder};
@@ -13,6 +15,30 @@ use pwsp::types::{
 };
 use pwsp::utils::gui::{format_mtime, format_time_pair, make_request_async, sort_files};
 use std::{path::Path, time::Instant};
+
+const DRAG_ACCENT: Color32 = Color32::from_rgb(120, 180, 255);
+
+fn find_drop_target(
+    rects: &[(FilesColumn, Rect)],
+    dragging: FilesColumn,
+    pos: egui::Pos2,
+) -> Option<FilesColumn> {
+    rects
+        .iter()
+        .find(|(c, r)| *c != dragging && r.x_range().contains(pos.x))
+        .map(|(c, _)| *c)
+        .or_else(|| {
+            rects
+                .iter()
+                .filter(|(c, _)| *c != dragging)
+                .min_by(|(_, a), (_, b)| {
+                    (a.center().x - pos.x)
+                        .abs()
+                        .total_cmp(&(b.center().x - pos.x).abs())
+                })
+                .map(|(c, _)| *c)
+        })
+}
 
 enum TrackAction {
     Pause(u32),
@@ -749,7 +775,23 @@ impl SoundpadGui {
         });
     }
 
-    fn header_cell(&mut self, ui: &mut Ui, col: FilesColumn) {
+    fn header_cell(&mut self, ui: &mut Ui, col: FilesColumn) -> Rect {
+        // Stable id keyed on the column variant so the drag interaction
+        // survives reordering (a position-derived id would shift mid-drag).
+        let cell_rect = ui.available_rect_before_wrap();
+        let id = Id::new(("files_header_drag", col));
+        let resp = ui.interact(cell_rect, id, Sense::click_and_drag());
+
+        let dragging = self.app_state.dragging_column == Some(col);
+        let visuals = ui.visuals();
+        if dragging {
+            ui.painter()
+                .rect_filled(cell_rect, 0.0, DRAG_ACCENT.gamma_multiply(0.1));
+        } else if resp.hovered() {
+            ui.painter()
+                .rect_filled(cell_rect, 0.0, visuals.widgets.hovered.bg_fill);
+        }
+
         let glyph = if self.app_state.sort_by == col {
             match self.app_state.sort_dir {
                 SortDir::Asc => ICON_ARROW_DOWNWARD.codepoint,
@@ -758,8 +800,26 @@ impl SoundpadGui {
         } else {
             ""
         };
-        let text = RichText::new(format!("{} {}", col.label(), glyph)).strong();
-        let resp = ui.add(Button::new(text).frame(false));
+        let label = format!("{} {}", col.label(), glyph);
+        let text_color = if dragging {
+            DRAG_ACCENT
+        } else {
+            visuals.strong_text_color()
+        };
+        ui.painter().text(
+            cell_rect.center(),
+            Align2::CENTER_CENTER,
+            label,
+            FontId::proportional(13.0),
+            text_color,
+        );
+
+        if resp.dragged() {
+            self.app_state.dragging_column = Some(col);
+        }
+        if self.app_state.dragging_column.is_some() && resp.hovered() {
+            ui.ctx().set_cursor_icon(CursorIcon::Grabbing);
+        }
         if resp.clicked() {
             if self.app_state.sort_by == col {
                 self.app_state.sort_dir = match self.app_state.sort_dir {
@@ -771,6 +831,7 @@ impl SoundpadGui {
                 self.app_state.sort_dir = SortDir::Asc;
             }
         }
+        cell_rect
     }
 
     fn draw_files(&mut self, ui: &mut Ui) {
@@ -873,11 +934,13 @@ impl SoundpadGui {
             }
             let table = table.max_scroll_height(scroll_max);
 
+            let mut header_rects: Vec<(FilesColumn, Rect)> = Vec::with_capacity(columns.len());
             table
                 .header(20.0, |mut header| {
                     for col in &columns {
                         header.col(|ui| {
-                            self.header_cell(ui, *col);
+                            let rect = self.header_cell(ui, *col);
+                            header_rects.push((*col, rect));
                         });
                     }
                 })
@@ -1021,6 +1084,62 @@ impl SoundpadGui {
                         });
                     }
                 });
+
+            if let Some(dragging) = self.app_state.dragging_column {
+                let released = ui.ctx().input(|i| i.pointer.any_released());
+                let pointer = ui.ctx().pointer_latest_pos();
+
+                if !released && let Some(pos) = pointer {
+                    let layer = LayerId::new(Order::Tooltip, Id::new("col_drag_ghost"));
+                    let painter = ui.ctx().layer_painter(layer);
+                    let label = format!(" {} ", dragging.label());
+                    let galley =
+                        painter.layout_no_wrap(label, FontId::proportional(13.0), Color32::WHITE);
+                    let offset = Vec2::new(12.0, 12.0);
+                    let bg_rect = Rect::from_min_size(pos + offset, galley.size()).expand(3.0);
+                    painter.rect_filled(bg_rect, 4.0, Color32::from_black_alpha(200));
+                    painter.galley(pos + offset, galley, Color32::WHITE);
+
+                    if let Some((_, target_rect)) = header_rects
+                        .iter()
+                        .find(|(c, r)| *c != dragging && r.x_range().contains(pos.x))
+                    {
+                        ui.ctx()
+                            .layer_painter(LayerId::new(
+                                Order::Foreground,
+                                Id::new("col_drop_target"),
+                            ))
+                            .rect_stroke(
+                                *target_rect,
+                                2.0,
+                                Stroke::new(2.0, DRAG_ACCENT),
+                                egui::StrokeKind::Inside,
+                            );
+                    }
+
+                    ui.ctx().request_repaint();
+                }
+
+                if released {
+                    if let Some(target) =
+                        pointer.and_then(|pos| find_drop_target(&header_rects, dragging, pos))
+                        && let (Some(from), Some(to)) = (
+                            self.config
+                                .visible_files_columns
+                                .iter()
+                                .position(|c| *c == dragging),
+                            self.config
+                                .visible_files_columns
+                                .iter()
+                                .position(|c| *c == target),
+                        )
+                    {
+                        self.config.visible_files_columns.swap(from, to);
+                        self.config.save_to_file().ok();
+                    }
+                    self.app_state.dragging_column = None;
+                }
+            }
         });
     }
 
