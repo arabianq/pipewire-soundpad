@@ -9,7 +9,7 @@ use crate::{
 };
 use std::{
     cmp::Ordering,
-    collections::{HashMap, HashSet},
+    collections::HashMap,
     error::Error,
     path::PathBuf,
     sync::{Arc, Mutex},
@@ -138,6 +138,17 @@ pub fn sort_files(
     mtimes: &HashMap<PathBuf, SystemTime>,
     hotkeys: &HashMap<PathBuf, String>,
 ) -> Vec<PathBuf> {
+    // "missing sorts last" regardless of asc/desc
+    fn cmp_opt<T: Ord>(a: Option<&T>, b: Option<&T>, dir: SortDir) -> Ordering {
+        match (a, b) {
+            (Some(x), Some(y)) if dir == SortDir::Desc => y.cmp(x),
+            (Some(x), Some(y)) => x.cmp(y),
+            (Some(_), None) => Ordering::Less,
+            (None, Some(_)) => Ordering::Greater,
+            (None, None) => Ordering::Equal,
+        }
+    }
+
     let mut out: Vec<PathBuf> = files.to_vec();
 
     match column {
@@ -158,7 +169,7 @@ pub fn sort_files(
             }
         }
         FilesColumn::Modified => {
-            out.sort_by(|a, b| compare_optional(mtimes.get(a), mtimes.get(b), dir));
+            out.sort_by(|a, b| cmp_opt(mtimes.get(a), mtimes.get(b), dir));
         }
         FilesColumn::Hotkey => {
             out.sort_by(|a, b| {
@@ -170,56 +181,12 @@ pub fn sort_files(
                     .get(b)
                     .filter(|s| !s.is_empty())
                     .map(|s| s.to_lowercase());
-                compare_optional(ka.as_ref(), kb.as_ref(), dir)
+                cmp_opt(ka.as_ref(), kb.as_ref(), dir)
             });
         }
     }
 
     out
-}
-
-/// Compare with "missing sorts last" semantics, regardless of asc/desc.
-fn compare_optional<T: Ord>(a: Option<&T>, b: Option<&T>, dir: SortDir) -> Ordering {
-    match (a, b) {
-        (Some(x), Some(y)) => {
-            let ord = x.cmp(y);
-            if dir == SortDir::Desc {
-                ord.reverse()
-            } else {
-                ord
-            }
-        }
-        (Some(_), None) => Ordering::Less,
-        (None, Some(_)) => Ordering::Greater,
-        (None, None) => Ordering::Equal,
-    }
-}
-
-pub fn refresh_mtime_cache(cache: &mut HashMap<PathBuf, SystemTime>, files: &HashSet<PathBuf>) {
-    cache.clear();
-    for path in files {
-        if let Ok(meta) = std::fs::metadata(path)
-            && let Ok(mtime) = meta.modified()
-        {
-            cache.insert(path.clone(), mtime);
-        }
-    }
-}
-
-pub fn cycle_sort(
-    current_col: FilesColumn,
-    current_dir: SortDir,
-    clicked: FilesColumn,
-) -> (FilesColumn, SortDir) {
-    if clicked == current_col {
-        let flipped = match current_dir {
-            SortDir::Asc => SortDir::Desc,
-            SortDir::Desc => SortDir::Asc,
-        };
-        (clicked, flipped)
-    } else {
-        (clicked, SortDir::Asc)
-    }
 }
 
 pub fn format_mtime(time: Option<SystemTime>) -> String {
@@ -359,23 +326,4 @@ mod tests {
         assert_eq!(format_mtime(None), "—");
     }
 
-    #[test]
-    fn cycle_sort_clicking_active_flips_direction() {
-        assert_eq!(
-            cycle_sort(FilesColumn::Name, SortDir::Asc, FilesColumn::Name),
-            (FilesColumn::Name, SortDir::Desc)
-        );
-        assert_eq!(
-            cycle_sort(FilesColumn::Name, SortDir::Desc, FilesColumn::Name),
-            (FilesColumn::Name, SortDir::Asc)
-        );
-    }
-
-    #[test]
-    fn cycle_sort_clicking_other_switches_to_it_asc() {
-        assert_eq!(
-            cycle_sort(FilesColumn::Name, SortDir::Desc, FilesColumn::Modified),
-            (FilesColumn::Modified, SortDir::Asc)
-        );
-    }
 }

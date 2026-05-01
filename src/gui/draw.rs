@@ -11,9 +11,7 @@ use pwsp::types::{
     audio_player::TrackInfo,
     gui::{AppState, FilesColumn, SortDir},
 };
-use pwsp::utils::gui::{
-    cycle_sort, format_mtime, format_time_pair, make_request_async, refresh_mtime_cache, sort_files,
-};
+use pwsp::utils::gui::{format_mtime, format_time_pair, make_request_async, sort_files};
 use std::{path::Path, time::Instant};
 
 enum TrackAction {
@@ -652,8 +650,7 @@ impl SoundpadGui {
                 self.config.save_to_file().ok();
             }
 
-            let files_size = Vec2::new(ui.available_width(), ui.available_height() - 40.0);
-            self.draw_files(ui, files_size);
+            self.draw_files(ui);
         });
     }
 
@@ -755,8 +752,8 @@ impl SoundpadGui {
     fn header_cell(&mut self, ui: &mut Ui, col: FilesColumn) {
         let glyph = if self.app_state.sort_by == col {
             match self.app_state.sort_dir {
-                SortDir::Asc => ICON_ARROW_UPWARD.codepoint,
-                SortDir::Desc => ICON_ARROW_DOWNWARD.codepoint,
+                SortDir::Asc => ICON_ARROW_DOWNWARD.codepoint,
+                SortDir::Desc => ICON_ARROW_UPWARD.codepoint,
             }
         } else {
             ""
@@ -764,14 +761,19 @@ impl SoundpadGui {
         let text = RichText::new(format!("{} {}", col.label(), glyph)).strong();
         let resp = ui.add(Button::new(text).frame(false));
         if resp.clicked() {
-            let (new_col, new_dir) =
-                cycle_sort(self.app_state.sort_by, self.app_state.sort_dir, col);
-            self.app_state.sort_by = new_col;
-            self.app_state.sort_dir = new_dir;
+            if self.app_state.sort_by == col {
+                self.app_state.sort_dir = match self.app_state.sort_dir {
+                    SortDir::Asc => SortDir::Desc,
+                    SortDir::Desc => SortDir::Asc,
+                };
+            } else {
+                self.app_state.sort_by = col;
+                self.app_state.sort_dir = SortDir::Asc;
+            }
         }
     }
 
-    fn draw_files(&mut self, ui: &mut Ui, area_size: Vec2) {
+    fn draw_files(&mut self, ui: &mut Ui) {
         ui.vertical(|ui| {
             ui.horizontal(|ui| {
                 let search_field_response = ui.add_sized(
@@ -790,7 +792,14 @@ impl SoundpadGui {
 
             // Cache invalidation when category changes
             if self.app_state.mtime_cache_dir != self.app_state.current_dir {
-                refresh_mtime_cache(&mut self.app_state.file_mtime_cache, &self.app_state.files);
+                self.app_state.file_mtime_cache.clear();
+                for path in &self.app_state.files {
+                    if let Ok(meta) = std::fs::metadata(path)
+                        && let Ok(mtime) = meta.modified()
+                    {
+                        self.app_state.file_mtime_cache.insert(path.clone(), mtime);
+                    }
+                }
                 self.app_state.mtime_cache_dir = self.app_state.current_dir.clone();
             }
 
@@ -844,9 +853,15 @@ impl SoundpadGui {
 
             let columns = self.config.visible_files_columns.clone();
 
+            // Cap the scroll area so the table never overflows the panel,
+            // otherwise the footer and the dirs/files separator below get clipped.
+            // Subtract header (~20) + a small buffer for inner padding.
+            let scroll_max = (ui.available_height() - 24.0).max(40.0);
+
             let mut table = TableBuilder::new(ui)
                 .striped(false)
                 .resizable(true)
+                .auto_shrink([false, false])
                 .cell_layout(Layout::left_to_right(Align::Center));
             for col in &columns {
                 table = match col {
@@ -856,7 +871,7 @@ impl SoundpadGui {
                     FilesColumn::Modified => table.column(Column::initial(120.0).at_least(80.0)),
                 };
             }
-            let table = table.min_scrolled_height(area_size.y);
+            let table = table.max_scroll_height(scroll_max);
 
             table
                 .header(20.0, |mut header| {
