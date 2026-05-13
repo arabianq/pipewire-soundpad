@@ -1,237 +1,120 @@
-# **🎵 Pipewire Soundpad (PWSP)**
+<div align="center">
+  <h1>🎵 PipeWire Soundpad (PWSP)</h1>
+  <p><b>A simple, modern, and powerful soundboard for Linux, written in Rust.</b></p>
+  <img src="assets/screenshot.png" alt="PWSP Screenshot" width="700"/>
+</div>
 
-**PipeWire Soundpad (PWSP)** is a simple yet powerful **soundboard application** written in **Rust**. It provides a
-user-friendly graphical interface for **managing and playing audio files, directing their output directly to the virtual
-microphone.** This makes it an ideal tool for gamers, streamers, and anyone looking to inject sound effects into voice
-chats on platforms like **Discord, Zoom, or Teamspeak**.
+## 🌟 Overview
+**PipeWire Soundpad (PWSP)** is a graphical soundboard application that routes audio directly to your virtual microphone using **PipeWire**. It provides an intuitive interface for managing your audio collection, making it an ideal tool for gamers, streamers, and anyone looking to inject sound effects into voice chats on platforms like Discord, Zoom, or TeamSpeak.
 
-![screenshot.png](assets/screenshot.png)
+## ✨ Key Features
+* **🎙️ Virtual Microphone Output:** Seamlessly mixes your microphone input with sound effects by automatically managing PipeWire virtual devices.
+* **🎵 Multi-Format Support:** Plays popular audio formats including `mp3`, `wav`, `ogg`, `flac`, `mp4`, and `aac`.
+* **⚡ Global Hotkeys:** Trigger sounds instantly from anywhere, even when the app is running in the background.
+* **📂 Smart Collection Management:** Drag-and-drop folders, quick search, and collapsible tracks to keep your library organized.
+* **🎛️ Advanced Playback Controls:** Individual volume sliders, play/pause, position scrubbing, and concurrent multi-track playback.
+* **🔌 Plug & Play:** Automatically detects when an input device is connected or disconnected and handles linking/unlinking on the fly.
+* **🖥️ Modern GUI:** Clean, responsive, and lightweight interface powered by [egui](https://egui.rs/).
 
-# **🌟 Key Features**
+## ⚙️ Architecture
+PWSP is built with a client-server model to ensure stability and separation of concerns:
+* **`pwsp-daemon`**: The background engine. It runs silently, managing PipeWire virtual devices, audio routing, and playback.
+* **`pwsp-gui`**: The graphical interface. Communicates with the daemon via a Unix socket to control playback and settings.
+* **`pwsp-cli`**: The command-line tool. Perfect for scripting, hotkey binding, or quick terminal-based control.
 
-* **Multi-Format Support**: Play audio files in popular formats, including _**mp3**_, _**wav**_, _**ogg**_, _**flac**_,
-  _**mp4**_, and _**aac**_.
-* **Virtual Microphone Output**: The application routes audio through a virtual device created by PipeWire, allowing
-  other users to hear the sounds as if you were speaking into your microphone.
-* **Modern and Clean GUI**: The interface is built with the [egui](https://egui.rs) library, ensuring an intuitive and
-  responsive user experience.
-* **Sound Collection Management**: Easily add and remove directories containing your audio files. The application scans
-  these folders and displays all supported files for quick access.
-* **Quick Search**: Use the built-in search bar to instantly find any sound file within your library.
-* **Detailed Playback Controls**:
-    * **Play/Pause button**.
-    * **Volume slider** for individual sound adjustment.
-    * **Position slider** to fast-forward or rewind the audio.
-* **Persistent Configuration**: The list of added directories and your selected audio output device are saved
-  automatically, so you won't need to reconfigure them every time you launch the application.
-* **Collapsible Audio Tracks**: You can collapse every audio track to save space.
-* **Drag and Drop Directories**: Reorder your sound directories easily using drag and drop.
-* **Automatic Device Detection**: PWSP automatically detects when an input device is connected or disconnected and handles linking/unlinking.
-* **Global Hotkeys**: Assign custom keyboard shortcuts to any sound file (or action) to trigger playback instantly, even when the application is not in focus.
+---
 
+## 🚀 Installation
 
-# **⚙️ How It Works**
-
-PWSP is designed with a clear separation of concerns, operating through a client-server architecture. It consists of
-three main components:
-
-* **pwsp-daemon**: This is the core of the application. It runs silently in the background, managing all the
-  heavy-lifting tasks. The daemon is responsible for:
-    * Creating and managing virtual audio devices.
-    * Linking these devices within the PipeWire graph.
-    * Handling all audio playback.
-* **UnixSocket**. This is how you interact with your sound collection, control playback, and configure settings.
-* **pwsp-gui**: This is the graphical user interface. It acts as a client that communicates with pwsp-daemon via a
-* **pwsp-cli**: This is the command-line interface, also acting as a client. It provides a way to control the daemon
-  without a GUI, allowing for scripting or quick command-based actions.
-
-# **🚀 Installation**
-
-## **Pre-built Packages**
-
-You can download pre-built binaries and .deb packages from
-the [releases page](https://github.com/arabianq/pipewire-soundpad/releases).
-
-## **Flatpak**
-
-You can install PWSP via Flatpak from our custom repository hosted on GitHub Pages.
-
-Add the repository:
-
+### 📦 Flatpak (Recommended)
+Install PWSP via Flatpak from our custom repository:
 ```bash
-flatpak remote-add --user --if-not-exists arabianq-repo https://arabianq.github.io/pipewire-soundpad/index.flatpakrepo
-```
+flatpak remote-add --user --if-not-exists pwsp-repo https://arabianq.github.io/pipewire-soundpad/index.flatpakrepo
 
-Install the stable version:
-
-```bash
+# Install stable version
 flatpak install --user arabianq-repo ru.arabianq.pwsp//stable
-```
 
-Or install the nightly version (latest commit to `main`):
-
-```bash
+# Or install the nightly version (latest commit)
 flatpak install --user arabianq-repo ru.arabianq.pwsp//nightly
 ```
 
-## **Fedora Linux (and derivatives)**
-
-If you're using Fedora, you can install PWSP from a dedicated repository using DNF.
-
-Add the repository:
-
+### 🐧 Linux Packages
+**Fedora (and derivatives):**
 ```bash
 sudo dnf copr enable arabianq/pwsp
-```
-
-Update cache:
-
-```bash
-sudo dnf makecache
-```
-
-Install PWSP:
-
-```bash
 sudo dnf install pwsp
 ```
 
-## **Arch Linux**
-There is pwsp package in AUR.
-You can install it using yay, paru or any other AUR helper.
+**Arch Linux (AUR):**
 ```bash
-paru pwsp-bin # or paru pwsp to build it locally
+paru -S pwsp-bin # or 'pwsp' to build from source
 ```
 
-## **Installing using cargo**
+**Debian / Ubuntu:** 
+Download pre-built `.deb` packages or standalone binaries from the [Releases page](https://github.com/arabianq/pipewire-soundpad/releases).
 
+### 🦀 Cargo / Source Build
 ```bash
 cargo install pwsp
-```
 
-## **Building from source**
-
-#### **Requirements**
-
-* **Rust**: Install [Rust](https://www.rust-lang.org/tools/install) (using rustup is recommended).
-* **PipeWire**: Ensure that [PipeWire](https://pipewire.org/) is installed and running on your system.
-
-#### **Build Instructions**
-
-Clone the repository:
-
-```bash
-git clone https://github.com/arabianq/pipewire-soundpad.git  
+# OR clone and build manually:
+git clone https://github.com/arabianq/pipewire-soundpad.git
 cd pipewire-soundpad
-```
-
-Build the project:
-
-```bash
 cargo build --release
 ```
+*(Note: Requires Rust toolchain and PipeWire running on your system).*
 
-Now you have three binary files inside ./target/release/:
+---
 
-- **pwsp-gui**
-- **pwsp-cli**
-- **pwsp-daemon**
+## 🎮 Usage
 
-# **🎮 Usage**
-
-Before using pwsp-gui or pwsp-cli, you **must** first run the pwsp-daemon in the background.
-
-### **Running the Daemon**
-
-You can start the daemon from the terminal or enable the systemd service for automatic startup.
-
-* **Manual Start:**
+### 1. Start the Daemon
+Before using the GUI or CLI, the daemon must be running in the background.
 
 ```bash
-/path/to/your/pwsp-daemon &
+# Recommended: Start and enable via systemd (starts on login)
+systemctl --user enable --now pwsp-daemon
+
+# Manual start (if not using systemd):
+pwsp-daemon &
 ```
 
-* **Using systemd (recommended):**  
-  If you installed PWSP using prebuilt packages, the systemd service is added automatically.
-    1. **Start the service:**
-        ```bash  
-        systemctl --user start pwsp-daemon
-        ```
-    2. **Enable autostart (starts on login):**
-        ```bash
-       systemctl --user enable --now pwsp-daemon
-        ```
+### 2. Using the GUI
+1. **Add Sounds:** Click the **"+"** button to add a directory containing your audio files.
+2. **Select Mic:** Choose your physical microphone from the dropdown. PWSP will instantly create a virtual microphone combining your voice and the soundboard.
+3. **Play:** Click any sound to play it, adjust its volume, or assign a hotkey for quick access.
 
-### **Using the GUI**
-
-1. **Add Sounds**: Click the **"+"** button and select a folder containing your audio files. The application
-   will automatically list all supported files.
-2. **Select Microphone**: In the main application window, select your microphone. PWSP will automatically
-   create a virtual microphone and feed it sound from two sources: **your microphone** and the **audio files**.
-3. **Playback**: Click on a file in the list to load it, then use the **"Play"** and **"Pause"** buttons to control
-   playback. You can also play single file once using **"Play File"** button.
-
-### **Using the CLI**
-
-The pwsp-cli tool allows you to control the daemon from the command line.
-
-* **General Help**: To see a list of all available commands, run:
-
+### 3. Using the CLI
+Control the daemon directly from your terminal:
 ```bash
-pwsp-cli --help
+pwsp-cli action play /path/to/sound.mp3
+pwsp-cli get volume
+pwsp-cli set position 20
+pwsp-cli --help # View all commands
 ```
 
-* **Example Commands**:
-    * **Play a file**:
+---
 
-      ```bash
-      pwsp-cli action play <file_path>
-      ```
+## ⌨️ Shortcuts & Controls
 
-    * **Get the current volume**:
+| Action                               | Keyboard               | Mouse                |
+| :----------------------------------- | :--------------------- | :------------------- |
+| **Play Track** (Stops others)        | `Enter`                | `Left Click`         |
+| **Add Track** (Plays simultaneously) | `Ctrl + Enter`         | `Ctrl + Left Click`  |
+| **Replace Last Track**               | `Shift + Enter`        | `Shift + Left Click` |
+| **Pause / Resume**                   | `Space`                |                      |
+| **Stop All Tracks**                  | `Backspace`            |                      |
+| **Open / Close Settings**            | `I`                    |                      |
+| **Search**                           | `/`                    |                      |
+| **Navigate Files**                   | `Ctrl + ↑ / ↓`         |                      |
+| **Navigate Directories**             | `Ctrl + Shift + ↑ / ↓` |                      |
 
-      ```bash
-      pwsp-cli get volume
-      ```
+---
 
-    * **Set playback position to 20 seconds**:
+## 🤝 Contributing
+Contributions, issues, and feature requests are welcome! Feel free to check out the [issues page](https://github.com/arabianq/pipewire-soundpad/issues).
 
-      ```bash 
-      pwsp-cli set position 20
-      ```
-
-### **Hotkeys & Controls**
-
-#### **Keyboard Shortcuts**
-
-| Key                      | Action                                               |
-| :----------------------- | :--------------------------------------------------- |
-| **Space**                | Pause / Resume audio                                 |
-| **Backspace**            | Stop all audio tracks                                |
-| **Enter**                | Play selected file (stops all other tracks)          |
-| **Ctrl + Enter**         | Add selected file to playback (plays simultaneously) |
-| **Shift + Enter**        | Replace the last added track with the selected one   |
-| **I**                    | Open / Close settings                                |
-| **/**                    | Focus search field                                   |
-| **Ctrl + ↑ / ↓**         | Navigate through files                               |
-| **Ctrl + Shift + ↑ / ↓** | Navigate through directories                         |
-
-#### **Mouse Controls**
-
-* **Left Click**: Play track (stops all other tracks).
-* **Ctrl + Left Click**: Add track (plays simultaneously with current tracks).
-* **Shift + Left Click**: Replace the last added track with the selected one.
-
-# **🤝 Contributing**
-
-Contributions are welcome\! If you have ideas for improvements or find a bug, feel free to create
-an [issue](https://github.com/arabianq/pipewire-soundpad/issues) or submit
-a [pull request](https://github.com/arabianq/pipewire-soundpad/pulls).
-
-# **📜 License**
-
-This project is licensed under
-the [MIT License](https://github.com/arabianq/pipewire-soundpad/blob/main/LICENSE).
-
-# **🤖 AI Wiki**
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/arabianq/pipewire-soundpad)
+
+## 📜 License
+This project is licensed under the [MIT License](LICENSE).
