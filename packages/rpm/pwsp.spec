@@ -19,6 +19,8 @@ BuildRequires: pipewire-devel
 BuildRequires: alsa-lib-devel
 BuildRequires: clang-devel
 BuildRequires: cmake
+BuildRequires: dbus-devel
+BuildRequires: pkgconf-pkg-config
 
 %global _description %{expand:
 PWSP lets you play audio files through your microphone. Has both CLI and
