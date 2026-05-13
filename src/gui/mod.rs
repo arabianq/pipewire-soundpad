@@ -3,7 +3,7 @@ mod input;
 mod update;
 
 use eframe::{HardwareAcceleration, NativeOptions, icon_data::from_png_bytes, run_native};
-use egui::{Context, Vec2, ViewportBuilder};
+use egui::{Context, FontData, FontDefinitions, FontFamily, FontTweak, Vec2, ViewportBuilder};
 use itertools::Itertools;
 use pwsp::{
     types::{
@@ -21,9 +21,11 @@ use pwsp::{
 use rfd::FileDialog;
 use std::{
     error::Error,
+    fs,
     path::{Path, PathBuf},
     sync::{Arc, Mutex},
 };
+use system_fonts::{FontStyle, FoundFontSource, find_for_locale};
 
 const SUPPORTED_EXTENSIONS: [&str; 13] = [
     "mp3", "wav", "ogg", "flac", "mp4", "m4a", "aac", "mov", "mkv", "mka", "webm", "avi", "opus",
@@ -196,6 +198,54 @@ impl SoundpadGui {
     }
 }
 
+fn add_font(
+    font_name: &str,
+    font_bytes: &[u8],
+    fonts: &mut FontDefinitions,
+) -> Result<(), Box<dyn Error>> {
+    let font_data = FontData::from_owned(font_bytes.to_vec()).tweak(FontTweak {
+        scale: 1.0,
+        hinting_override: Some(true),
+        ..Default::default()
+    });
+
+    fonts
+        .font_data
+        .insert(font_name.to_owned(), font_data.into());
+
+    fonts
+        .families
+        .entry(FontFamily::Proportional)
+        .or_default()
+        .insert(0, font_name.to_owned());
+    fonts
+        .families
+        .entry(FontFamily::Monospace)
+        .or_default()
+        .insert(0, font_name.to_owned());
+
+    Ok(())
+}
+
+fn load_system_fonts(fonts: &mut FontDefinitions) -> Result<(), Box<dyn Error>> {
+    let (_, en_sans) = find_for_locale("en", FontStyle::Sans);
+    let (_, en_serif) = find_for_locale("en", FontStyle::Serif);
+    let (_, ja_sans) = find_for_locale("ja", FontStyle::Sans);
+
+    let system_fonts = [en_sans, en_serif, ja_sans].concat();
+
+    for font in system_fonts.iter().rev() {
+        let font_bytes = match &font.source {
+            FoundFontSource::Path(path) => fs::read(path)?,
+            FoundFontSource::Bytes(bytes) => bytes.to_vec(),
+        };
+
+        add_font(&font.key, &font_bytes, fonts)?;
+    }
+
+    Ok(())
+}
+
 pub async fn run() -> Result<(), Box<dyn Error>> {
     const ICON: &[u8] = include_bytes!("../../assets/icon.png");
 
@@ -218,6 +268,11 @@ pub async fn run() -> Result<(), Box<dyn Error>> {
         options,
         Box::new(|cc| {
             egui_material_icons::initialize(&cc.egui_ctx);
+
+            let mut fonts = FontDefinitions::default();
+            load_system_fonts(&mut fonts).ok();
+            cc.egui_ctx.set_fonts(fonts);
+
             Ok(Box::new(SoundpadGui::new(&cc.egui_ctx)))
         }),
     ) {

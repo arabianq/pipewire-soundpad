@@ -9,10 +9,7 @@ use egui_material_icons::icons::*;
 use pwsp::types::socket::Request;
 use pwsp::types::{audio_player::TrackInfo, gui::AppState};
 use pwsp::utils::gui::{format_time_pair, make_request_async};
-use std::{
-    path::Path,
-    time::Instant,
-};
+use std::{path::Path, time::Instant};
 
 enum TrackAction {
     Pause(u32),
@@ -282,8 +279,7 @@ impl SoundpadGui {
                         row.col(|_| {});
                         row.col(|ui| {
                             ui.label(
-                                RichText::new("No hotkey slots configured.")
-                                    .color(Color32::GRAY),
+                                RichText::new("No hotkey slots configured.").color(Color32::GRAY),
                             );
                         });
                         row.col(|_| {});
@@ -305,8 +301,7 @@ impl SoundpadGui {
                                     .on_hover_text("Key chord conflict");
                                 }
                                 ui.add(
-                                    Label::new(RichText::new(&slot.slot).monospace())
-                                        .truncate(),
+                                    Label::new(RichText::new(&slot.slot).monospace()).truncate(),
                                 );
                             });
                         });
@@ -315,9 +310,7 @@ impl SoundpadGui {
                         row.col(|ui| {
                             let action_name = match slot.action.name.as_str() {
                                 "play" => {
-                                    if let Some(file_path_str) =
-                                        slot.action.args.get("file_path")
-                                    {
+                                    if let Some(file_path_str) = slot.action.args.get("file_path") {
                                         Path::new(file_path_str)
                                             .file_name()
                                             .unwrap_or_default()
@@ -334,9 +327,7 @@ impl SoundpadGui {
                                 "toggle_loop" => "Toggle Loop".to_string(),
                                 other => other.to_string(),
                             };
-                            ui.add(
-                                Label::new(RichText::new(action_name).monospace()).truncate(),
-                            );
+                            ui.add(Label::new(RichText::new(action_name).monospace()).truncate());
                         });
 
                         // Column 3: Key Chord
