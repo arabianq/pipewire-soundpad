@@ -74,7 +74,9 @@ jobs:
             zip jq \
             libpipewire-0.3-dev \
             libclang-dev \
-            libasound2-dev
+            libasound2-dev \
+            libdbus-1-dev \
+            pkg-config
 
       - name: Checkout code at tag
         uses: actions/checkout@v4
