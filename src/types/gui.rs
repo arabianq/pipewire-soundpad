@@ -44,14 +44,18 @@ pub struct AppState {
     pub dirs_to_remove: HashSet<PathBuf>,
 
     pub selected_file: Option<PathBuf>,
-    pub files: HashSet<PathBuf>,
+    pub listed_files: HashSet<PathBuf>,
+    pub listed_dirs: HashSet<PathBuf>,
+    pub dir_cache: HashMap<PathBuf, Vec<PathBuf>>,
 
     pub show_hotkeys: bool,
+    pub hotkey_capture_active: bool,
+
     pub hotkey_config: HotkeyConfig,
     pub hotkey_search_query: String,
+
     pub assigning_hotkey_slot: Option<String>,
     pub assigning_hotkey_for_file: Option<PathBuf>,
-    pub hotkey_capture_active: bool,
 }
 
 #[derive(Default, Debug, Clone)]

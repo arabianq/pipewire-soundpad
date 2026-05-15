@@ -16,7 +16,7 @@ impl App for SoundpadGui {
                 && current_dir == &path
             {
                 self.app_state.current_dir = None;
-                self.app_state.files.clear();
+                self.app_state.listed_files.clear();
             }
         }
 

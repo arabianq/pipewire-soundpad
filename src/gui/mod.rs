@@ -21,6 +21,7 @@ use pwsp::{
 };
 use rfd::FileDialog;
 use std::{
+    cmp::Ordering,
     fs,
     path::{Path, PathBuf},
     sync::{Arc, Mutex},
@@ -110,14 +111,14 @@ impl SoundpadGui {
         self.app_state.current_dir = Some(path.clone());
         match path.read_dir() {
             Ok(read_dir) => {
-                self.app_state.files = read_dir
+                self.app_state.listed_files = read_dir
                     .filter_map(|res| res.ok())
                     .map(|entry| entry.path())
                     .collect();
             }
             Err(e) => {
                 eprintln!("Failed to read directory {:?}: {}", path, e);
-                self.app_state.files.clear();
+                self.app_state.listed_files.clear();
             }
         }
     }
@@ -157,8 +158,18 @@ impl SoundpadGui {
     }
 
     pub fn get_filtered_files(&self) -> Vec<PathBuf> {
-        let mut files: Vec<PathBuf> = self.app_state.files.iter().cloned().collect();
-        files.sort();
+        let mut files: Vec<PathBuf> = self.app_state.listed_files.iter().cloned().collect();
+        files.sort_by(|a, b| {
+            let a_is_dir = a.is_dir();
+            let b_is_dir = b.is_dir();
+            if a_is_dir && !b_is_dir {
+                Ordering::Less
+            } else if !a_is_dir && b_is_dir {
+                Ordering::Greater
+            } else {
+                a.cmp(b)
+            }
+        });
 
         let search_query = self.app_state.search_query.to_lowercase();
         let search_query = search_query.trim();
@@ -167,7 +178,7 @@ impl SoundpadGui {
             .into_iter()
             .filter(|entry_path| {
                 if entry_path.is_dir() {
-                    return false;
+                    return true;
                 }
 
                 if !SUPPORTED_EXTENSIONS.contains(

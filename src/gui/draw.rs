@@ -6,11 +6,16 @@ use egui::{
 use egui_dnd::dnd;
 use egui_extras::{Column, TableBuilder};
 use egui_material_icons::icons::*;
+use pwsp::types::gui::AudioPlayerState;
 use pwsp::types::socket::Request;
 use pwsp::types::{audio_player::TrackInfo, gui::AppState};
 use pwsp::utils::gui::{format_time_pair, make_request_async};
 use rust_i18n::t;
-use std::{path::Path, time::Instant};
+use std::{
+    cmp::Ordering,
+    path::{Path, PathBuf},
+    time::Instant,
+};
 
 enum TrackAction {
     Pause(u32),
@@ -24,6 +29,13 @@ enum HotkeyAction {
     Capture(String),
     ClearChord(String),
     Play(String),
+}
+
+enum FileAction {
+    Play(PathBuf, bool),
+    StopAndPlay(u32, PathBuf, bool),
+    AssignHotkey(PathBuf),
+    SetSelected(PathBuf),
 }
 
 impl SoundpadGui {
@@ -782,144 +794,237 @@ impl SoundpadGui {
                 ui.set_min_height(area_size.y);
 
                 ui.vertical(|ui| {
+                    let mut actions = Vec::new();
                     let files = self.get_filtered_files();
-
                     for entry_path in files {
-                        let file_name = entry_path
-                            .file_name()
-                            .unwrap_or_default()
-                            .to_string_lossy()
-                            .to_string();
+                        Self::draw_tree_node(
+                            ui,
+                            entry_path,
+                            &mut self.app_state,
+                            &self.audio_player_state,
+                            &mut actions,
+                        );
+                    }
 
-                        ui.horizontal(|ui| {
-                            // Hotkey badge
-                            let hotkey_badge = self.get_hotkey_badge(&entry_path);
-                            if let Some(badge) = &hotkey_badge {
-                                ui.label(
-                                    RichText::new(badge)
-                                        .small()
-                                        .monospace()
-                                        .color(Color32::from_rgb(100, 200, 100)),
-                                );
+                    for action in actions {
+                        match action {
+                            FileAction::Play(path, concurrent) => self.play_file(&path, concurrent),
+                            FileAction::StopAndPlay(id, path, concurrent) => {
+                                self.stop(Some(id));
+                                self.play_file(&path, concurrent);
                             }
-
-                            let mut file_button_text = RichText::new(&file_name);
-                            if let Some(current_file) = &self.app_state.selected_file
-                                && current_file.eq(&entry_path)
-                            {
-                                file_button_text = file_button_text.color(Color32::WHITE);
+                            FileAction::AssignHotkey(path) => {
+                                self.app_state.assigning_hotkey_for_file = Some(path);
+                                self.app_state.hotkey_capture_active = true;
                             }
-
-                            let file_button = Button::new(file_button_text).frame(false).truncate();
-                            let file_button_response = ui.add(file_button);
-                            if file_button_response.clicked() {
-                                ui.input(|i| {
-                                    if i.modifiers.ctrl {
-                                        self.play_file(&entry_path, true);
-                                    } else if i.modifiers.shift
-                                        && let Some(last_track) =
-                                            self.audio_player_state.tracks.last()
-                                    {
-                                        self.stop(Some(last_track.id));
-                                        self.play_file(&entry_path, true);
-                                    } else {
-                                        self.play_file(&entry_path, false);
-                                    }
-                                });
-                                self.app_state.selected_file = Some(entry_path.clone());
+                            FileAction::SetSelected(path) => {
+                                self.app_state.selected_file = Some(path);
                             }
-
-                            // Context menu
-                            file_button_response.context_menu(|ui| {
-                                if ui
-                                    .button(format!(
-                                        "{} {}",
-                                        ICON_BOLT.codepoint,
-                                        t!("gui.context.files.play_solo")
-                                    ))
-                                    .clicked()
-                                {
-                                    self.play_file(&entry_path, false);
-                                    self.app_state.selected_file = Some(entry_path.clone());
-                                }
-
-                                if ui
-                                    .button(format!(
-                                        "{} {}",
-                                        ICON_ADD.codepoint,
-                                        t!("gui.context.files.add_new")
-                                    ))
-                                    .clicked()
-                                {
-                                    self.play_file(&entry_path, true);
-                                    self.app_state.selected_file = Some(entry_path.clone());
-                                }
-
-                                if ui
-                                    .button(format!(
-                                        "{} {}",
-                                        ICON_SWAP_HORIZ.codepoint,
-                                        t!("gui.context.files.replace_last")
-                                    ))
-                                    .clicked()
-                                    && let Some(last_track) = self.audio_player_state.tracks.last()
-                                {
-                                    self.stop(Some(last_track.id));
-                                    self.play_file(&entry_path, true);
-                                    self.app_state.selected_file = Some(entry_path.clone());
-                                }
-
-                                ui.separator();
-
-                                if ui
-                                    .button(format!(
-                                        "{} {}",
-                                        ICON_OPEN_IN_BROWSER.codepoint,
-                                        t!("gui.context.files.show_in_fm")
-                                    ))
-                                    .clicked()
-                                    && let Err(e) = opener::reveal(&entry_path)
-                                {
-                                    eprintln!("Failed to open file manager: {}", e);
-                                }
-
-                                ui.separator();
-
-                                if ui
-                                    .button(format!(
-                                        "{} {}",
-                                        ICON_KEYBOARD.codepoint,
-                                        t!("gui.context.files.asign_hotkey")
-                                    ))
-                                    .clicked()
-                                {
-                                    self.app_state.assigning_hotkey_for_file =
-                                        Some(entry_path.clone());
-                                    self.app_state.hotkey_capture_active = true;
-                                    ui.close();
-                                }
-                            });
-                        });
+                        }
                     }
                 });
             });
         });
     }
 
-    fn get_hotkey_badge(&self, path: &Path) -> Option<String> {
-        for slot in &self.app_state.hotkey_config.slots {
-            if slot.action.name == "play"
-                && let Some(file_path_str) = slot.action.args.get("file_path")
-                && Path::new(file_path_str) == path
-            {
-                if let Some(chord) = &slot.key_chord {
-                    return Some(format!("[{}]", chord));
-                } else {
-                    return Some(format!("[{}]", slot.slot));
+    fn draw_tree_node(
+        ui: &mut Ui,
+        path: std::path::PathBuf,
+        app_state: &mut AppState,
+        audio_player_state: &AudioPlayerState,
+        actions: &mut Vec<FileAction>,
+    ) {
+        if path.is_dir() {
+            let dir_name = path
+                .file_name()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .to_string();
+            CollapsingHeader::new(dir_name)
+                .id_salt(&path)
+                .show(ui, |ui| {
+                    let children = if let Some(cached) = app_state.dir_cache.get(&path) {
+                        cached.clone()
+                    } else {
+                        let mut read = Vec::new();
+                        if let Ok(entries) = std::fs::read_dir(&path) {
+                            for entry in entries.filter_map(|e| e.ok()) {
+                                read.push(entry.path());
+                            }
+                        }
+                        read.sort_by(|a, b| {
+                            let a_is_dir = a.is_dir();
+                            let b_is_dir = b.is_dir();
+                            if a_is_dir && !b_is_dir {
+                                Ordering::Less
+                            } else if !a_is_dir && b_is_dir {
+                                Ordering::Greater
+                            } else {
+                                a.cmp(b)
+                            }
+                        });
+                        app_state.dir_cache.insert(path.clone(), read.clone());
+                        read
+                    };
+
+                    let search_query = app_state.search_query.to_lowercase();
+                    let search_query = search_query.trim();
+
+                    for child in children {
+                        if !child.is_dir() {
+                            if !crate::gui::SUPPORTED_EXTENSIONS.contains(
+                                &child
+                                    .extension()
+                                    .unwrap_or_default()
+                                    .to_str()
+                                    .unwrap_or_default(),
+                            ) {
+                                continue;
+                            }
+                            if !search_query.is_empty() {
+                                let file_name = child
+                                    .file_name()
+                                    .unwrap_or_default()
+                                    .to_string_lossy()
+                                    .to_string();
+                                if !file_name.to_lowercase().contains(search_query) {
+                                    continue;
+                                }
+                            }
+                        }
+                        Self::draw_tree_node(ui, child, app_state, audio_player_state, actions);
+                    }
+                });
+        } else {
+            let file_name = path
+                .file_name()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .to_string();
+
+            ui.horizontal(|ui| {
+                // Hotkey badge
+                let mut hotkey_badge = None;
+                for slot in &app_state.hotkey_config.slots {
+                    if slot.action.name == "play"
+                        && let Some(file_path_str) = slot.action.args.get("file_path")
+                        && Path::new(file_path_str) == path
+                    {
+                        if let Some(chord) = &slot.key_chord {
+                            hotkey_badge = Some(format!("[{}]", chord));
+                        } else {
+                            hotkey_badge = Some(format!("[{}]", slot.slot));
+                        }
+                        break;
+                    }
                 }
-            }
+
+                if let Some(badge) = &hotkey_badge {
+                    ui.label(
+                        RichText::new(badge)
+                            .small()
+                            .monospace()
+                            .color(Color32::from_rgb(100, 200, 100)),
+                    );
+                }
+
+                let mut file_button_text = RichText::new(&file_name);
+                if let Some(current_file) = &app_state.selected_file
+                    && current_file.eq(&path)
+                {
+                    file_button_text = file_button_text.color(Color32::WHITE);
+                }
+
+                let file_button = Button::new(file_button_text).frame(false).truncate();
+                let file_button_response = ui.add(file_button);
+                if file_button_response.clicked() {
+                    ui.input(|i| {
+                        if i.modifiers.ctrl {
+                            actions.push(FileAction::Play(path.clone(), true));
+                        } else if i.modifiers.shift
+                            && let Some(last_track) = audio_player_state.tracks.last()
+                        {
+                            actions.push(FileAction::StopAndPlay(
+                                last_track.id,
+                                path.clone(),
+                                true,
+                            ));
+                        } else {
+                            actions.push(FileAction::Play(path.clone(), false));
+                        }
+                    });
+                    actions.push(FileAction::SetSelected(path.clone()));
+                }
+
+                // Context menu
+                file_button_response.context_menu(|ui| {
+                    if ui
+                        .button(format!(
+                            "{} {}",
+                            ICON_BOLT.codepoint,
+                            t!("gui.context.files.play_solo")
+                        ))
+                        .clicked()
+                    {
+                        actions.push(FileAction::Play(path.clone(), false));
+                        actions.push(FileAction::SetSelected(path.clone()));
+                    }
+
+                    if ui
+                        .button(format!(
+                            "{} {}",
+                            ICON_ADD.codepoint,
+                            t!("gui.context.files.add_new")
+                        ))
+                        .clicked()
+                    {
+                        actions.push(FileAction::Play(path.clone(), true));
+                        actions.push(FileAction::SetSelected(path.clone()));
+                    }
+
+                    if ui
+                        .button(format!(
+                            "{} {}",
+                            ICON_SWAP_HORIZ.codepoint,
+                            t!("gui.context.files.replace_last")
+                        ))
+                        .clicked()
+                        && let Some(last_track) = audio_player_state.tracks.last()
+                    {
+                        actions.push(FileAction::StopAndPlay(last_track.id, path.clone(), true));
+                        actions.push(FileAction::SetSelected(path.clone()));
+                    }
+
+                    ui.separator();
+
+                    if ui
+                        .button(format!(
+                            "{} {}",
+                            ICON_OPEN_IN_BROWSER.codepoint,
+                            t!("gui.context.files.show_in_fm")
+                        ))
+                        .clicked()
+                        && let Err(e) = opener::reveal(&path)
+                    {
+                        eprintln!("Failed to open file manager: {}", e);
+                    }
+
+                    ui.separator();
+
+                    if ui
+                        .button(format!(
+                            "{} {}",
+                            ICON_KEYBOARD.codepoint,
+                            t!("gui.context.files.asign_hotkey")
+                        ))
+                        .clicked()
+                    {
+                        actions.push(FileAction::AssignHotkey(path.clone()));
+                        ui.close();
+                    }
+                });
+            });
         }
-        None
     }
 
     fn draw_footer(&mut self, ui: &mut Ui) {
