@@ -47,7 +47,7 @@ jobs:
           echo "$BIN_NAMES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Build all release binaries
+      - name: Build all binaries
         run: cargo build --locked
 
       - name: Package all binaries into one archive
@@ -61,7 +61,7 @@ jobs:
           FILES=()
           while IFS= read -r BIN; do
             [ -z "$BIN" ] && continue
-            FILES+=("target/release/$BIN")
+            FILES+=("target/debug/$BIN")
           done <<< "${{ steps.cargo-meta.outputs.bin_names }}"
 
           if [ "${#FILES[@]}" -eq 0 ]; then
