@@ -7,46 +7,57 @@ _version = 2
 [gui.play_file_button]
 en = "Play file"
 ru = "Выбрать файл"
+es = "Reproducir archivo"
 
 [gui.choose_mic_select]
 en = "Select microphone"
 ru = "Выбрать микрофон"
+es = "Seleccionar micrófono"
 
 [gui.search_placeholder]
 en = "Search files..."
 ru = "Поиск файлов..."
+es = "Buscar archivos..."
 
 [gui.context.dirs.open]
 en = "Open"
 ru = "Открыть"
+es = "Abrir"
 
 [gui.context.dirs.open_in_fm]
 en = "Open in File Manager"
 ru = "Открыть в менеджере файлов"
+es = "Abrir en el gestor de archivos"
 
 [gui.context.dirs.remove]
 en = "Remove"
 ru = "Удалить"
+es = "Eliminar"
 
 [gui.context.files.play_solo]
 en = "Play Solo"
 ru = "Играть"
+es = "Reproducir solo"
 
 [gui.context.files.add_new]
 en = "Add New"
 ru = "Добавить"
+es = "Añadir nuevo"
 
 [gui.context.files.replace_last]
 en = "Replace Last"
 ru = "Заменить Последний"
+es = "Reemplazar último"
 
 [gui.context.files.show_in_fm]
 en = "Show in File Manager"
 ru = "Открыть в менеджере файлов"
+es = "Mostrar en el gestor de archivos"
 
 [gui.context.files.asign_hotkey]
 en = "Asign Hotkey"
 ru = "Назначить Горячую Клавишу"
+es = "Asignar atajo"
 
 # ----------------
 # Settings
@@ -55,26 +66,32 @@ ru = "Назначить Горячую Клавишу"
 [gui.settings.header]
 en = "Settings"
 ru = "Настройки"
+es = "Ajustes"
 
 [gui.settings.remember_volume]
 en = "Always remember volume"
 ru = "Всегда запоминать громкость"
+es = "Recordar siempre el volumen"
 
 [gui.settings.remember_mic]
 en = "Always remember microphone"
 ru = "Всегда запоминать микрофон"
+es = "Recordar siempre el micrófono"
 
 [gui.settings.remember_ui_scale]
 en = "Always remember UI scale factor"
 ru = "Всегда запоминать масштаб интерфейса"
+es = "Recordar siempre la escala de la interfaz"
 
 [gui.settings.pause_on_window_close]
 en = "Pause audio playback when the window is closed"
 ru = "Останавливать воспроизведение при закрытии окна"
+es = "Pausar la reproducción de audio al cerrar la ventana"
 
 [gui.settings.version]
 en = "GUI version: %{version}"
 ru = "Версия GUI: %{version}"
+es = "Versión de la GUI: %{version}"
 
 # ----------------
 # Hotkeys
@@ -83,63 +100,79 @@ ru = "Версия GUI: %{version}"
 [gui.hotkeys.header]
 en = "Hotkeys"
 ru = "Горячие клавиши"
+es = "Atajos de teclado"
 
 [gui.hotkeys.search_placeholder]
 en = "Search hotkeys..."
 ru = "Поиск горячих клавиш..."
+es = "Buscar atajos..."
 
 [gui.hotkeys.add_command_select]
 en = "Add Command"
 ru = "Добавить команду"
+es = "Añadir comando"
 
 [gui.hotkeys.toggle_pause_command]
 en = "Toggle Pause"
 ru = "Переключить паузу"
+es = "Alternar pausa"
 
 [gui.hotkeys.stop_playback_command]
 en = "Stop Playback"
 ru = "Остановить воспроизведение"
+es = "Detener reproducción"
 
 [gui.hotkeys.pause_playback_command]
 en = "Pause Playback"
 ru = "Поставить воспроизведение на паузу"
+es = "Pausar reproducción"
 
 [gui.hotkeys.resume_playback_command]
 en = "Resume Playback"
 ru = "Продолжить воспроизведение"
+es = "Reanudar reproducción"
 
 [gui.hotkeys.toggle_loop_command]
 en = "Toggle Loop"
 ru = "Переключить зацикливание"
+es = "Alternar bucle"
 
 [gui.hotkeys.column_slot]
 en = "Slot"
 ru = "Слот"
+es = "Ranura"
 
 [gui.hotkeys.column_sound]
 en = "Sound"
 ru = "Звук"
+es = "Sonido"
 
 [gui.hotkeys.column_key_chord]
 en = "Key Chord"
 ru = "Клавиша"
+es = "Combinación de teclas"
 
 [gui.hotkeys.column_actions]
 en = "Actions"
 ru = "Действия"
+es = "Acciones"
 
 [gui.hotkeys.no_hotkeys_configured]
 en = "No hotkeys configured"
 ru = "Горячие клавиши не настроены"
+es = "No hay atajos configurados"
 
 [gui.hotkeys.capture.header]
 en = "Press a key combination (e.g. Ctrl+Alt+1)"
 ru = "Нажмите сочетание клавиш (например, Ctrl+Alt+1)"
+es = "Presione una combinación de teclas (ej. Ctrl+Alt+1)"
 
 [gui.hotkeys.capture.for]
 en = "for"
 ru = "для"
+es = "para"
 
 [gui.hotkeys.capture.cancel]
 en = "Press Escape to canel"
 ru = "Нажмите Escape для отмены"
+es = "Presione Escape para cancelar"
