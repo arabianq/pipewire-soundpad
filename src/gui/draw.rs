@@ -673,10 +673,11 @@ impl SoundpadGui {
             ScrollArea::vertical().id_salt(0).show(ui, |ui| {
                 ui.set_min_width(area_size.x);
 
-                let mut dirs = self.app_state.dirs.clone();
+                let mut dirs = std::mem::take(&mut self.app_state.dirs);
+                let mut dir_to_open = None;
 
                 dnd(ui, "dnd_directories").show_vec(&mut dirs, |ui, item, handle, _state| {
-                    let path = item.clone();
+                    let path = item;
                     ui.horizontal(|ui| {
                         handle.ui(ui, |ui| {
                             ui.label(ICON_DRAG_INDICATOR.codepoint);
@@ -688,7 +689,7 @@ impl SoundpadGui {
 
                         let mut dir_button_text = RichText::new(name.clone());
                         if let Some(current_dir) = &self.app_state.current_dir
-                            && current_dir.eq(&path)
+                            && current_dir.eq(&*path)
                         {
                             dir_button_text = dir_button_text.color(Color32::WHITE);
                         }
@@ -698,7 +699,7 @@ impl SoundpadGui {
 
                         let dir_button_response = ui.add(dir_button);
                         if dir_button_response.clicked() {
-                            self.open_dir(&path);
+                            dir_to_open = Some(path.clone());
                         }
 
                         let delete_dir_button = Button::new(ICON_DELETE).frame(false);
@@ -718,7 +719,7 @@ impl SoundpadGui {
                                 ))
                                 .clicked()
                             {
-                                self.open_dir(&path);
+                                dir_to_open = Some(path.clone());
                             }
 
                             if ui
@@ -749,6 +750,10 @@ impl SoundpadGui {
                     });
                 });
                 self.app_state.dirs = dirs;
+
+                if let Some(path) = dir_to_open {
+                    self.open_dir(&path);
+                }
 
                 ui.horizontal(|ui| {
                     let add_dirs_button = Button::new(ICON_ADD).frame(false);
