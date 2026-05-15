@@ -95,7 +95,9 @@ impl AudioPlayer {
             sink.log_on_drop(false);
             self.stream_handle = Some(sink);
         }
-        Ok(self.stream_handle.as_ref().unwrap())
+        self.stream_handle
+            .as_ref()
+            .ok_or_else(|| anyhow!("Failed to initialize stream_handle"))
     }
 
     fn drop_stream(&mut self) {
