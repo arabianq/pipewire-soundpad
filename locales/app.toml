@@ -6,12 +6,15 @@ _version = 2
 
 [gui.play_file_button]
 en = "Play file"
+ru = "Выбрать файл"
 
 [gui.choose_mic_select]
-en = "Choose microphone"
+en = "Select microphone"
+ru = "Выбрать микрофон"
 
 [gui.search_placeholder]
-en = "Search..."
+en = "Search files..."
+ru = "Поиск файлов..."
 
 # ----------------
 # Settings
@@ -19,21 +22,27 @@ en = "Search..."
 
 [gui.settings.header]
 en = "Settings"
+ru = "Настройки"
 
 [gui.settings.remember_volume]
 en = "Always remember volume"
+ru = "Всегда запоминать громкость"
 
 [gui.settings.remember_mic]
 en = "Always remember microphone"
+ru = "Всегда запоминать микрофон"
 
 [gui.settings.remember_ui_scale]
 en = "Always remember UI scale factor"
+ru = "Всегда запоминать масштаб интерфейса"
 
 [gui.settings.pause_on_window_close]
 en = "Pause audio playback when the window is closed"
+ru = "Останавливать воспроизведение при закрытии окна"
 
 [gui.settings.version]
 en = "GUI version: %{version}"
+ru = "Версия GUI: %{version}"
 
 # ----------------
 # Hotkeys
@@ -41,39 +50,52 @@ en = "GUI version: %{version}"
 
 [gui.hotkeys.header]
 en = "Hotkeys"
+ru = "Горячие клавиши"
 
 [gui.hotkeys.search_placeholder]
 en = "Search hotkeys..."
+ru = "Поиск горячих клавиш..."
 
 [gui.hotkeys.add_command_select]
 en = "Add Command"
+ru = "Добавить команду"
 
 [gui.hotkeys.toggle_pause_command]
 en = "Toggle Pause"
+ru = "Переключить паузу"
 
 [gui.hotkeys.stop_playback_command]
 en = "Stop Playback"
+ru = "Остановить воспроизведение"
 
 [gui.hotkeys.pause_playback_command]
 en = "Pause Playback"
+ru = "Поставить воспроизведение на паузу"
 
 [gui.hotkeys.resume_playback_command]
 en = "Resume Playback"
+ru = "Продолжить воспроизведение"
 
 [gui.hotkeys.toggle_loop_command]
 en = "Toggle Loop"
+ru = "Переключить зацикливание"
 
 [gui.hotkeys.column_slot]
 en = "Slot"
+ru = "Слот"
 
 [gui.hotkeys.column_sound]
 en = "Sound"
+ru = "Звук"
 
 [gui.hotkeys.column_key_chord]
 en = "Key Chord"
+ru = "Клавиша"
 
 [gui.hotkeys.column_actions]
 en = "Actions"
+ru = "Действия"
 
 [gui.hotkeys.no_hotkeys_configured]
 en = "No hotkeys configured"
+ru = "Горячие клавиши не настроены"
