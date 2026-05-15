@@ -1,8 +1,8 @@
 mod gui;
 
-use std::error::Error;
+use anyhow::Result;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() -> Result<()> {
     gui::run().await
 }

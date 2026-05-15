@@ -2,6 +2,7 @@ mod draw;
 mod input;
 mod update;
 
+use anyhow::{Result, anyhow};
 use eframe::{HardwareAcceleration, NativeOptions, icon_data::from_png_bytes, run_native};
 use egui::{Context, FontData, FontDefinitions, FontFamily, FontTweak, Vec2, ViewportBuilder};
 use itertools::Itertools;
@@ -20,7 +21,6 @@ use pwsp::{
 };
 use rfd::FileDialog;
 use std::{
-    error::Error,
     fs,
     path::{Path, PathBuf},
     sync::{Arc, Mutex},
@@ -198,11 +198,7 @@ impl SoundpadGui {
     }
 }
 
-fn add_font(
-    font_name: &str,
-    font_bytes: &[u8],
-    fonts: &mut FontDefinitions,
-) -> Result<(), Box<dyn Error>> {
+fn add_font(font_name: &str, font_bytes: &[u8], fonts: &mut FontDefinitions) -> Result<()> {
     let font_data = FontData::from_owned(font_bytes.to_vec()).tweak(FontTweak {
         scale: 1.0,
         hinting_override: Some(true),
@@ -227,7 +223,7 @@ fn add_font(
     Ok(())
 }
 
-fn load_system_fonts(fonts: &mut FontDefinitions) -> Result<(), Box<dyn Error>> {
+fn load_system_fonts(fonts: &mut FontDefinitions) -> Result<()> {
     let (_, en_sans) = find_for_locale("en", FontStyle::Sans);
     let (_, en_serif) = find_for_locale("en", FontStyle::Serif);
     let (_, ja_sans) = find_for_locale("ja", FontStyle::Sans);
@@ -246,7 +242,7 @@ fn load_system_fonts(fonts: &mut FontDefinitions) -> Result<(), Box<dyn Error>> 
     Ok(())
 }
 
-pub async fn run() -> Result<(), Box<dyn Error>> {
+pub async fn run() -> Result<()> {
     const ICON: &[u8] = include_bytes!("../../assets/icon.png");
 
     let options = NativeOptions {
@@ -283,6 +279,6 @@ pub async fn run() -> Result<(), Box<dyn Error>> {
             }
             Ok(())
         }
-        Err(e) => Err(e.into()),
+        Err(e) => Err(anyhow!(e.to_string())),
     }
 }

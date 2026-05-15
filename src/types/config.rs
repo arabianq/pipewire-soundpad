@@ -1,6 +1,7 @@
 use crate::{types::socket::Request, utils::config::get_config_path};
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, error::Error, fs, path::PathBuf};
+use std::{collections::HashMap, fs, path::PathBuf};
 
 #[derive(Default, Clone, Serialize, Deserialize)]
 #[serde(default)]
@@ -10,7 +11,7 @@ pub struct DaemonConfig {
 }
 
 impl DaemonConfig {
-    pub fn save_to_file(&self) -> Result<(), Box<dyn Error>> {
+    pub fn save_to_file(&self) -> Result<()> {
         let config_path = get_config_path()?.join("daemon.json");
 
         if let Some(config_dir) = config_path.parent()
@@ -24,7 +25,7 @@ impl DaemonConfig {
         Ok(())
     }
 
-    pub fn load_from_file() -> Result<DaemonConfig, Box<dyn Error>> {
+    pub fn load_from_file() -> Result<DaemonConfig> {
         let config_path = get_config_path()?.join("daemon.json");
         let bytes = fs::read(config_path)?;
         match serde_json::from_slice::<DaemonConfig>(&bytes) {
@@ -65,7 +66,7 @@ impl Default for GuiConfig {
 }
 
 impl GuiConfig {
-    pub fn save_to_file(&mut self) -> Result<(), Box<dyn Error>> {
+    pub fn save_to_file(&mut self) -> Result<()> {
         let config_path = get_config_path()?.join("gui.json");
 
         if let Some(config_dir) = config_path.parent()
@@ -84,7 +85,7 @@ impl GuiConfig {
         Ok(())
     }
 
-    pub fn load_from_file() -> Result<GuiConfig, Box<dyn Error>> {
+    pub fn load_from_file() -> Result<GuiConfig> {
         let config_path = get_config_path()?.join("gui.json");
         let bytes = fs::read(config_path)?;
         match serde_json::from_slice::<GuiConfig>(&bytes) {
@@ -108,11 +109,11 @@ pub struct HotkeyConfig {
 }
 
 impl HotkeyConfig {
-    pub fn config_path() -> Result<PathBuf, Box<dyn Error>> {
+    pub fn config_path() -> Result<PathBuf> {
         Ok(get_config_path()?.join("hotkeys.json"))
     }
 
-    pub fn load() -> Result<HotkeyConfig, Box<dyn Error>> {
+    pub fn load() -> Result<HotkeyConfig> {
         let path = Self::config_path()?;
         if !path.exists() {
             return Ok(HotkeyConfig::default());
@@ -124,7 +125,7 @@ impl HotkeyConfig {
         }
     }
 
-    pub fn save(&self) -> Result<(), Box<dyn Error>> {
+    pub fn save(&self) -> Result<()> {
         let path = Self::config_path()?;
         if let Some(dir) = path.parent()
             && !dir.exists()

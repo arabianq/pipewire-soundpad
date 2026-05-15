@@ -7,8 +7,8 @@ use crate::{
     },
     utils::daemon::{is_daemon_running, make_request},
 };
+use anyhow::{Result, anyhow};
 use std::{
-    error::Error,
     sync::{Arc, Mutex},
     time::Instant,
 };
@@ -22,11 +22,11 @@ pub fn get_gui_config() -> GuiConfig {
     })
 }
 
-pub fn make_request_sync(request: Request) -> Result<Response, Box<dyn Error>> {
+pub fn make_request_sync(request: Request) -> Result<Response> {
     tokio::task::block_in_place(|| {
         tokio::runtime::Handle::current()
             .block_on(make_request(request))
-            .map_err(|e| e as Box<dyn Error>)
+            .map_err(|e| anyhow!(e))
     })
 }
 
