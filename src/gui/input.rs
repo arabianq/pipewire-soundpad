@@ -3,8 +3,6 @@ use egui::{Context, Id, Key, Modifiers};
 use pwsp::types::socket::Request;
 use pwsp::utils::gui::make_request_async;
 
-use std::path::PathBuf;
-
 /// Convert an egui Key + Modifiers to a normalized chord string like "Ctrl+Shift+A".
 fn chord_from_event(modifiers: &Modifiers, key: &Key) -> Option<String> {
     let key_name = key.name();
@@ -94,7 +92,7 @@ impl SoundpadGui {
     }
 
     pub fn handle_input(&mut self, ctx: &Context) {
-        let modifiers = self.modifiers(ctx);
+        let _modifiers = self.modifiers(ctx);
         let search_focused = {
             if let Some(focused_id) = self.get_focused(ctx)
                 && let Some(search_id) = self.app_state.search_field_id
@@ -194,74 +192,6 @@ impl SoundpadGui {
                     });
                 } else {
                     self.app_state.force_focus_search = true;
-                }
-            }
-
-            // Play selected file on Enter
-            if self.key_pressed(ctx, Key::Enter)
-                && let Some(path) = self.app_state.selected_file.clone()
-            {
-                if modifiers.ctrl {
-                    self.play_file(&path, true);
-                } else if modifiers.shift
-                    && let Some(last_track) = self.audio_player_state.tracks.last()
-                {
-                    self.stop(Some(last_track.id));
-                    self.play_file(&path, true);
-                } else {
-                    self.play_file(&path, false);
-                }
-            }
-
-            // Iterate through dirs and files with Ctrl + Up/Down
-            let arrow_up_pressed = self.key_pressed(ctx, Key::ArrowUp);
-            let arrow_down_pressed = self.key_pressed(ctx, Key::ArrowDown);
-            if modifiers.ctrl && (arrow_up_pressed || arrow_down_pressed) {
-                if modifiers.shift && !self.app_state.dirs.is_empty() {
-                    let mut dirs: Vec<PathBuf> = self.app_state.dirs.to_vec();
-                    dirs.sort();
-
-                    let current_dir_index = self
-                        .app_state
-                        .current_dir
-                        .as_ref()
-                        .and_then(|cd| dirs.iter().position(|x| x == cd));
-
-                    let new_dir_index =
-                        match (current_dir_index, arrow_up_pressed, arrow_down_pressed) {
-                            (Some(i), true, false) => (i + dirs.len() - 1) % dirs.len(),
-                            (Some(i), false, true) => (i + 1) % dirs.len(),
-                            (Some(i), true, true) => i,
-                            (None, true, _) => dirs.len() - 1,
-                            (None, false, true) => 0,
-                            _ => return,
-                        };
-
-                    self.open_dir(&dirs[new_dir_index]);
-                } else if self.app_state.current_dir.is_some() {
-                    let files = self.get_filtered_files();
-
-                    if files.is_empty() {
-                        return;
-                    }
-
-                    let current_files_index = self
-                        .app_state
-                        .selected_file
-                        .as_ref()
-                        .and_then(|f| files.iter().position(|x| x == f));
-
-                    let new_files_index =
-                        match (current_files_index, arrow_up_pressed, arrow_down_pressed) {
-                            (Some(i), true, false) => (i + files.len() - 1) % files.len(),
-                            (Some(i), false, true) => (i + 1) % files.len(),
-                            (Some(i), true, true) => i,
-                            (None, true, _) => files.len() - 1,
-                            (None, false, true) => 0,
-                            _ => return,
-                        };
-
-                    self.app_state.selected_file = Some(files[new_files_index].clone());
                 }
             }
 

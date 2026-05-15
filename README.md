@@ -99,15 +99,13 @@ pwsp-cli --help # View all commands
 
 | Action                               | Keyboard               | Mouse                |
 | :----------------------------------- | :--------------------- | :------------------- |
-| **Play Track** (Stops others)        | `Enter`                | `Left Click`         |
-| **Add Track** (Plays simultaneously) | `Ctrl + Enter`         | `Ctrl + Left Click`  |
-| **Replace Last Track**               | `Shift + Enter`        | `Shift + Left Click` |
+| **Play Track** (Stops others)        |                        | `Left Click`         |
+| **Add Track** (Plays simultaneously) |                        | `Ctrl + Left Click`  |
+| **Replace Last Track**               |                        | `Shift + Left Click` |
 | **Pause / Resume**                   | `Space`                |                      |
 | **Stop All Tracks**                  | `Backspace`            |                      |
 | **Open / Close Settings**            | `I`                    |                      |
 | **Search**                           | `/`                    |                      |
-| **Navigate Files**                   | `Ctrl + ↑ / ↓`         |                      |
-| **Navigate Directories**             | `Ctrl + Shift + ↑ / ↓` |                      |
 
 ---
 

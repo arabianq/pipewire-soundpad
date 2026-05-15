@@ -35,7 +35,6 @@ enum FileAction {
     Play(PathBuf, bool),
     StopAndPlay(u32, PathBuf, bool),
     AssignHotkey(PathBuf),
-    SetSelected(PathBuf),
 }
 
 impl SoundpadGui {
@@ -817,9 +816,6 @@ impl SoundpadGui {
                                 self.app_state.assigning_hotkey_for_file = Some(path);
                                 self.app_state.hotkey_capture_active = true;
                             }
-                            FileAction::SetSelected(path) => {
-                                self.app_state.selected_file = Some(path);
-                            }
                         }
                     }
                 });
@@ -928,12 +924,7 @@ impl SoundpadGui {
                     );
                 }
 
-                let mut file_button_text = RichText::new(&file_name);
-                if let Some(current_file) = &app_state.selected_file
-                    && current_file.eq(&path)
-                {
-                    file_button_text = file_button_text.color(Color32::WHITE);
-                }
+                let file_button_text = RichText::new(&file_name);
 
                 let file_button = Button::new(file_button_text).frame(false).truncate();
                 let file_button_response = ui.add(file_button);
@@ -953,7 +944,6 @@ impl SoundpadGui {
                             actions.push(FileAction::Play(path.clone(), false));
                         }
                     });
-                    actions.push(FileAction::SetSelected(path.clone()));
                 }
 
                 // Context menu
@@ -967,7 +957,6 @@ impl SoundpadGui {
                         .clicked()
                     {
                         actions.push(FileAction::Play(path.clone(), false));
-                        actions.push(FileAction::SetSelected(path.clone()));
                     }
 
                     if ui
@@ -979,7 +968,6 @@ impl SoundpadGui {
                         .clicked()
                     {
                         actions.push(FileAction::Play(path.clone(), true));
-                        actions.push(FileAction::SetSelected(path.clone()));
                     }
 
                     if ui
@@ -992,7 +980,6 @@ impl SoundpadGui {
                         && let Some(last_track) = audio_player_state.tracks.last()
                     {
                         actions.push(FileAction::StopAndPlay(last_track.id, path.clone(), true));
-                        actions.push(FileAction::SetSelected(path.clone()));
                     }
 
                     ui.separator();
