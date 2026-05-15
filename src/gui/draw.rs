@@ -9,6 +9,7 @@ use egui_material_icons::icons::*;
 use pwsp::types::socket::Request;
 use pwsp::types::{audio_player::TrackInfo, gui::AppState};
 use pwsp::utils::gui::{format_time_pair, make_request_async};
+use rust_i18n::t;
 use std::{path::Path, time::Instant};
 
 enum TrackAction {
@@ -94,7 +95,11 @@ impl SoundpadGui {
 
                 ui.add_space(ui.available_width() / 2.0 - 40.0);
 
-                ui.label(RichText::new("Settings").color(Color32::WHITE).monospace());
+                ui.label(
+                    RichText::new(t!("gui.settings.header"))
+                        .color(Color32::WHITE)
+                        .monospace(),
+                );
             });
             // --------------------------------
 
@@ -102,17 +107,19 @@ impl SoundpadGui {
             ui.add_space(20.0);
 
             // --------- Checkboxes ----------
-            let save_volume_response =
-                ui.checkbox(&mut self.config.save_volume, "Always remember volume");
+            let save_volume_response = ui.checkbox(
+                &mut self.config.save_volume,
+                t!("gui.settings.remember_volume"),
+            );
             let save_input_response =
-                ui.checkbox(&mut self.config.save_input, "Always remember microphone");
+                ui.checkbox(&mut self.config.save_input, t!("gui.settings.remember_mic"));
             let save_scale_response = ui.checkbox(
                 &mut self.config.save_scale_factor,
-                "Always remember UI scale factor",
+                t!("gui.settings.remember_ui_scale"),
             );
             let pause_on_exit_response = ui.checkbox(
                 &mut self.config.pause_on_exit,
-                "Pause audio playback when the window is closed",
+                t!("gui.settings.pause_on_window_close"),
             );
 
             if save_volume_response.changed()
@@ -125,7 +132,10 @@ impl SoundpadGui {
             // --------------------------------
 
             ui.with_layout(Layout::bottom_up(Align::Min), |ui| {
-                ui.label(format!("GUI version: {}", env!("CARGO_PKG_VERSION")));
+                ui.label(t!(
+                    "gui.settings.version",
+                    version = env!("CARGO_PKG_VERSION")
+                ));
             });
         });
     }
@@ -157,47 +167,64 @@ impl SoundpadGui {
             }
 
             ui.vertical_centered(|ui| {
-                ui.label(RichText::new("Hotkeys").color(Color32::WHITE).monospace());
+                ui.label(
+                    RichText::new(t!("gui.hotkeys.header"))
+                        .color(Color32::WHITE)
+                        .monospace(),
+                );
             });
         });
     }
 
     fn draw_hotkeys_search(&mut self, ui: &mut Ui) {
         ui.horizontal(|ui| {
-            ui.menu_button(format!("{} Add Command", ICON_ADD.codepoint), |ui| {
-                let mut selected_cmd = None;
-                if ui.button("Toggle Pause").clicked() {
-                    selected_cmd = Some(("cmd_toggle_pause", Request::toggle_pause(None)));
-                }
-                if ui.button("Stop Playback").clicked() {
-                    selected_cmd = Some(("cmd_stop", Request::stop(None)));
-                }
-                if ui.button("Pause Playback").clicked() {
-                    selected_cmd = Some(("cmd_pause", Request::pause(None)));
-                }
-                if ui.button("Resume Playback").clicked() {
-                    selected_cmd = Some(("cmd_resume", Request::resume(None)));
-                }
-                if ui.button("Toggle Loop").clicked() {
-                    selected_cmd = Some(("cmd_toggle_loop", Request::toggle_loop(None)));
-                }
+            ui.menu_button(
+                format!(
+                    "{} {}",
+                    ICON_ADD.codepoint,
+                    t!("gui.hotkeys.add_command_select")
+                ),
+                |ui| {
+                    let mut selected_cmd = None;
+                    if ui.button(t!("gui.hotkeys.toggle_pause_command")).clicked() {
+                        selected_cmd = Some(("cmd_toggle_pause", Request::toggle_pause(None)));
+                    }
+                    if ui.button(t!("gui.hotkeys.stop_playback_command")).clicked() {
+                        selected_cmd = Some(("cmd_stop", Request::stop(None)));
+                    }
+                    if ui
+                        .button(t!("gui.hotkeys.pause_playback_command"))
+                        .clicked()
+                    {
+                        selected_cmd = Some(("cmd_pause", Request::pause(None)));
+                    }
+                    if ui
+                        .button(t!("gui.hotkeys.resume_playback_command"))
+                        .clicked()
+                    {
+                        selected_cmd = Some(("cmd_resume", Request::resume(None)));
+                    }
+                    if ui.button(t!("gui.hotkeys.toggle_loop_command")).clicked() {
+                        selected_cmd = Some(("cmd_toggle_loop", Request::toggle_loop(None)));
+                    }
 
-                if let Some((slot_name, req)) = selected_cmd {
-                    make_request_async(Request::set_hotkey_action(slot_name, &req));
-                    self.app_state
-                        .hotkey_config
-                        .set_slot(slot_name.to_string(), req);
-                    self.app_state.assigning_hotkey_slot = Some(slot_name.to_string());
-                    self.app_state.hotkey_capture_active = true;
-                    ui.close();
-                }
-            });
+                    if let Some((slot_name, req)) = selected_cmd {
+                        make_request_async(Request::set_hotkey_action(slot_name, &req));
+                        self.app_state
+                            .hotkey_config
+                            .set_slot(slot_name.to_string(), req);
+                        self.app_state.assigning_hotkey_slot = Some(slot_name.to_string());
+                        self.app_state.hotkey_capture_active = true;
+                        ui.close();
+                    }
+                },
+            );
 
             ui.add_space(10.0);
 
             ui.add(
                 TextEdit::singleline(&mut self.app_state.hotkey_search_query)
-                    .hint_text("Search hotkeys...")
+                    .hint_text(t!("gui.hotkeys.search_placeholder"))
                     .desired_width(f32::INFINITY),
             );
         });
@@ -242,7 +269,7 @@ impl SoundpadGui {
             .header(30.0, |mut header| {
                 header.col(|ui| {
                     ui.label(
-                        RichText::new("Slot")
+                        RichText::new(t!("gui.hotkeys.column_slot"))
                             .strong()
                             .monospace()
                             .color(Color32::LIGHT_GRAY),
@@ -250,7 +277,7 @@ impl SoundpadGui {
                 });
                 header.col(|ui| {
                     ui.label(
-                        RichText::new("Sound")
+                        RichText::new(t!("gui.hotkeys.column_sound"))
                             .strong()
                             .monospace()
                             .color(Color32::LIGHT_GRAY),
@@ -258,7 +285,7 @@ impl SoundpadGui {
                 });
                 header.col(|ui| {
                     ui.label(
-                        RichText::new("Key Chord")
+                        RichText::new(t!("gui.hotkeys.column_key_chord"))
                             .strong()
                             .monospace()
                             .color(Color32::LIGHT_GRAY),
@@ -266,7 +293,7 @@ impl SoundpadGui {
                 });
                 header.col(|ui| {
                     ui.label(
-                        RichText::new("Actions")
+                        RichText::new(t!("gui.hotkeys.column_actions"))
                             .strong()
                             .monospace()
                             .color(Color32::LIGHT_GRAY),
@@ -279,7 +306,8 @@ impl SoundpadGui {
                         row.col(|_| {});
                         row.col(|ui| {
                             ui.label(
-                                RichText::new("No hotkey slots configured.").color(Color32::GRAY),
+                                RichText::new(t!("gui.hotkeys.no_hotkeys_configured"))
+                                    .color(Color32::GRAY),
                             );
                         });
                         row.col(|_| {});
@@ -710,7 +738,7 @@ impl SoundpadGui {
                 });
 
                 ui.with_layout(Layout::bottom_up(Align::Min), |ui| {
-                    let play_file_button = Button::new("Play file");
+                    let play_file_button = Button::new(t!("gui.play_file_button"));
                     let play_file_button_response = ui.add(play_file_button);
                     if play_file_button_response.clicked() {
                         self.open_file();
@@ -725,7 +753,8 @@ impl SoundpadGui {
             ui.horizontal(|ui| {
                 let search_field_response = ui.add_sized(
                     [ui.available_width(), 22.0],
-                    TextEdit::singleline(&mut self.app_state.search_query).hint_text("Search..."),
+                    TextEdit::singleline(&mut self.app_state.search_query)
+                        .hint_text(t!("gui.search_placeholder")),
                 );
 
                 if self.app_state.force_focus_search {
@@ -880,7 +909,7 @@ impl SoundpadGui {
 
             let mut selected_input = self.audio_player_state.current_input.to_owned();
             let prev_input = selected_input.to_owned();
-            ComboBox::from_label("Choose microphone")
+            ComboBox::from_label(t!("gui.choose_mic_select"))
                 .height(30.0)
                 .selected_text(
                     self.audio_player_state

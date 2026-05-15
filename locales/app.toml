@@ -1,0 +1,79 @@
+_version = 2
+
+# ----------------
+# Main page
+# ----------------
+
+[gui.play_file_button]
+en = "Play file"
+
+[gui.choose_mic_select]
+en = "Choose microphone"
+
+[gui.search_placeholder]
+en = "Search..."
+
+# ----------------
+# Settings
+# ----------------
+
+[gui.settings.header]
+en = "Settings"
+
+[gui.settings.remember_volume]
+en = "Always remember volume"
+
+[gui.settings.remember_mic]
+en = "Always remember microphone"
+
+[gui.settings.remember_ui_scale]
+en = "Always remember UI scale factor"
+
+[gui.settings.pause_on_window_close]
+en = "Pause audio playback when the window is closed"
+
+[gui.settings.version]
+en = "GUI version: %{version}"
+
+# ----------------
+# Hotkeys
+# ----------------
+
+[gui.hotkeys.header]
+en = "Hotkeys"
+
+[gui.hotkeys.search_placeholder]
+en = "Search hotkeys..."
+
+[gui.hotkeys.add_command_select]
+en = "Add Command"
+
+[gui.hotkeys.toggle_pause_command]
+en = "Toggle Pause"
+
+[gui.hotkeys.stop_playback_command]
+en = "Stop Playback"
+
+[gui.hotkeys.pause_playback_command]
+en = "Pause Playback"
+
+[gui.hotkeys.resume_playback_command]
+en = "Resume Playback"
+
+[gui.hotkeys.toggle_loop_command]
+en = "Toggle Loop"
+
+[gui.hotkeys.column_slot]
+en = "Slot"
+
+[gui.hotkeys.column_sound]
+en = "Sound"
+
+[gui.hotkeys.column_key_chord]
+en = "Key Chord"
+
+[gui.hotkeys.column_actions]
+en = "Actions"
+
+[gui.hotkeys.no_hotkeys_configured]
+en = "No hotkeys configured"
