@@ -1,9 +1,10 @@
+use anyhow::{Result, anyhow};
 use clap::{Parser, Subcommand};
 use pwsp::{
     types::socket::Request,
     utils::daemon::{make_request, wait_for_daemon},
 };
-use std::{error::Error, path::PathBuf};
+use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -146,7 +147,7 @@ enum SetCommands {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() -> Result<()> {
     let cli = Cli::parse();
 
     wait_for_daemon().await?;
@@ -204,9 +205,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         },
     };
 
-    let response = make_request(request)
-        .await
-        .map_err(|e| e as Box<dyn Error>)?;
+    let response = make_request(request).await.map_err(|e| anyhow!(e))?;
     println!("{} : {}", response.status, response.message);
 
     Ok(())

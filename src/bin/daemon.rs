@@ -1,3 +1,4 @@
+use anyhow::{Result, anyhow};
 use pwsp::{
     types::socket::{MAX_MESSAGE_SIZE, Request, Response},
     utils::{
@@ -11,7 +12,7 @@ use pwsp::{
     },
 };
 use std::os::unix::fs::PermissionsExt;
-use std::{error::Error, fs, time::Duration};
+use std::{fs, time::Duration};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::UnixListener,
@@ -19,11 +20,11 @@ use tokio::{
 };
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() -> Result<()> {
     create_runtime_dir()?;
 
     if is_daemon_running()? {
-        return Err("Another instance is already running.".into());
+        return Err(anyhow!("Another instance is already running."));
     }
 
     get_daemon_config(); // Initialize daemon config
@@ -76,7 +77,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-async fn commands_loop(listener: UnixListener) -> Result<(), Box<dyn Error>> {
+async fn commands_loop(listener: UnixListener) -> Result<()> {
     loop {
         let (mut stream, _addr) = listener.accept().await?;
 
