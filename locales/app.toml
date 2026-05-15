@@ -16,6 +16,38 @@ ru = "Выбрать микрофон"
 en = "Search files..."
 ru = "Поиск файлов..."
 
+[gui.context.dirs.open]
+en = "Open"
+ru = "Открыть"
+
+[gui.context.dirs.open_in_fm]
+en = "Open in File Manager"
+ru = "Открыть в менеджере файлов"
+
+[gui.context.dirs.remove]
+en = "Remove"
+ru = "Удалить"
+
+[gui.context.files.play_solo]
+en = "Play Solo"
+ru = "Играть"
+
+[gui.context.files.add_new]
+en = "Add New"
+ru = "Добавить"
+
+[gui.context.files.replace_last]
+en = "Replace Last"
+ru = "Заменить Последний"
+
+[gui.context.files.show_in_fm]
+en = "Show in File Manager"
+ru = "Открыть в менеджере файлов"
+
+[gui.context.files.asign_hotkey]
+en = "Asign Hotkey"
+ru = "Назначить Горячую Клавишу"
+
 # ----------------
 # Settings
 # ----------------
@@ -99,3 +131,15 @@ ru = "Действия"
 [gui.hotkeys.no_hotkeys_configured]
 en = "No hotkeys configured"
 ru = "Горячие клавиши не настроены"
+
+[gui.hotkeys.capture.header]
+en = "Press a key combination (e.g. Ctrl+Alt+1)"
+ru = "Нажмите сочетание клавиш (например, Ctrl+Alt+1)"
+
+[gui.hotkeys.capture.for]
+en = "for"
+ru = "для"
+
+[gui.hotkeys.capture.cancel]
+en = "Press Escape to canel"
+ru = "Нажмите Escape для отмены"

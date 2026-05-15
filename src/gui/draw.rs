@@ -60,17 +60,18 @@ impl SoundpadGui {
         ui.vertical_centered(|ui| {
             ui.add_space(ui.available_height() / 3.0);
             ui.label(
-                RichText::new("Press a key combination (e.g. Ctrl+Alt+1)")
+                RichText::new(t!("gui.hotkeys.capture.header"))
                     .size(18.0)
                     .color(Color32::YELLOW)
                     .monospace(),
             );
             ui.add_space(10.0);
             let target = if let Some(slot) = &self.app_state.assigning_hotkey_slot {
-                format!("for slot '{}'", slot)
+                format!("{} '{}'", t!("gui.hotkeys.capture.for"), slot)
             } else if let Some(path) = &self.app_state.assigning_hotkey_for_file {
                 format!(
-                    "for '{}'",
+                    "{} '{}'",
+                    t!("gui.hotkeys.capture.for"),
                     path.file_name().unwrap_or_default().to_string_lossy()
                 )
             } else {
@@ -78,7 +79,7 @@ impl SoundpadGui {
             };
             ui.label(RichText::new(target).size(16.0));
             ui.add_space(10.0);
-            ui.label("Press Escape to cancel");
+            ui.label(t!("gui.hotkeys.capture.cancel"));
         });
     }
 
@@ -699,7 +700,11 @@ impl SoundpadGui {
                         // Context menu
                         dir_button_response.context_menu(|ui| {
                             if ui
-                                .button(format!("{} {}", ICON_OPEN_IN_NEW.codepoint, "Show"))
+                                .button(format!(
+                                    "{} {}",
+                                    ICON_OPEN_IN_NEW.codepoint,
+                                    t!("gui.dirs.context.open")
+                                ))
                                 .clicked()
                             {
                                 self.open_dir(&path);
@@ -708,7 +713,8 @@ impl SoundpadGui {
                             if ui
                                 .button(format!(
                                     "{} {}",
-                                    ICON_OPEN_IN_BROWSER.codepoint, "Open in File Manager"
+                                    ICON_OPEN_IN_BROWSER.codepoint,
+                                    t!("gui.context.dirs.open_in_fm")
                                 ))
                                 .clicked()
                                 && let Err(e) = opener::open(&path)
@@ -719,7 +725,11 @@ impl SoundpadGui {
                             ui.separator();
 
                             if ui
-                                .button(format!("{} {}", ICON_DELETE.codepoint, "Remove"))
+                                .button(format!(
+                                    "{} {}",
+                                    ICON_DELETE.codepoint,
+                                    t!("gui.context.dirs.remove")
+                                ))
                                 .clicked()
                             {
                                 self.app_state.dirs_to_remove.insert(path.clone());
@@ -822,7 +832,11 @@ impl SoundpadGui {
                             // Context menu
                             file_button_response.context_menu(|ui| {
                                 if ui
-                                    .button(format!("{} {}", ICON_BOLT.codepoint, "Play Solo"))
+                                    .button(format!(
+                                        "{} {}",
+                                        ICON_BOLT.codepoint,
+                                        t!("gui.context.files.play_solo")
+                                    ))
                                     .clicked()
                                 {
                                     self.play_file(&entry_path, false);
@@ -830,7 +844,11 @@ impl SoundpadGui {
                                 }
 
                                 if ui
-                                    .button(format!("{} {}", ICON_ADD.codepoint, "Add New"))
+                                    .button(format!(
+                                        "{} {}",
+                                        ICON_ADD.codepoint,
+                                        t!("gui.context.files.add_new")
+                                    ))
                                     .clicked()
                                 {
                                     self.play_file(&entry_path, true);
@@ -840,7 +858,8 @@ impl SoundpadGui {
                                 if ui
                                     .button(format!(
                                         "{} {}",
-                                        ICON_SWAP_HORIZ.codepoint, "Replace Last"
+                                        ICON_SWAP_HORIZ.codepoint,
+                                        t!("gui.context.files.replace_last")
                                     ))
                                     .clicked()
                                     && let Some(last_track) = self.audio_player_state.tracks.last()
@@ -855,7 +874,8 @@ impl SoundpadGui {
                                 if ui
                                     .button(format!(
                                         "{} {}",
-                                        ICON_OPEN_IN_BROWSER.codepoint, "Show in File Manager"
+                                        ICON_OPEN_IN_BROWSER.codepoint,
+                                        t!("gui.context.files.show_in_fm")
                                     ))
                                     .clicked()
                                     && let Err(e) = opener::reveal(&entry_path)
@@ -868,7 +888,8 @@ impl SoundpadGui {
                                 if ui
                                     .button(format!(
                                         "{} {}",
-                                        ICON_KEYBOARD.codepoint, "Assign Hotkey"
+                                        ICON_KEYBOARD.codepoint,
+                                        t!("gui.context.files.asign_hotkey")
                                     ))
                                     .clicked()
                                 {
