@@ -3172,6 +3172,7 @@ dependencies = [
  "egui_material_icons",
  "evdev",
  "itertools 0.14.0",
+ "libc",
  "opener",
  "pipewire",
  "rfd",
