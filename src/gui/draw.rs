@@ -715,7 +715,7 @@ impl SoundpadGui {
                                 .button(format!(
                                     "{} {}",
                                     ICON_OPEN_IN_NEW.codepoint,
-                                    t!("gui.dirs.context.open")
+                                    t!("gui.context.dirs.open")
                                 ))
                                 .clicked()
                             {
