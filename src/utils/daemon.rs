@@ -4,6 +4,7 @@ use crate::types::{
     socket::{MAX_MESSAGE_SIZE, Request, Response},
 };
 
+use anyhow::Result;
 use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
 use std::{error::Error, fs};
@@ -40,7 +41,7 @@ pub fn get_runtime_dir() -> PathBuf {
     dirs::runtime_dir().unwrap_or(PathBuf::from("/run/pwsp"))
 }
 
-pub fn create_runtime_dir() -> Result<(), Box<dyn Error>> {
+pub fn create_runtime_dir() -> Result<()> {
     let runtime_dir = get_runtime_dir();
     if !runtime_dir.exists() {
         fs::create_dir_all(&runtime_dir)?;
@@ -50,7 +51,7 @@ pub fn create_runtime_dir() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub fn is_daemon_running() -> Result<bool, Box<dyn Error>> {
+pub fn is_daemon_running() -> Result<bool> {
     let lock_file = fs::File::create(get_runtime_dir().join("daemon.lock"))?;
     match lock_file.try_lock() {
         Ok(_) => Ok(false),
@@ -58,7 +59,7 @@ pub fn is_daemon_running() -> Result<bool, Box<dyn Error>> {
     }
 }
 
-pub async fn wait_for_daemon() -> Result<(), Box<dyn Error>> {
+pub async fn wait_for_daemon() -> Result<()> {
     if is_daemon_running()? {
         return Ok(());
     }

@@ -5,6 +5,7 @@ use crate::{
         pipewire::{create_link, get_device, link_player_to_virtual_mic},
     },
 };
+use anyhow::{Result, anyhow};
 use rodio::{Decoder, DeviceSinkBuilder, MixerDeviceSink, Player, Source};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -65,7 +66,7 @@ pub struct AudioPlayer {
 }
 
 impl AudioPlayer {
-    pub async fn new() -> Result<Self, Box<dyn Error>> {
+    pub async fn new() -> Result<Self> {
         let daemon_config = get_daemon_config();
         let default_volume = daemon_config.default_volume.unwrap_or(1.0);
 
@@ -88,7 +89,7 @@ impl AudioPlayer {
         Ok(audio_player)
     }
 
-    fn ensure_stream(&mut self) -> Result<&MixerDeviceSink, Box<dyn Error>> {
+    fn ensure_stream(&mut self) -> Result<&MixerDeviceSink> {
         if self.stream_handle.is_none() {
             let mut sink = DeviceSinkBuilder::open_default_sink()?;
             sink.log_on_drop(false);
@@ -126,7 +127,7 @@ impl AudioPlayer {
         }
     }
 
-    async fn link_player(&mut self) -> Result<(), Box<dyn Error>> {
+    async fn link_player(&mut self) -> Result<()> {
         if self.player_link_sender.is_some() {
             return Ok(());
         }
@@ -140,7 +141,7 @@ impl AudioPlayer {
         }
     }
 
-    async fn link_devices(&mut self) -> Result<(), Box<dyn Error>> {
+    async fn link_devices(&mut self) -> Result<()> {
         self.abort_link_thread();
 
         let input_device;
@@ -289,7 +290,7 @@ impl AudioPlayer {
         0.0
     }
 
-    pub fn seek(&mut self, position: f32, id: Option<u32>) -> Result<(), Box<dyn Error>> {
+    pub fn seek(&mut self, position: f32, id: Option<u32>) -> Result<()> {
         let position = if position < 0.0 { 0.0 } else { position };
 
         if let Some(id) = id {
@@ -305,22 +306,18 @@ impl AudioPlayer {
         Ok(())
     }
 
-    pub fn get_duration(&mut self, id: Option<u32>) -> Result<f32, Box<dyn Error>> {
+    pub fn get_duration(&mut self, id: Option<u32>) -> Result<f32> {
         if let Some(id) = id {
             if let Some(sound) = self.tracks.get(&id) {
-                return sound.duration.ok_or("Unknown duration".into());
+                return sound.duration.ok_or(anyhow!("Unknown duration"));
             }
         } else if let Some(sound) = self.tracks.values().last() {
-            return sound.duration.ok_or("Unknown duration".into());
+            return sound.duration.ok_or(anyhow!("Unknown duration"));
         }
-        Err("No track playing".into())
+        Err(anyhow!("No track playing"))
     }
 
-    pub async fn play(
-        &mut self,
-        file_path: &Path,
-        concurrent: bool,
-    ) -> Result<u32, Box<dyn Error>> {
+    pub async fn play(&mut self, file_path: &Path, concurrent: bool) -> Result<u32> {
         let path_buf = file_path.to_path_buf();
 
         let decoder_result =
@@ -369,7 +366,7 @@ impl AudioPlayer {
 
                 Ok(id)
             }
-            Err(err) => Err(err as Box<dyn Error>),
+            Err(err) => Err(anyhow!(err)),
         }
     }
 
@@ -472,11 +469,11 @@ impl AudioPlayer {
         }
     }
 
-    pub async fn set_current_input_device(&mut self, name: &str) -> Result<(), Box<dyn Error>> {
+    pub async fn set_current_input_device(&mut self, name: &str) -> Result<()> {
         let input_device = get_device(name).await?;
 
         if input_device.device_type != DeviceType::Input {
-            return Err("Selected device is not an input device".into());
+            return Err(anyhow!("Selected device is not an input device"));
         }
 
         self.input_device_name = Some(name.to_string());

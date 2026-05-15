@@ -1,9 +1,10 @@
 use crate::types::pipewire::{AudioDevice, DeviceType, Port, Terminate};
+use anyhow::{Result, anyhow};
 use pipewire::{
     context::ContextRc, link::Link, main_loop::MainLoopRc, properties::properties,
     registry::GlobalObject, spa::utils::dict::DictRef,
 };
-use std::{collections::HashMap, error::Error, thread};
+use std::{collections::HashMap, thread};
 use tokio::{
     sync::mpsc,
     time::{Duration, timeout},
@@ -142,7 +143,7 @@ async fn pw_get_global_objects_thread(
     main_loop.run();
 }
 
-pub async fn get_all_devices() -> Result<(Vec<AudioDevice>, Vec<AudioDevice>), Box<dyn Error>> {
+pub async fn get_all_devices() -> Result<(Vec<AudioDevice>, Vec<AudioDevice>)> {
     // Channels to communicate with pipewire thread
     let (main_sender, mut main_receiver) = mpsc::channel(10);
     let (pw_sender, pw_receiver) = pipewire::channel::channel();
@@ -155,7 +156,7 @@ pub async fn get_all_devices() -> Result<(Vec<AudioDevice>, Vec<AudioDevice>), B
 
     // Wait for initialization to complete
     if let Err(e) = init_receiver.recv()? {
-        return Err(e.into());
+        return Err(anyhow!(e));
     }
 
     let mut input_devices: HashMap<u32, AudioDevice> = HashMap::new();
@@ -238,7 +239,7 @@ pub async fn get_all_devices() -> Result<(Vec<AudioDevice>, Vec<AudioDevice>), B
     }
 }
 
-pub async fn get_device(device_name: &str) -> Result<AudioDevice, Box<dyn Error>> {
+pub async fn get_device(device_name: &str) -> Result<AudioDevice> {
     let (input_devices, output_devices) = get_all_devices().await?;
 
     input_devices
@@ -250,10 +251,10 @@ pub async fn get_device(device_name: &str) -> Result<AudioDevice, Box<dyn Error>
                 || device.name.contains(device_name)
                 || device.nick.contains(device_name)
         })
-        .ok_or_else(|| "Device not found".into())
+        .ok_or_else(|| anyhow!("Device not found"))
 }
 
-pub fn create_virtual_mic() -> Result<pipewire::channel::Sender<Terminate>, Box<dyn Error>> {
+pub fn create_virtual_mic() -> Result<pipewire::channel::Sender<Terminate>> {
     let (pw_sender, pw_receiver) = pipewire::channel::channel::<Terminate>();
     let (init_sender, init_receiver) = std::sync::mpsc::sync_channel(0);
 
@@ -305,45 +306,46 @@ pub fn create_virtual_mic() -> Result<pipewire::channel::Sender<Terminate>, Box<
     });
 
     if let Err(e) = init_receiver.recv()? {
-        return Err(e.into());
+        return Err(anyhow!(e));
     }
 
     Ok(pw_sender)
 }
 
-pub async fn link_player_to_virtual_mic()
--> Result<pipewire::channel::Sender<Terminate>, Box<dyn Error>> {
+pub async fn link_player_to_virtual_mic() -> Result<pipewire::channel::Sender<Terminate>> {
     let pwsp_daemon_output = match get_device("pwsp-daemon").await {
         Ok(device) => device,
         Err(_) => {
-            return Err(
-                "Could not find alsa_playback.pwsp-daemon device, skipping device linking".into(),
-            );
+            return Err(anyhow!(
+                "Could not find alsa_playback.pwsp-daemon device, skipping device linking"
+            ));
         }
     };
 
     let pwsp_daemon_input = match get_device("pwsp-virtual-mic").await {
         Ok(device) => device,
         Err(_) => {
-            return Err("Could not find pwsp-virtual-mic device, skipping device linking".into());
+            return Err(anyhow!(
+                "Could not find pwsp-virtual-mic device, skipping device linking"
+            ));
         }
     };
 
     let output_fl = match pwsp_daemon_output.output_fl {
         Some(port) => port,
-        None => return Err("Failed to get pwsp-daemon output_fl".into()),
+        None => return Err(anyhow!("Failed to get pwsp-daemon output_fl")),
     };
     let output_fr = match pwsp_daemon_output.output_fr {
         Some(port) => port,
-        None => return Err("Failed to get pwsp-daemon output_fr".into()),
+        None => return Err(anyhow!("Failed to get pwsp-daemon output_fr")),
     };
     let input_fl = match pwsp_daemon_input.input_fl {
         Some(port) => port,
-        None => return Err("Failed to get pwsp-virtual-mic input_fl".into()),
+        None => return Err(anyhow!("Failed to get pwsp-virtual-mic input_fl")),
     };
     let input_fr = match pwsp_daemon_input.input_fr {
         Some(port) => port,
-        None => return Err("Failed to get pwsp-virtual-mic input_fr".into()),
+        None => return Err(anyhow!("Failed to get pwsp-virtual-mic input_fr")),
     };
 
     create_link(output_fl, output_fr, input_fl, input_fr)
@@ -354,7 +356,7 @@ pub fn create_link(
     output_fr: Port,
     input_fl: Port,
     input_fr: Port,
-) -> Result<pipewire::channel::Sender<Terminate>, Box<dyn Error>> {
+) -> Result<pipewire::channel::Sender<Terminate>> {
     let (pw_sender, pw_receiver) = pipewire::channel::channel::<Terminate>();
     let (init_sender, init_receiver) = std::sync::mpsc::sync_channel(0);
 
@@ -419,7 +421,7 @@ pub fn create_link(
     });
 
     if let Err(e) = init_receiver.recv()? {
-        return Err(e.into());
+        return Err(anyhow!(e));
     }
 
     Ok(pw_sender)
