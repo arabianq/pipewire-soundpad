@@ -4,7 +4,7 @@ use egui::{
     Layout, RichText, ScrollArea, Sense, Slider, TextEdit, Ui, Vec2,
 };
 use egui_dnd::dnd;
-use egui_extras::{Column, TableBuilder};
+use egui_extras::{Column, TableBuilder, TableRow};
 use egui_material_icons::icons::*;
 use pwsp::types::gui::AudioPlayerState;
 use pwsp::types::socket::Request;
@@ -330,100 +330,107 @@ impl SoundpadGui {
 
                 for slot in &slots {
                     body.row(30.0, |mut row| {
-                        // Column 1: Slot
-                        row.col(|ui| {
-                            ui.horizontal(|ui| {
-                                if conflict_slots.contains(slot.slot.as_str()) {
-                                    ui.label(
-                                        RichText::new(ICON_WARNING.codepoint)
-                                            .color(Color32::from_rgb(255, 165, 0)),
-                                    )
-                                    .on_hover_text("Key chord conflict");
-                                }
-                                ui.add(
-                                    Label::new(RichText::new(&slot.slot).monospace()).truncate(),
-                                );
-                            });
-                        });
-
-                        // Column 2: Sound / Action name
-                        row.col(|ui| {
-                            let action_name = match slot.action.name.as_str() {
-                                "play" => {
-                                    if let Some(file_path_str) = slot.action.args.get("file_path") {
-                                        Path::new(file_path_str)
-                                            .file_name()
-                                            .unwrap_or_default()
-                                            .to_string_lossy()
-                                            .to_string()
-                                    } else {
-                                        "Play".to_string()
-                                    }
-                                }
-                                "toggle_pause" => "Toggle Pause".to_string(),
-                                "pause" => "Pause Playback".to_string(),
-                                "resume" => "Resume Playback".to_string(),
-                                "stop" => "Stop Playback".to_string(),
-                                "toggle_loop" => "Toggle Loop".to_string(),
-                                other => other.to_string(),
-                            };
-                            ui.add(Label::new(RichText::new(action_name).monospace()).truncate());
-                        });
-
-                        // Column 3: Key Chord
-                        row.col(|ui| {
-                            let chord_text = slot.key_chord.as_deref().unwrap_or("(none)");
-                            ui.add(
-                                Label::new(RichText::new(chord_text).monospace().color(
-                                    if slot.key_chord.is_some() {
-                                        Color32::from_rgb(100, 200, 100)
-                                    } else {
-                                        Color32::GRAY
-                                    },
-                                ))
-                                .truncate(),
-                            );
-                        });
-
-                        // Column 4: Actions
-                        row.col(|ui| {
-                            ui.horizontal(|ui| {
-                                if ui
-                                    .add(Button::new(ICON_DELETE).frame(false))
-                                    .on_hover_text("Remove slot")
-                                    .clicked()
-                                {
-                                    action = Some(HotkeyAction::Remove(slot.slot.clone()));
-                                }
-                                if ui
-                                    .add(Button::new(ICON_KEYBOARD).frame(false))
-                                    .on_hover_text("Set key chord")
-                                    .clicked()
-                                {
-                                    action = Some(HotkeyAction::Capture(slot.slot.clone()));
-                                }
-                                if slot.key_chord.is_some()
-                                    && ui
-                                        .add(Button::new(ICON_BACKSPACE).frame(false))
-                                        .on_hover_text("Clear key chord")
-                                        .clicked()
-                                {
-                                    action = Some(HotkeyAction::ClearChord(slot.slot.clone()));
-                                }
-                                if ui
-                                    .add(Button::new(ICON_PLAY_ARROW).frame(false))
-                                    .on_hover_text("Play")
-                                    .clicked()
-                                {
-                                    action = Some(HotkeyAction::Play(slot.slot.clone()));
-                                }
-                            });
-                        });
+                        Self::draw_hotkey_row(&mut row, slot, &conflict_slots, &mut action);
                     });
                 }
             });
 
         action
+    }
+
+    fn draw_hotkey_row(
+        row: &mut TableRow<'_, '_>,
+        slot: &pwsp::types::config::HotkeySlot,
+        conflict_slots: &std::collections::HashSet<&str>,
+        action: &mut Option<HotkeyAction>,
+    ) {
+        // Column 1: Slot
+        row.col(|ui| {
+            ui.horizontal(|ui| {
+                if conflict_slots.contains(slot.slot.as_str()) {
+                    ui.label(
+                        RichText::new(ICON_WARNING.codepoint)
+                            .color(Color32::from_rgb(255, 165, 0)),
+                    )
+                    .on_hover_text("Key chord conflict");
+                }
+                ui.add(Label::new(RichText::new(&slot.slot).monospace()).truncate());
+            });
+        });
+
+        // Column 2: Sound / Action name
+        row.col(|ui| {
+            let action_name = match slot.action.name.as_str() {
+                "play" => {
+                    if let Some(file_path_str) = slot.action.args.get("file_path") {
+                        Path::new(file_path_str)
+                            .file_name()
+                            .unwrap_or_default()
+                            .to_string_lossy()
+                            .to_string()
+                    } else {
+                        "Play".to_string()
+                    }
+                }
+                "toggle_pause" => "Toggle Pause".to_string(),
+                "pause" => "Pause Playback".to_string(),
+                "resume" => "Resume Playback".to_string(),
+                "stop" => "Stop Playback".to_string(),
+                "toggle_loop" => "Toggle Loop".to_string(),
+                other => other.to_string(),
+            };
+            ui.add(Label::new(RichText::new(action_name).monospace()).truncate());
+        });
+
+        // Column 3: Key Chord
+        row.col(|ui| {
+            let chord_text = slot.key_chord.as_deref().unwrap_or("(none)");
+            ui.add(
+                Label::new(RichText::new(chord_text).monospace().color(
+                    if slot.key_chord.is_some() {
+                        Color32::from_rgb(100, 200, 100)
+                    } else {
+                        Color32::GRAY
+                    },
+                ))
+                .truncate(),
+            );
+        });
+
+        // Column 4: Actions
+        row.col(|ui| {
+            ui.horizontal(|ui| {
+                if ui
+                    .add(Button::new(ICON_DELETE).frame(false))
+                    .on_hover_text("Remove slot")
+                    .clicked()
+                {
+                    *action = Some(HotkeyAction::Remove(slot.slot.clone()));
+                }
+                if ui
+                    .add(Button::new(ICON_KEYBOARD).frame(false))
+                    .on_hover_text("Set key chord")
+                    .clicked()
+                {
+                    *action = Some(HotkeyAction::Capture(slot.slot.clone()));
+                }
+                if slot.key_chord.is_some()
+                    && ui
+                        .add(Button::new(ICON_BACKSPACE).frame(false))
+                        .on_hover_text("Clear key chord")
+                        .clicked()
+                {
+                    *action = Some(HotkeyAction::ClearChord(slot.slot.clone()));
+                }
+                if ui
+                    .add(Button::new(ICON_PLAY_ARROW).frame(false))
+                    .on_hover_text("Play")
+                    .clicked()
+                {
+                    *action = Some(HotkeyAction::Play(slot.slot.clone()));
+                }
+            });
+        });
     }
 
     fn handle_hotkey_action(&mut self, action: HotkeyAction) {
