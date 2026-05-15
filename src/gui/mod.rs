@@ -227,8 +227,9 @@ fn load_system_fonts(fonts: &mut FontDefinitions) -> Result<()> {
     let (_, en_sans) = find_for_locale("en", FontStyle::Sans);
     let (_, en_serif) = find_for_locale("en", FontStyle::Serif);
     let (_, ja_sans) = find_for_locale("ja", FontStyle::Sans);
+    let (_, ar_sans) = find_for_locale("ar", FontStyle::Sans);
 
-    let system_fonts = [en_sans, en_serif, ja_sans].concat();
+    let system_fonts = [en_sans, en_serif, ja_sans, ar_sans].concat();
 
     for font in system_fonts.iter().rev() {
         let font_bytes = match &font.source {

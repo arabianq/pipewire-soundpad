@@ -1,0 +1,277 @@
+_version = 2
+
+# ----------------
+# Main page
+# ----------------
+
+[gui.play_file_button]
+en = "Play file"
+ru = "Выбрать файл"
+es = "Reproducir archivo"
+fr = "Lire le fichier"
+zh = "播放文件"
+ar = "تشغيل الملف"
+
+[gui.choose_mic_select]
+en = "Select microphone"
+ru = "Выбрать микрофон"
+es = "Seleccionar micrófono"
+fr = "Sélectionner le microphone"
+zh = "选择麦克风"
+ar = "اختر الميكروفون"
+
+[gui.search_placeholder]
+en = "Search files..."
+ru = "Поиск файлов..."
+es = "Buscar archivos..."
+fr = "Rechercher des fichiers..."
+zh = "搜索文件..."
+ar = "البحث عن ملفات..."
+
+[gui.context.dirs.open]
+en = "Open"
+ru = "Открыть"
+es = "Abrir"
+fr = "Ouvrir"
+zh = "打开"
+ar = "فتح"
+
+[gui.context.dirs.open_in_fm]
+en = "Open in File Manager"
+ru = "Открыть в менеджере файлов"
+es = "Abrir en el gestor de archivos"
+fr = "Ouvrir dans le gestionnaire de fichiers"
+zh = "在文件管理器中打开"
+ar = "فتح في مدير الملفات"
+
+[gui.context.dirs.remove]
+en = "Remove"
+ru = "Удалить"
+es = "Eliminar"
+fr = "Supprimer"
+zh = "移除"
+ar = "إزالة"
+
+[gui.context.files.play_solo]
+en = "Play Solo"
+ru = "Играть"
+es = "Reproducir solo"
+fr = "Jouer en solo"
+zh = "单独播放"
+ar = "تشغيل منفرد"
+
+[gui.context.files.add_new]
+en = "Add New"
+ru = "Добавить"
+es = "Añadir nuevo"
+fr = "Ajouter un nouveau"
+zh = "添加新项"
+ar = "إضافة جديد"
+
+[gui.context.files.replace_last]
+en = "Replace Last"
+ru = "Заменить Последний"
+es = "Reemplazar último"
+fr = "Remplacer le dernier"
+zh = "替换上一个"
+ar = "استبدال الأخير"
+
+[gui.context.files.show_in_fm]
+en = "Show in File Manager"
+ru = "Открыть в менеджере файлов"
+es = "Mostrar en el gestor de archivos"
+fr = "Afficher dans le gestionnaire de fichiers"
+zh = "在文件管理器中显示"
+ar = "عرض في مدير الملفات"
+
+[gui.context.files.asign_hotkey]
+en = "Asign Hotkey"
+ru = "Назначить Горячую Клавишу"
+es = "Asignar atajo"
+fr = "Assigner un raccourci"
+zh = "分配快捷键"
+ar = "تعيين مفتاح اختصار"
+
+# ----------------
+# Settings
+# ----------------
+
+[gui.settings.header]
+en = "Settings"
+ru = "Настройки"
+es = "Ajustes"
+fr = "Paramètres"
+zh = "设置"
+ar = "الإعدادات"
+
+[gui.settings.remember_volume]
+en = "Always remember volume"
+ru = "Всегда запоминать громкость"
+es = "Recordar siempre el volumen"
+fr = "Toujours se souvenir du volume"
+zh = "始终记住音量"
+ar = "تذكر مستوى الصوت دائمًا"
+
+[gui.settings.remember_mic]
+en = "Always remember microphone"
+ru = "Всегда запоминать микрофон"
+es = "Recordar siempre el micrófono"
+fr = "Toujours se souvenir du microphone"
+zh = "始终记住麦克风"
+ar = "تذكر الميكروفون دائمًا"
+
+[gui.settings.remember_ui_scale]
+en = "Always remember UI scale factor"
+ru = "Всегда запоминать масштаб интерфейса"
+es = "Recordar siempre la escala de la interfaz"
+fr = "Toujours se souvenir de l'échelle de l'interface"
+zh = "始终记住界面缩放比例"
+ar = "تذكر عامل تكبير الواجهة دائمًا"
+
+[gui.settings.pause_on_window_close]
+en = "Pause audio playback when the window is closed"
+ru = "Останавливать воспроизведение при закрытии окна"
+es = "Pausar la reproducción de audio al cerrar la ventana"
+fr = "Mettre en pause la lecture audio à la fermeture de la fenêtre"
+zh = "关闭窗口时暂停音频播放"
+ar = "إيقاف الصوت مؤقتًا عند إغلاق النافذة"
+
+[gui.settings.version]
+en = "GUI version: %{version}"
+ru = "Версия GUI: %{version}"
+es = "Versión de la GUI: %{version}"
+fr = "Version de l'interface : %{version}"
+zh = "GUI 版本: %{version}"
+ar = "إصدار الواجهة: %{version}"
+
+# ----------------
+# Hotkeys
+# ----------------
+
+[gui.hotkeys.header]
+en = "Hotkeys"
+ru = "Горячие клавиши"
+es = "Atajos de teclado"
+fr = "Raccourcis clavier"
+zh = "快捷键"
+ar = "اختصارات لوحة المفاتيح"
+
+[gui.hotkeys.search_placeholder]
+en = "Search hotkeys..."
+ru = "Поиск горячих клавиш..."
+es = "Buscar atajos..."
+fr = "Rechercher des raccourcis..."
+zh = "搜索快捷键..."
+ar = "البحث عن الاختصارات..."
+
+[gui.hotkeys.add_command_select]
+en = "Add Command"
+ru = "Добавить команду"
+es = "Añadir comando"
+fr = "Ajouter une commande"
+zh = "添加命令"
+ar = "إضافة أمر"
+
+[gui.hotkeys.toggle_pause_command]
+en = "Toggle Pause"
+ru = "Переключить паузу"
+es = "Alternar pausa"
+fr = "Basculer la pause"
+zh = "切换暂停"
+ar = "تبديل الإيقاف المؤقت"
+
+[gui.hotkeys.stop_playback_command]
+en = "Stop Playback"
+ru = "Остановить воспроизведение"
+es = "Detener reproducción"
+fr = "Arrêter la lecture"
+zh = "停止播放"
+ar = "إيقاف التشغيل"
+
+[gui.hotkeys.pause_playback_command]
+en = "Pause Playback"
+ru = "Поставить воспроизведение на паузу"
+es = "Pausar reproducción"
+fr = "Mettre en pause la lecture"
+zh = "暂停播放"
+ar = "إيقاف التشغيل مؤقتاً"
+
+[gui.hotkeys.resume_playback_command]
+en = "Resume Playback"
+ru = "Продолжить воспроизведение"
+es = "Reanudar reproducción"
+fr = "Reprendre la lecture"
+zh = "恢复播放"
+ar = "استئناف التشغيل"
+
+[gui.hotkeys.toggle_loop_command]
+en = "Toggle Loop"
+ru = "Переключить зацикливание"
+es = "Alternar bucle"
+fr = "Basculer la boucle"
+zh = "切换循环"
+ar = "تبديل التكرار"
+
+[gui.hotkeys.column_slot]
+en = "Slot"
+ru = "Слот"
+es = "Ranura"
+fr = "Emplacement"
+zh = "插槽"
+ar = "الخانة"
+
+[gui.hotkeys.column_sound]
+en = "Sound"
+ru = "Звук"
+es = "Sonido"
+fr = "Son"
+zh = "声音"
+ar = "الصوت"
+
+[gui.hotkeys.column_key_chord]
+en = "Key Chord"
+ru = "Клавиша"
+es = "Combinación de teclas"
+fr = "Combinaison de touches"
+zh = "组合键"
+ar = "تركيبة المفاتيح"
+
+[gui.hotkeys.column_actions]
+en = "Actions"
+ru = "Действия"
+es = "Acciones"
+fr = "Actions"
+zh = "操作"
+ar = "الإجراءات"
+
+[gui.hotkeys.no_hotkeys_configured]
+en = "No hotkeys configured"
+ru = "Горячие клавиши не настроены"
+es = "No hay atajos configurados"
+fr = "Aucun raccourci configuré"
+zh = "未配置快捷键"
+ar = "لا توجد اختصارات معينة"
+
+[gui.hotkeys.capture.header]
+en = "Press a key combination (e.g. Ctrl+Alt+1)"
+ru = "Нажмите сочетание клавиш (например, Ctrl+Alt+1)"
+es = "Presione una combinación de teclas (ej. Ctrl+Alt+1)"
+fr = "Appuyez sur une combinaison de touches (ex. Ctrl+Alt+1)"
+zh = "按下一个组合键 (例如 Ctrl+Alt+1)"
+ar = "اضغط على تركيبة مفاتيح (مثلاً Ctrl+Alt+1)"
+
+[gui.hotkeys.capture.for]
+en = "for"
+ru = "для"
+es = "para"
+fr = "pour"
+zh = "用于"
+ar = "لـ"
+
+[gui.hotkeys.capture.cancel]
+en = "Press Escape to canel"
+ru = "Нажмите Escape для отмены"
+es = "Presione Escape para cancelar"
+fr = "Appuyez sur Échap pour annuler"
+zh = "按 Escape 取消"
+ar = "اضغط Esc للإلغاء"

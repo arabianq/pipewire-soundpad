@@ -9,6 +9,7 @@ use egui_material_icons::icons::*;
 use pwsp::types::socket::Request;
 use pwsp::types::{audio_player::TrackInfo, gui::AppState};
 use pwsp::utils::gui::{format_time_pair, make_request_async};
+use rust_i18n::t;
 use std::{path::Path, time::Instant};
 
 enum TrackAction {
@@ -59,17 +60,18 @@ impl SoundpadGui {
         ui.vertical_centered(|ui| {
             ui.add_space(ui.available_height() / 3.0);
             ui.label(
-                RichText::new("Press a key combination (e.g. Ctrl+Alt+1)")
+                RichText::new(t!("gui.hotkeys.capture.header"))
                     .size(18.0)
                     .color(Color32::YELLOW)
                     .monospace(),
             );
             ui.add_space(10.0);
             let target = if let Some(slot) = &self.app_state.assigning_hotkey_slot {
-                format!("for slot '{}'", slot)
+                format!("{} '{}'", t!("gui.hotkeys.capture.for"), slot)
             } else if let Some(path) = &self.app_state.assigning_hotkey_for_file {
                 format!(
-                    "for '{}'",
+                    "{} '{}'",
+                    t!("gui.hotkeys.capture.for"),
                     path.file_name().unwrap_or_default().to_string_lossy()
                 )
             } else {
@@ -77,7 +79,7 @@ impl SoundpadGui {
             };
             ui.label(RichText::new(target).size(16.0));
             ui.add_space(10.0);
-            ui.label("Press Escape to cancel");
+            ui.label(t!("gui.hotkeys.capture.cancel"));
         });
     }
 
@@ -94,7 +96,11 @@ impl SoundpadGui {
 
                 ui.add_space(ui.available_width() / 2.0 - 40.0);
 
-                ui.label(RichText::new("Settings").color(Color32::WHITE).monospace());
+                ui.label(
+                    RichText::new(t!("gui.settings.header"))
+                        .color(Color32::WHITE)
+                        .monospace(),
+                );
             });
             // --------------------------------
 
@@ -102,17 +108,19 @@ impl SoundpadGui {
             ui.add_space(20.0);
 
             // --------- Checkboxes ----------
-            let save_volume_response =
-                ui.checkbox(&mut self.config.save_volume, "Always remember volume");
+            let save_volume_response = ui.checkbox(
+                &mut self.config.save_volume,
+                t!("gui.settings.remember_volume"),
+            );
             let save_input_response =
-                ui.checkbox(&mut self.config.save_input, "Always remember microphone");
+                ui.checkbox(&mut self.config.save_input, t!("gui.settings.remember_mic"));
             let save_scale_response = ui.checkbox(
                 &mut self.config.save_scale_factor,
-                "Always remember UI scale factor",
+                t!("gui.settings.remember_ui_scale"),
             );
             let pause_on_exit_response = ui.checkbox(
                 &mut self.config.pause_on_exit,
-                "Pause audio playback when the window is closed",
+                t!("gui.settings.pause_on_window_close"),
             );
 
             if save_volume_response.changed()
@@ -125,7 +133,10 @@ impl SoundpadGui {
             // --------------------------------
 
             ui.with_layout(Layout::bottom_up(Align::Min), |ui| {
-                ui.label(format!("GUI version: {}", env!("CARGO_PKG_VERSION")));
+                ui.label(t!(
+                    "gui.settings.version",
+                    version = env!("CARGO_PKG_VERSION")
+                ));
             });
         });
     }
@@ -157,47 +168,64 @@ impl SoundpadGui {
             }
 
             ui.vertical_centered(|ui| {
-                ui.label(RichText::new("Hotkeys").color(Color32::WHITE).monospace());
+                ui.label(
+                    RichText::new(t!("gui.hotkeys.header"))
+                        .color(Color32::WHITE)
+                        .monospace(),
+                );
             });
         });
     }
 
     fn draw_hotkeys_search(&mut self, ui: &mut Ui) {
         ui.horizontal(|ui| {
-            ui.menu_button(format!("{} Add Command", ICON_ADD.codepoint), |ui| {
-                let mut selected_cmd = None;
-                if ui.button("Toggle Pause").clicked() {
-                    selected_cmd = Some(("cmd_toggle_pause", Request::toggle_pause(None)));
-                }
-                if ui.button("Stop Playback").clicked() {
-                    selected_cmd = Some(("cmd_stop", Request::stop(None)));
-                }
-                if ui.button("Pause Playback").clicked() {
-                    selected_cmd = Some(("cmd_pause", Request::pause(None)));
-                }
-                if ui.button("Resume Playback").clicked() {
-                    selected_cmd = Some(("cmd_resume", Request::resume(None)));
-                }
-                if ui.button("Toggle Loop").clicked() {
-                    selected_cmd = Some(("cmd_toggle_loop", Request::toggle_loop(None)));
-                }
+            ui.menu_button(
+                format!(
+                    "{} {}",
+                    ICON_ADD.codepoint,
+                    t!("gui.hotkeys.add_command_select")
+                ),
+                |ui| {
+                    let mut selected_cmd = None;
+                    if ui.button(t!("gui.hotkeys.toggle_pause_command")).clicked() {
+                        selected_cmd = Some(("cmd_toggle_pause", Request::toggle_pause(None)));
+                    }
+                    if ui.button(t!("gui.hotkeys.stop_playback_command")).clicked() {
+                        selected_cmd = Some(("cmd_stop", Request::stop(None)));
+                    }
+                    if ui
+                        .button(t!("gui.hotkeys.pause_playback_command"))
+                        .clicked()
+                    {
+                        selected_cmd = Some(("cmd_pause", Request::pause(None)));
+                    }
+                    if ui
+                        .button(t!("gui.hotkeys.resume_playback_command"))
+                        .clicked()
+                    {
+                        selected_cmd = Some(("cmd_resume", Request::resume(None)));
+                    }
+                    if ui.button(t!("gui.hotkeys.toggle_loop_command")).clicked() {
+                        selected_cmd = Some(("cmd_toggle_loop", Request::toggle_loop(None)));
+                    }
 
-                if let Some((slot_name, req)) = selected_cmd {
-                    make_request_async(Request::set_hotkey_action(slot_name, &req));
-                    self.app_state
-                        .hotkey_config
-                        .set_slot(slot_name.to_string(), req);
-                    self.app_state.assigning_hotkey_slot = Some(slot_name.to_string());
-                    self.app_state.hotkey_capture_active = true;
-                    ui.close();
-                }
-            });
+                    if let Some((slot_name, req)) = selected_cmd {
+                        make_request_async(Request::set_hotkey_action(slot_name, &req));
+                        self.app_state
+                            .hotkey_config
+                            .set_slot(slot_name.to_string(), req);
+                        self.app_state.assigning_hotkey_slot = Some(slot_name.to_string());
+                        self.app_state.hotkey_capture_active = true;
+                        ui.close();
+                    }
+                },
+            );
 
             ui.add_space(10.0);
 
             ui.add(
                 TextEdit::singleline(&mut self.app_state.hotkey_search_query)
-                    .hint_text("Search hotkeys...")
+                    .hint_text(t!("gui.hotkeys.search_placeholder"))
                     .desired_width(f32::INFINITY),
             );
         });
@@ -242,7 +270,7 @@ impl SoundpadGui {
             .header(30.0, |mut header| {
                 header.col(|ui| {
                     ui.label(
-                        RichText::new("Slot")
+                        RichText::new(t!("gui.hotkeys.column_slot"))
                             .strong()
                             .monospace()
                             .color(Color32::LIGHT_GRAY),
@@ -250,7 +278,7 @@ impl SoundpadGui {
                 });
                 header.col(|ui| {
                     ui.label(
-                        RichText::new("Sound")
+                        RichText::new(t!("gui.hotkeys.column_sound"))
                             .strong()
                             .monospace()
                             .color(Color32::LIGHT_GRAY),
@@ -258,7 +286,7 @@ impl SoundpadGui {
                 });
                 header.col(|ui| {
                     ui.label(
-                        RichText::new("Key Chord")
+                        RichText::new(t!("gui.hotkeys.column_key_chord"))
                             .strong()
                             .monospace()
                             .color(Color32::LIGHT_GRAY),
@@ -266,7 +294,7 @@ impl SoundpadGui {
                 });
                 header.col(|ui| {
                     ui.label(
-                        RichText::new("Actions")
+                        RichText::new(t!("gui.hotkeys.column_actions"))
                             .strong()
                             .monospace()
                             .color(Color32::LIGHT_GRAY),
@@ -279,7 +307,8 @@ impl SoundpadGui {
                         row.col(|_| {});
                         row.col(|ui| {
                             ui.label(
-                                RichText::new("No hotkey slots configured.").color(Color32::GRAY),
+                                RichText::new(t!("gui.hotkeys.no_hotkeys_configured"))
+                                    .color(Color32::GRAY),
                             );
                         });
                         row.col(|_| {});
@@ -671,7 +700,11 @@ impl SoundpadGui {
                         // Context menu
                         dir_button_response.context_menu(|ui| {
                             if ui
-                                .button(format!("{} {}", ICON_OPEN_IN_NEW.codepoint, "Show"))
+                                .button(format!(
+                                    "{} {}",
+                                    ICON_OPEN_IN_NEW.codepoint,
+                                    t!("gui.dirs.context.open")
+                                ))
                                 .clicked()
                             {
                                 self.open_dir(&path);
@@ -680,7 +713,8 @@ impl SoundpadGui {
                             if ui
                                 .button(format!(
                                     "{} {}",
-                                    ICON_OPEN_IN_BROWSER.codepoint, "Open in File Manager"
+                                    ICON_OPEN_IN_BROWSER.codepoint,
+                                    t!("gui.context.dirs.open_in_fm")
                                 ))
                                 .clicked()
                                 && let Err(e) = opener::open(&path)
@@ -691,7 +725,11 @@ impl SoundpadGui {
                             ui.separator();
 
                             if ui
-                                .button(format!("{} {}", ICON_DELETE.codepoint, "Remove"))
+                                .button(format!(
+                                    "{} {}",
+                                    ICON_DELETE.codepoint,
+                                    t!("gui.context.dirs.remove")
+                                ))
                                 .clicked()
                             {
                                 self.app_state.dirs_to_remove.insert(path.clone());
@@ -710,7 +748,7 @@ impl SoundpadGui {
                 });
 
                 ui.with_layout(Layout::bottom_up(Align::Min), |ui| {
-                    let play_file_button = Button::new("Play file");
+                    let play_file_button = Button::new(t!("gui.play_file_button"));
                     let play_file_button_response = ui.add(play_file_button);
                     if play_file_button_response.clicked() {
                         self.open_file();
@@ -725,7 +763,8 @@ impl SoundpadGui {
             ui.horizontal(|ui| {
                 let search_field_response = ui.add_sized(
                     [ui.available_width(), 22.0],
-                    TextEdit::singleline(&mut self.app_state.search_query).hint_text("Search..."),
+                    TextEdit::singleline(&mut self.app_state.search_query)
+                        .hint_text(t!("gui.search_placeholder")),
                 );
 
                 if self.app_state.force_focus_search {
@@ -793,7 +832,11 @@ impl SoundpadGui {
                             // Context menu
                             file_button_response.context_menu(|ui| {
                                 if ui
-                                    .button(format!("{} {}", ICON_BOLT.codepoint, "Play Solo"))
+                                    .button(format!(
+                                        "{} {}",
+                                        ICON_BOLT.codepoint,
+                                        t!("gui.context.files.play_solo")
+                                    ))
                                     .clicked()
                                 {
                                     self.play_file(&entry_path, false);
@@ -801,7 +844,11 @@ impl SoundpadGui {
                                 }
 
                                 if ui
-                                    .button(format!("{} {}", ICON_ADD.codepoint, "Add New"))
+                                    .button(format!(
+                                        "{} {}",
+                                        ICON_ADD.codepoint,
+                                        t!("gui.context.files.add_new")
+                                    ))
                                     .clicked()
                                 {
                                     self.play_file(&entry_path, true);
@@ -811,7 +858,8 @@ impl SoundpadGui {
                                 if ui
                                     .button(format!(
                                         "{} {}",
-                                        ICON_SWAP_HORIZ.codepoint, "Replace Last"
+                                        ICON_SWAP_HORIZ.codepoint,
+                                        t!("gui.context.files.replace_last")
                                     ))
                                     .clicked()
                                     && let Some(last_track) = self.audio_player_state.tracks.last()
@@ -826,7 +874,8 @@ impl SoundpadGui {
                                 if ui
                                     .button(format!(
                                         "{} {}",
-                                        ICON_OPEN_IN_BROWSER.codepoint, "Show in File Manager"
+                                        ICON_OPEN_IN_BROWSER.codepoint,
+                                        t!("gui.context.files.show_in_fm")
                                     ))
                                     .clicked()
                                     && let Err(e) = opener::reveal(&entry_path)
@@ -839,7 +888,8 @@ impl SoundpadGui {
                                 if ui
                                     .button(format!(
                                         "{} {}",
-                                        ICON_KEYBOARD.codepoint, "Assign Hotkey"
+                                        ICON_KEYBOARD.codepoint,
+                                        t!("gui.context.files.asign_hotkey")
                                     ))
                                     .clicked()
                                 {
@@ -880,7 +930,7 @@ impl SoundpadGui {
 
             let mut selected_input = self.audio_player_state.current_input.to_owned();
             let prev_input = selected_input.to_owned();
-            ComboBox::from_label("Choose microphone")
+            ComboBox::from_label(t!("gui.choose_mic_select"))
                 .height(30.0)
                 .selected_text(
                     self.audio_player_state
