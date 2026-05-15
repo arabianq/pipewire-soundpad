@@ -11,6 +11,8 @@ es = "Reproducir archivo"
 fr = "Lire le fichier"
 zh = "播放文件"
 ar = "تشغيل الملف"
+kz = "Файлды ойнату"
+he = "נגן קובץ"
 
 [gui.choose_mic_select]
 en = "Select microphone"
@@ -19,6 +21,8 @@ es = "Seleccionar micrófono"
 fr = "Sélectionner le microphone"
 zh = "选择麦克风"
 ar = "اختر الميكروفون"
+kz = "Микрофонды таңдау"
+he = "בחר מיקרופון"
 
 [gui.search_placeholder]
 en = "Search files..."
@@ -27,6 +31,8 @@ es = "Buscar archivos..."
 fr = "Rechercher des fichiers..."
 zh = "搜索文件..."
 ar = "البحث عن ملفات..."
+kz = "Файлдарды іздеу..."
+he = "חפש קבצים..."
 
 [gui.context.dirs.open]
 en = "Open"
@@ -35,6 +41,8 @@ es = "Abrir"
 fr = "Ouvrir"
 zh = "打开"
 ar = "فتح"
+kz = "Ашу"
+he = "פתח"
 
 [gui.context.dirs.open_in_fm]
 en = "Open in File Manager"
@@ -43,6 +51,8 @@ es = "Abrir en el gestor de archivos"
 fr = "Ouvrir dans le gestionnaire de fichiers"
 zh = "在文件管理器中打开"
 ar = "فتح في مدير الملفات"
+kz = "Файл менеджерінде ашу"
+he = "פתח במנהל הקבצים"
 
 [gui.context.dirs.remove]
 en = "Remove"
@@ -51,6 +61,8 @@ es = "Eliminar"
 fr = "Supprimer"
 zh = "移除"
 ar = "إزالة"
+kz = "Жою"
+he = "הסר"
 
 [gui.context.files.play_solo]
 en = "Play Solo"
@@ -59,6 +71,8 @@ es = "Reproducir solo"
 fr = "Jouer en solo"
 zh = "单独播放"
 ar = "تشغيل منفرد"
+kz = "Жалғыз ойнату"
+he = "נגן סולו"
 
 [gui.context.files.add_new]
 en = "Add New"
@@ -67,6 +81,8 @@ es = "Añadir nuevo"
 fr = "Ajouter un nouveau"
 zh = "添加新项"
 ar = "إضافة جديد"
+kz = "Жаңасын қосу"
+he = "הוסף חדש"
 
 [gui.context.files.replace_last]
 en = "Replace Last"
@@ -75,6 +91,8 @@ es = "Reemplazar último"
 fr = "Remplacer le dernier"
 zh = "替换上一个"
 ar = "استبدال الأخير"
+kz = "Соңғысын ауыстыру"
+he = "החלף אחרון"
 
 [gui.context.files.show_in_fm]
 en = "Show in File Manager"
@@ -83,6 +101,8 @@ es = "Mostrar en el gestor de archivos"
 fr = "Afficher dans le gestionnaire de fichiers"
 zh = "在文件管理器中显示"
 ar = "عرض في مدير الملفات"
+kz = "Файл менеджерінде көрсету"
+he = "הצג במנהל הקבצים"
 
 [gui.context.files.asign_hotkey]
 en = "Asign Hotkey"
@@ -91,6 +111,8 @@ es = "Asignar atajo"
 fr = "Assigner un raccourci"
 zh = "分配快捷键"
 ar = "تعيين مفتاح اختصار"
+kz = "Ыстық пернені тағайындау"
+he = "הקצה מקש קיצור"
 
 # ----------------
 # Settings
@@ -103,6 +125,8 @@ es = "Ajustes"
 fr = "Paramètres"
 zh = "设置"
 ar = "الإعدادات"
+kz = "Баптаулар"
+he = "הגדרות"
 
 [gui.settings.remember_volume]
 en = "Always remember volume"
@@ -111,6 +135,8 @@ es = "Recordar siempre el volumen"
 fr = "Toujours se souvenir du volume"
 zh = "始终记住音量"
 ar = "تذكر مستوى الصوت دائمًا"
+kz = "Әрқашан дыбыс деңгейін есте сақтау"
+he = "זכור תמיד עוצמת קול"
 
 [gui.settings.remember_mic]
 en = "Always remember microphone"
@@ -119,6 +145,8 @@ es = "Recordar siempre el micrófono"
 fr = "Toujours se souvenir du microphone"
 zh = "始终记住麦克风"
 ar = "تذكر الميكروفون دائمًا"
+kz = "Әрқашан микрофонды есте сақтау"
+he = "זכור תמיד מיקרופון"
 
 [gui.settings.remember_ui_scale]
 en = "Always remember UI scale factor"
@@ -127,6 +155,8 @@ es = "Recordar siempre la escala de la interfaz"
 fr = "Toujours se souvenir de l'échelle de l'interface"
 zh = "始终记住界面缩放比例"
 ar = "تذكر عامل تكبير الواجهة دائمًا"
+kz = "Әрқашан интерфейс масштабын есте сақтау"
+he = "זכור תמיד קנה מידה של ממשק משתמש"
 
 [gui.settings.pause_on_window_close]
 en = "Pause audio playback when the window is closed"
@@ -135,6 +165,8 @@ es = "Pausar la reproducción de audio al cerrar la ventana"
 fr = "Mettre en pause la lecture audio à la fermeture de la fenêtre"
 zh = "关闭窗口时暂停音频播放"
 ar = "إيقاف الصوت مؤقتًا عند إغلاق النافذة"
+kz = "Терезе жабылған кезде дыбысты ойнатуды кідірту"
+he = "השהה השמעת שמע כאשר החלון נסגר"
 
 [gui.settings.version]
 en = "GUI version: %{version}"
@@ -143,6 +175,8 @@ es = "Versión de la GUI: %{version}"
 fr = "Version de l'interface : %{version}"
 zh = "GUI 版本: %{version}"
 ar = "إصدار الواجهة: %{version}"
+kz = "GUI нұсқасы: %{version}"
+he = "גרסת ממשק משתמש: %{version}"
 
 # ----------------
 # Hotkeys
@@ -155,6 +189,8 @@ es = "Atajos de teclado"
 fr = "Raccourcis clavier"
 zh = "快捷键"
 ar = "اختصارات لوحة المفاتيح"
+kz = "Ыстық пернелер"
+he = "מקשי קיצור"
 
 [gui.hotkeys.search_placeholder]
 en = "Search hotkeys..."
@@ -163,6 +199,8 @@ es = "Buscar atajos..."
 fr = "Rechercher des raccourcis..."
 zh = "搜索快捷键..."
 ar = "البحث عن الاختصارات..."
+kz = "Ыстық пернелерді іздеу..."
+he = "חפש מקשי קיצור..."
 
 [gui.hotkeys.add_command_select]
 en = "Add Command"
@@ -171,6 +209,8 @@ es = "Añadir comando"
 fr = "Ajouter une commande"
 zh = "添加命令"
 ar = "إضافة أمر"
+kz = "Команда қосу"
+he = "הוסף פקודה"
 
 [gui.hotkeys.toggle_pause_command]
 en = "Toggle Pause"
@@ -179,6 +219,8 @@ es = "Alternar pausa"
 fr = "Basculer la pause"
 zh = "切换暂停"
 ar = "تبديل الإيقاف المؤقت"
+kz = "Кідіртуді ауыстыру"
+he = "הפעל/השהה"
 
 [gui.hotkeys.stop_playback_command]
 en = "Stop Playback"
@@ -187,6 +229,8 @@ es = "Detener reproducción"
 fr = "Arrêter la lecture"
 zh = "停止播放"
 ar = "إيقاف التشغيل"
+kz = "Ойнатуды тоқтату"
+he = "עצור השמעה"
 
 [gui.hotkeys.pause_playback_command]
 en = "Pause Playback"
@@ -195,6 +239,8 @@ es = "Pausar reproducción"
 fr = "Mettre en pause la lecture"
 zh = "暂停播放"
 ar = "إيقاف التشغيل مؤقتاً"
+kz = "Ойнатуды кідірту"
+he = "השהה השמעה"
 
 [gui.hotkeys.resume_playback_command]
 en = "Resume Playback"
@@ -203,6 +249,8 @@ es = "Reanudar reproducción"
 fr = "Reprendre la lecture"
 zh = "恢复播放"
 ar = "استئناف التشغيل"
+kz = "Ойнатуды жалғастыру"
+he = "המשך השמעה"
 
 [gui.hotkeys.toggle_loop_command]
 en = "Toggle Loop"
@@ -211,6 +259,8 @@ es = "Alternar bucle"
 fr = "Basculer la boucle"
 zh = "切换循环"
 ar = "تبديل التكرار"
+kz = "Қайталауды ауыстыру"
+he = "הפעל/כבה לולאה"
 
 [gui.hotkeys.column_slot]
 en = "Slot"
@@ -219,6 +269,8 @@ es = "Ranura"
 fr = "Emplacement"
 zh = "插槽"
 ar = "الخانة"
+kz = "Ұяшық"
+he = "משבצת"
 
 [gui.hotkeys.column_sound]
 en = "Sound"
@@ -227,6 +279,8 @@ es = "Sonido"
 fr = "Son"
 zh = "声音"
 ar = "الصوت"
+kz = "Дыбыс"
+he = "צליל"
 
 [gui.hotkeys.column_key_chord]
 en = "Key Chord"
@@ -235,6 +289,8 @@ es = "Combinación de teclas"
 fr = "Combinaison de touches"
 zh = "组合键"
 ar = "تركيبة المفاتيح"
+kz = "Пернелер тіркесімі"
+he = "צירוף מקשים"
 
 [gui.hotkeys.column_actions]
 en = "Actions"
@@ -243,6 +299,8 @@ es = "Acciones"
 fr = "Actions"
 zh = "操作"
 ar = "الإجراءات"
+kz = "Әрекеттер"
+he = "פעולות"
 
 [gui.hotkeys.no_hotkeys_configured]
 en = "No hotkeys configured"
@@ -251,6 +309,8 @@ es = "No hay atajos configurados"
 fr = "Aucun raccourci configuré"
 zh = "未配置快捷键"
 ar = "لا توجد اختصارات معينة"
+kz = "Ыстық пернелер бапталмаған"
+he = "לא הוגדרו מקשי קיצור"
 
 [gui.hotkeys.capture.header]
 en = "Press a key combination (e.g. Ctrl+Alt+1)"
@@ -259,6 +319,8 @@ es = "Presione una combinación de teclas (ej. Ctrl+Alt+1)"
 fr = "Appuyez sur une combinaison de touches (ex. Ctrl+Alt+1)"
 zh = "按下一个组合键 (例如 Ctrl+Alt+1)"
 ar = "اضغط على تركيبة مفاتيح (مثلاً Ctrl+Alt+1)"
+kz = "Пернелер тіркесімін басыңыз (мысалы, Ctrl+Alt+1)"
+he = "לחץ על צירוף מקשים (למשל Ctrl+Alt+1)"
 
 [gui.hotkeys.capture.for]
 en = "for"
@@ -267,6 +329,8 @@ es = "para"
 fr = "pour"
 zh = "用于"
 ar = "لـ"
+kz = "үшін"
+he = "עבור"
 
 [gui.hotkeys.capture.cancel]
 en = "Press Escape to canel"
@@ -275,3 +339,5 @@ es = "Presione Escape para cancelar"
 fr = "Appuyez sur Échap pour annuler"
 zh = "按 Escape 取消"
 ar = "اضغط Esc للإلغاء"
+kz = "Болдырмау үшін Escape пернесін басыңыз"
+he = "לחץ על Escape לביטול"
