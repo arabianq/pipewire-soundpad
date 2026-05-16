@@ -38,7 +38,7 @@ pub fn get_daemon_config() -> DaemonConfig {
 }
 
 fn get_current_uid() -> u32 {
-    unsafe { libc::geteuid() }
+    rustix::process::geteuid().as_raw()
 }
 
 pub fn get_runtime_dir() -> PathBuf {
