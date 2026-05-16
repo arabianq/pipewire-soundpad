@@ -115,7 +115,7 @@ he = "הצג במנהל הקבצים"
 pt-BR = "Mostrar no gestor de arquivos"
 
 [gui.context.files.asign_hotkey]
-en = "Asign Hotkey"
+en = "Assign Hotkey"
 ru = "Назначить Горячую Клавишу"
 es = "Asignar atajo"
 fr = "Assigner un raccourci"
@@ -365,7 +365,7 @@ he = "עבור"
 pt-BR = "para"
 
 [gui.hotkeys.capture.cancel]
-en = "Press Escape to canel"
+en = "Press Escape to cancel"
 ru = "Нажмите Escape для отмены"
 es = "Presione Escape para cancelar"
 fr = "Appuyez sur Échap pour annuler"
