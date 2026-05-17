@@ -3177,6 +3177,7 @@ dependencies = [
  "rfd",
  "rodio",
  "rust-i18n",
+ "rustix 1.1.4",
  "serde",
  "serde_json",
  "sys-locale",

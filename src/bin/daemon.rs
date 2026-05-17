@@ -39,7 +39,11 @@ async fn main() -> Result<()> {
 
     let runtime_dir = get_runtime_dir();
 
-    let lock_file = fs::File::create(runtime_dir.join("daemon.lock"))?;
+    let lock_file = fs::OpenOptions::new()
+        .create(true)
+        .write(true)
+        .truncate(false)
+        .open(runtime_dir.join("daemon.lock"))?;
     lock_file.lock()?;
 
     let socket_path = runtime_dir.join("daemon.sock");

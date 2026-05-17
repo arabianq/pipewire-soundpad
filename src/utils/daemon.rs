@@ -5,9 +5,9 @@ use crate::types::{
 };
 
 use anyhow::Result;
-use std::os::unix::fs::PermissionsExt;
+use std::os::unix::fs::{DirBuilderExt, MetadataExt, PermissionsExt};
 use std::path::PathBuf;
-use std::{error::Error, fs};
+use std::{env, error::Error, fs};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::UnixStream,
@@ -37,22 +37,52 @@ pub fn get_daemon_config() -> DaemonConfig {
     })
 }
 
+fn get_current_uid() -> u32 {
+    rustix::process::geteuid().as_raw()
+}
+
 pub fn get_runtime_dir() -> PathBuf {
-    dirs::runtime_dir().unwrap_or(PathBuf::from("/run/pwsp"))
+    dirs::runtime_dir().unwrap_or_else(|| {
+        let uid = get_current_uid();
+        env::temp_dir().join(format!("pwsp-{}", uid))
+    })
 }
 
 pub fn create_runtime_dir() -> Result<()> {
     let runtime_dir = get_runtime_dir();
-    if !runtime_dir.exists() {
-        fs::create_dir_all(&runtime_dir)?;
+
+    if runtime_dir.exists() {
+        let meta = fs::symlink_metadata(&runtime_dir)?;
+        if meta.is_symlink() {
+            return Err(anyhow::anyhow!("Runtime directory is a symlink"));
+        }
+        let uid = get_current_uid();
+        if meta.uid() != uid {
+            return Err(anyhow::anyhow!(
+                "Runtime directory is owned by another user"
+            ));
+        }
+        if meta.permissions().mode() & 0o777 != 0o700 {
+            return Err(anyhow::anyhow!(
+                "Runtime directory has incorrect permissions"
+            ));
+        }
+    } else {
+        fs::DirBuilder::new()
+            .recursive(true)
+            .mode(0o700)
+            .create(&runtime_dir)?;
     }
-    fs::set_permissions(&runtime_dir, fs::Permissions::from_mode(0o700))?;
 
     Ok(())
 }
 
 pub fn is_daemon_running() -> Result<bool> {
-    let lock_file = fs::File::create(get_runtime_dir().join("daemon.lock"))?;
+    let lock_file = fs::OpenOptions::new()
+        .create(true)
+        .write(true)
+        .truncate(false)
+        .open(get_runtime_dir().join("daemon.lock"))?;
     match lock_file.try_lock() {
         Ok(_) => Ok(false),
         Err(_) => Ok(true),
