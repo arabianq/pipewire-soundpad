@@ -1,7 +1,7 @@
 use crate::gui::SoundpadGui;
 use egui::{
-    Align, AtomExt, Button, CollapsingHeader, Color32, CursorIcon, Layout, RichText, ScrollArea, Sense,
-    TextEdit, Ui, Vec2,
+    Align, AtomExt, Button, CollapsingHeader, Color32, CursorIcon, Layout, RichText, ScrollArea,
+    Sense, TextEdit, Ui, Vec2,
 };
 use egui_dnd::dnd;
 use egui_material_icons::icons::*;
@@ -342,11 +342,7 @@ impl SoundpadGui {
                     } else if i.modifiers.shift
                         && let Some(last_track) = audio_player_state.tracks.last()
                     {
-                        actions.push(FileAction::StopAndPlay(
-                            last_track.id,
-                            path.clone(),
-                            true,
-                        ));
+                        actions.push(FileAction::StopAndPlay(last_track.id, path.clone(), true));
                     } else {
                         actions.push(FileAction::Play(path.clone(), false));
                     }
