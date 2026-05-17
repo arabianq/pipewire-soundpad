@@ -38,6 +38,7 @@ rfd = { version = "0.17.2", default-features = false, features = [
 opener = { version = "0.8.4", features = ["reveal"] }
 system-fonts = "0.1.0"
 anyhow = "1.0.102"
+rustix = { version = "1.1.4", features = ["process"] }
 
 rust-i18n = "4.0.0"
 sys-locale = "0.3.2"
@@ -62,7 +63,6 @@ eframe = { version = "0.34.2", default-features = false, features = [
 egui_extras = "0.34.1"
 egui_material_icons = "0.6.0"
 egui_dnd = "0.15.0"
-rustix = { version = "1.1.4", features = ["process"] }
 
 [[bin]]
 name = "pwsp-daemon"

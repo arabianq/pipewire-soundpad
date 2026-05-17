@@ -7,7 +7,7 @@ use crate::types::{
 use anyhow::Result;
 use std::os::unix::fs::{DirBuilderExt, MetadataExt, PermissionsExt};
 use std::path::PathBuf;
-use std::{error::Error, fs};
+use std::{env, error::Error, fs};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::UnixStream,
@@ -44,7 +44,7 @@ fn get_current_uid() -> u32 {
 pub fn get_runtime_dir() -> PathBuf {
     dirs::runtime_dir().unwrap_or_else(|| {
         let uid = get_current_uid();
-        std::env::temp_dir().join(format!("pwsp-{}", uid))
+        env::temp_dir().join(format!("pwsp-{}", uid))
     })
 }
 
