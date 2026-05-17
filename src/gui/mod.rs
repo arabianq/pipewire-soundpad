@@ -1,6 +1,6 @@
-mod draw;
 mod input;
 mod update;
+mod views;
 
 use anyhow::{Result, anyhow};
 use eframe::{HardwareAcceleration, NativeOptions, icon_data::from_png_bytes, run_native};
