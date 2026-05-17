@@ -774,56 +774,259 @@ impl SoundpadGui {
         });
     }
 
-    fn draw_files(&mut self, ui: &mut Ui, area_size: Vec2) {
-        ui.vertical(|ui| {
-            ui.horizontal(|ui| {
-                let search_field_response = ui.add_sized(
-                    [ui.available_width(), 22.0],
-                    TextEdit::singleline(&mut self.app_state.search_query)
-                        .hint_text(t!("gui.search_placeholder")),
-                );
+    fn draw_files_search_field(&mut self, ui: &mut Ui) {
+        ui.horizontal(|ui| {
+            let search_field_response = ui.add_sized(
+                [ui.available_width(), 22.0],
+                TextEdit::singleline(&mut self.app_state.search_query)
+                    .hint_text(t!("gui.search_placeholder")),
+            );
 
-                if self.app_state.force_focus_search {
-                    search_field_response.request_focus();
-                    self.app_state.force_focus_search = false;
+            if self.app_state.force_focus_search {
+                search_field_response.request_focus();
+                self.app_state.force_focus_search = false;
+            }
+
+            self.app_state.search_field_id = Some(search_field_response.id);
+        });
+    }
+
+    fn draw_files_list(&mut self, ui: &mut Ui, area_size: Vec2) {
+        ScrollArea::vertical().id_salt(1).show(ui, |ui| {
+            ui.set_min_width(area_size.x);
+            ui.set_min_height(area_size.y);
+
+            ui.vertical(|ui| {
+                let mut actions = Vec::new();
+                let files = self.get_filtered_files();
+                for entry_path in files {
+                    Self::draw_tree_node(
+                        ui,
+                        entry_path,
+                        &mut self.app_state,
+                        &self.audio_player_state,
+                        &mut actions,
+                    );
                 }
 
-                self.app_state.search_field_id = Some(search_field_response.id);
-            });
-
-            ui.separator();
-
-            ScrollArea::vertical().id_salt(1).show(ui, |ui| {
-                ui.set_min_width(area_size.x);
-                ui.set_min_height(area_size.y);
-
-                ui.vertical(|ui| {
-                    let mut actions = Vec::new();
-                    let files = self.get_filtered_files();
-                    for entry_path in files {
-                        Self::draw_tree_node(
-                            ui,
-                            entry_path,
-                            &mut self.app_state,
-                            &self.audio_player_state,
-                            &mut actions,
-                        );
+                for action in actions {
+                    match action {
+                        FileAction::Play(path, concurrent) => self.play_file(&path, concurrent),
+                        FileAction::StopAndPlay(id, path, concurrent) => {
+                            self.stop(Some(id));
+                            self.play_file(&path, concurrent);
+                        }
+                        FileAction::AssignHotkey(path) => {
+                            self.app_state.assigning_hotkey_for_file = Some(path);
+                            self.app_state.hotkey_capture_active = true;
+                        }
                     }
+                }
+            });
+        });
+    }
 
-                    for action in actions {
-                        match action {
-                            FileAction::Play(path, concurrent) => self.play_file(&path, concurrent),
-                            FileAction::StopAndPlay(id, path, concurrent) => {
-                                self.stop(Some(id));
-                                self.play_file(&path, concurrent);
-                            }
-                            FileAction::AssignHotkey(path) => {
-                                self.app_state.assigning_hotkey_for_file = Some(path);
-                                self.app_state.hotkey_capture_active = true;
+    fn draw_files(&mut self, ui: &mut Ui, area_size: Vec2) {
+        ui.vertical(|ui| {
+            self.draw_files_search_field(ui);
+            ui.separator();
+            self.draw_files_list(ui, area_size);
+        });
+    }
+
+    fn draw_tree_node_dir(
+        ui: &mut Ui,
+        path: std::path::PathBuf,
+        app_state: &mut AppState,
+        audio_player_state: &AudioPlayerState,
+        actions: &mut Vec<FileAction>,
+    ) {
+        let dir_name = path
+            .file_name()
+            .unwrap_or_default()
+            .to_string_lossy()
+            .to_string();
+        CollapsingHeader::new(dir_name)
+            .id_salt(&path)
+            .show(ui, |ui| {
+                let children = if let Some(cached) = app_state.dir_cache.get(&path) {
+                    cached.clone()
+                } else {
+                    let mut read = Vec::new();
+                    if let Ok(entries) = std::fs::read_dir(&path) {
+                        for entry in entries.filter_map(|e| e.ok()) {
+                            read.push(entry.path());
+                        }
+                    }
+                    read.sort_by(|a, b| {
+                        let a_is_dir = a.is_dir();
+                        let b_is_dir = b.is_dir();
+                        if a_is_dir && !b_is_dir {
+                            Ordering::Less
+                        } else if !a_is_dir && b_is_dir {
+                            Ordering::Greater
+                        } else {
+                            a.cmp(b)
+                        }
+                    });
+                    app_state.dir_cache.insert(path.clone(), read.clone());
+                    read
+                };
+
+                let search_query = app_state.search_query.to_lowercase();
+                let search_query = search_query.trim();
+
+                for child in children {
+                    if !child.is_dir() {
+                        if !crate::gui::SUPPORTED_EXTENSIONS.contains(
+                            &child
+                                .extension()
+                                .unwrap_or_default()
+                                .to_str()
+                                .unwrap_or_default(),
+                        ) {
+                            continue;
+                        }
+                        if !search_query.is_empty() {
+                            let file_name = child
+                                .file_name()
+                                .unwrap_or_default()
+                                .to_string_lossy()
+                                .to_string();
+                            if !file_name.to_lowercase().contains(search_query) {
+                                continue;
                             }
                         }
                     }
+                    Self::draw_tree_node(ui, child, app_state, audio_player_state, actions);
+                }
+            });
+    }
+
+    fn draw_tree_node_file(
+        ui: &mut Ui,
+        path: std::path::PathBuf,
+        app_state: &mut AppState,
+        audio_player_state: &AudioPlayerState,
+        actions: &mut Vec<FileAction>,
+    ) {
+        let file_name = path
+            .file_name()
+            .unwrap_or_default()
+            .to_string_lossy()
+            .to_string();
+
+        ui.horizontal(|ui| {
+            // Hotkey badge
+            let mut hotkey_badge = None;
+            for slot in &app_state.hotkey_config.slots {
+                if slot.action.name == "play"
+                    && let Some(file_path_str) = slot.action.args.get("file_path")
+                    && Path::new(file_path_str) == path
+                {
+                    if let Some(chord) = &slot.key_chord {
+                        hotkey_badge = Some(format!("[{}]", chord));
+                    } else {
+                        hotkey_badge = Some(format!("[{}]", slot.slot));
+                    }
+                    break;
+                }
+            }
+
+            if let Some(badge) = &hotkey_badge {
+                ui.label(
+                    RichText::new(badge)
+                        .small()
+                        .monospace()
+                        .color(Color32::from_rgb(100, 200, 100)),
+                );
+            }
+
+            let file_button_text = RichText::new(&file_name);
+
+            let file_button = Button::new(file_button_text).frame(false).truncate();
+            let file_button_response = ui.add(file_button);
+            if file_button_response.clicked() {
+                ui.input(|i| {
+                    if i.modifiers.ctrl {
+                        actions.push(FileAction::Play(path.clone(), true));
+                    } else if i.modifiers.shift
+                        && let Some(last_track) = audio_player_state.tracks.last()
+                    {
+                        actions.push(FileAction::StopAndPlay(
+                            last_track.id,
+                            path.clone(),
+                            true,
+                        ));
+                    } else {
+                        actions.push(FileAction::Play(path.clone(), false));
+                    }
                 });
+            }
+
+            // Context menu
+            file_button_response.context_menu(|ui| {
+                if ui
+                    .button(format!(
+                        "{} {}",
+                        ICON_BOLT.codepoint,
+                        t!("gui.context.files.play_solo")
+                    ))
+                    .clicked()
+                {
+                    actions.push(FileAction::Play(path.clone(), false));
+                }
+
+                if ui
+                    .button(format!(
+                        "{} {}",
+                        ICON_ADD.codepoint,
+                        t!("gui.context.files.add_new")
+                    ))
+                    .clicked()
+                {
+                    actions.push(FileAction::Play(path.clone(), true));
+                }
+
+                if ui
+                    .button(format!(
+                        "{} {}",
+                        ICON_SWAP_HORIZ.codepoint,
+                        t!("gui.context.files.replace_last")
+                    ))
+                    .clicked()
+                    && let Some(last_track) = audio_player_state.tracks.last()
+                {
+                    actions.push(FileAction::StopAndPlay(last_track.id, path.clone(), true));
+                }
+
+                ui.separator();
+
+                if ui
+                    .button(format!(
+                        "{} {}",
+                        ICON_OPEN_IN_BROWSER.codepoint,
+                        t!("gui.context.files.show_in_fm")
+                    ))
+                    .clicked()
+                    && let Err(e) = opener::reveal(&path)
+                {
+                    eprintln!("Failed to open file manager: {}", e);
+                }
+
+                ui.separator();
+
+                if ui
+                    .button(format!(
+                        "{} {}",
+                        ICON_KEYBOARD.codepoint,
+                        t!("gui.context.files.asign_hotkey")
+                    ))
+                    .clicked()
+                {
+                    actions.push(FileAction::AssignHotkey(path.clone()));
+                    ui.close();
+                }
             });
         });
     }
@@ -836,186 +1039,9 @@ impl SoundpadGui {
         actions: &mut Vec<FileAction>,
     ) {
         if path.is_dir() {
-            let dir_name = path
-                .file_name()
-                .unwrap_or_default()
-                .to_string_lossy()
-                .to_string();
-            CollapsingHeader::new(dir_name)
-                .id_salt(&path)
-                .show(ui, |ui| {
-                    let children = if let Some(cached) = app_state.dir_cache.get(&path) {
-                        cached.clone()
-                    } else {
-                        let mut read = Vec::new();
-                        if let Ok(entries) = std::fs::read_dir(&path) {
-                            for entry in entries.filter_map(|e| e.ok()) {
-                                read.push(entry.path());
-                            }
-                        }
-                        read.sort_by(|a, b| {
-                            let a_is_dir = a.is_dir();
-                            let b_is_dir = b.is_dir();
-                            if a_is_dir && !b_is_dir {
-                                Ordering::Less
-                            } else if !a_is_dir && b_is_dir {
-                                Ordering::Greater
-                            } else {
-                                a.cmp(b)
-                            }
-                        });
-                        app_state.dir_cache.insert(path.clone(), read.clone());
-                        read
-                    };
-
-                    let search_query = app_state.search_query.to_lowercase();
-                    let search_query = search_query.trim();
-
-                    for child in children {
-                        if !child.is_dir() {
-                            if !crate::gui::SUPPORTED_EXTENSIONS.contains(
-                                &child
-                                    .extension()
-                                    .unwrap_or_default()
-                                    .to_str()
-                                    .unwrap_or_default(),
-                            ) {
-                                continue;
-                            }
-                            if !search_query.is_empty() {
-                                let file_name = child
-                                    .file_name()
-                                    .unwrap_or_default()
-                                    .to_string_lossy()
-                                    .to_string();
-                                if !file_name.to_lowercase().contains(search_query) {
-                                    continue;
-                                }
-                            }
-                        }
-                        Self::draw_tree_node(ui, child, app_state, audio_player_state, actions);
-                    }
-                });
+            Self::draw_tree_node_dir(ui, path, app_state, audio_player_state, actions);
         } else {
-            let file_name = path
-                .file_name()
-                .unwrap_or_default()
-                .to_string_lossy()
-                .to_string();
-
-            ui.horizontal(|ui| {
-                // Hotkey badge
-                let mut hotkey_badge = None;
-                for slot in &app_state.hotkey_config.slots {
-                    if slot.action.name == "play"
-                        && let Some(file_path_str) = slot.action.args.get("file_path")
-                        && Path::new(file_path_str) == path
-                    {
-                        if let Some(chord) = &slot.key_chord {
-                            hotkey_badge = Some(format!("[{}]", chord));
-                        } else {
-                            hotkey_badge = Some(format!("[{}]", slot.slot));
-                        }
-                        break;
-                    }
-                }
-
-                if let Some(badge) = &hotkey_badge {
-                    ui.label(
-                        RichText::new(badge)
-                            .small()
-                            .monospace()
-                            .color(Color32::from_rgb(100, 200, 100)),
-                    );
-                }
-
-                let file_button_text = RichText::new(&file_name);
-
-                let file_button = Button::new(file_button_text).frame(false).truncate();
-                let file_button_response = ui.add(file_button);
-                if file_button_response.clicked() {
-                    ui.input(|i| {
-                        if i.modifiers.ctrl {
-                            actions.push(FileAction::Play(path.clone(), true));
-                        } else if i.modifiers.shift
-                            && let Some(last_track) = audio_player_state.tracks.last()
-                        {
-                            actions.push(FileAction::StopAndPlay(
-                                last_track.id,
-                                path.clone(),
-                                true,
-                            ));
-                        } else {
-                            actions.push(FileAction::Play(path.clone(), false));
-                        }
-                    });
-                }
-
-                // Context menu
-                file_button_response.context_menu(|ui| {
-                    if ui
-                        .button(format!(
-                            "{} {}",
-                            ICON_BOLT.codepoint,
-                            t!("gui.context.files.play_solo")
-                        ))
-                        .clicked()
-                    {
-                        actions.push(FileAction::Play(path.clone(), false));
-                    }
-
-                    if ui
-                        .button(format!(
-                            "{} {}",
-                            ICON_ADD.codepoint,
-                            t!("gui.context.files.add_new")
-                        ))
-                        .clicked()
-                    {
-                        actions.push(FileAction::Play(path.clone(), true));
-                    }
-
-                    if ui
-                        .button(format!(
-                            "{} {}",
-                            ICON_SWAP_HORIZ.codepoint,
-                            t!("gui.context.files.replace_last")
-                        ))
-                        .clicked()
-                        && let Some(last_track) = audio_player_state.tracks.last()
-                    {
-                        actions.push(FileAction::StopAndPlay(last_track.id, path.clone(), true));
-                    }
-
-                    ui.separator();
-
-                    if ui
-                        .button(format!(
-                            "{} {}",
-                            ICON_OPEN_IN_BROWSER.codepoint,
-                            t!("gui.context.files.show_in_fm")
-                        ))
-                        .clicked()
-                        && let Err(e) = opener::reveal(&path)
-                    {
-                        eprintln!("Failed to open file manager: {}", e);
-                    }
-
-                    ui.separator();
-
-                    if ui
-                        .button(format!(
-                            "{} {}",
-                            ICON_KEYBOARD.codepoint,
-                            t!("gui.context.files.asign_hotkey")
-                        ))
-                        .clicked()
-                    {
-                        actions.push(FileAction::AssignHotkey(path.clone()));
-                        ui.close();
-                    }
-                });
-            });
+            Self::draw_tree_node_file(ui, path, app_state, audio_player_state, actions);
         }
     }
 
