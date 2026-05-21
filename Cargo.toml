@@ -48,7 +48,7 @@ rodio = { git = "https://github.com/arabianq/rodio.git", rev = "1a08f281c352622b
     "symphonia-libopus",
     "playback",
 ] }
-pipewire = "0.9.2"
+pipewire = "0.10.0"
 
 egui = { version = "0.34.2", default-features = false, features = [
     "default_fonts",
