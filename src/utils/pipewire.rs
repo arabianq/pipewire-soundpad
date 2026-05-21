@@ -86,7 +86,7 @@ fn parse_global_object(
 async fn pw_get_global_objects_thread(
     main_sender: mpsc::Sender<(Option<AudioDevice>, Option<Port>)>,
     pw_receiver: pipewire::channel::Receiver<Terminate>,
-    init_sender: std::sync::mpsc::SyncSender<Result<(), String>>,
+    init_sender: tokio::sync::oneshot::Sender<Result<(), String>>,
 ) {
     let (main_loop, context) = match setup_pipewire_context() {
         Ok(res) => res,
@@ -147,7 +147,7 @@ pub async fn get_all_devices() -> Result<(Vec<AudioDevice>, Vec<AudioDevice>)> {
     // Channels to communicate with pipewire thread
     let (main_sender, mut main_receiver) = mpsc::channel(10);
     let (pw_sender, pw_receiver) = pipewire::channel::channel();
-    let (init_sender, init_receiver) = std::sync::mpsc::sync_channel(0);
+    let (init_sender, init_receiver) = tokio::sync::oneshot::channel();
 
     // Spawn pipewire thread in background
     let _pw_thread = tokio::spawn(async move {
@@ -155,7 +155,7 @@ pub async fn get_all_devices() -> Result<(Vec<AudioDevice>, Vec<AudioDevice>)> {
     });
 
     // Wait for initialization to complete
-    if let Err(e) = init_receiver.recv()? {
+    if let Err(e) = init_receiver.await {
         return Err(anyhow!(e));
     }
 
