@@ -36,7 +36,7 @@ rfd = { version = "0.17.2", default-features = false, features = [
 
 ] }
 opener = { version = "0.8.4", features = ["reveal"] }
-system-fonts = "0.1.0"
+system-fonts = "0.1.1"
 anyhow = "1.0.102"
 rustix = { version = "1.1.4", features = ["process"] }
 

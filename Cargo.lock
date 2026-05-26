@@ -3999,9 +3999,9 @@ dependencies = [
 
 [[package]]
 name = "system-fonts"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f369feb844d5e08bb4e938c3f88ff359261bc94c7553ddb34e174447120b64d6"
+checksum = "1cc60369af7fc908b8b079efe4c4fe11f25402caf29d21a773a62398407fe23a"
 dependencies = [
  "fontdb",
  "sys-locale",
