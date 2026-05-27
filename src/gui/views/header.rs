@@ -1,5 +1,5 @@
 use crate::gui::SoundpadGui;
-use egui::{Button, CollapsingHeader, Color32, FontFamily, Label, RichText, Slider, Ui};
+use egui::{Button, CollapsingHeader, FontFamily, Label, RichText, Slider, Ui};
 use egui_material_icons::icons::*;
 use pwsp::types::{audio_player::TrackInfo, gui::AppState};
 use pwsp::utils::gui::format_time_pair;
@@ -32,7 +32,6 @@ impl SoundpadGui {
                             .to_str()
                             .unwrap_or_default(),
                     )
-                    .color(Color32::WHITE)
                     .family(FontFamily::Monospace),
                 )
                 .default_open(true)

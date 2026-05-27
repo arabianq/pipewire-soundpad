@@ -76,15 +76,15 @@ impl SoundpadGui {
                             .map(|s| s.to_string_lossy().to_string())
                             .unwrap_or_else(|| path.to_string_lossy().to_string());
 
-                        let mut dir_button_text = RichText::new(name.clone());
+                        let mut dir_button =
+                            Button::new(RichText::new(name.clone()).atom_max_width(area_size.x))
+                                .frame(false);
+
                         if let Some(current_dir) = &self.app_state.current_dir
                             && current_dir.eq(&*path)
                         {
-                            dir_button_text = dir_button_text.color(Color32::WHITE);
+                            dir_button = dir_button.selected(true);
                         }
-
-                        let dir_button =
-                            Button::new(dir_button_text.atom_max_width(area_size.x)).frame(false);
 
                         let dir_button_response = ui.add(dir_button);
                         if dir_button_response.clicked() {

@@ -1,14 +1,31 @@
 use crate::gui::SoundpadGui;
 use eframe::{App, Frame as EFrame};
-use egui::{CentralPanel, Context};
+use egui::{CentralPanel, Context, ThemePreference};
 use pwsp::{
-    types::socket::Request,
+    types::{config::PreferredTheme, socket::Request},
     utils::{daemon::get_daemon_config, gui::make_request_async},
 };
 use std::time::{Duration, Instant};
 
 impl App for SoundpadGui {
     fn logic(&mut self, ctx: &Context, _frame: &mut EFrame) {
+        // Update theme
+        let current_theme = match ctx.options(|r| r.theme_preference) {
+            ThemePreference::System => PreferredTheme::System,
+            ThemePreference::Light => PreferredTheme::Light,
+            ThemePreference::Dark => PreferredTheme::Dark,
+        };
+
+        if !self.config.preferred_theme.eq(&current_theme) {
+            ctx.options_mut(|w| {
+                w.theme_preference = match self.config.preferred_theme {
+                    PreferredTheme::System => ThemePreference::System,
+                    PreferredTheme::Light => ThemePreference::Light,
+                    PreferredTheme::Dark => ThemePreference::Dark,
+                }
+            })
+        }
+
         // Remove directories
         for path in self.app_state.dirs_to_remove.drain() {
             self.app_state.dirs.retain(|x| x != &path);
