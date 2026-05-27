@@ -1,8 +1,9 @@
 [Desktop Entry]
 Name=PWSP (Soundpad)
 Comment=Let's you play audio files through you microphone
-Exec=pwsp-gui %u
+Exec=/usr/bin/pwsp-gui %u
 Icon=pwsp
 Terminal=false
 Type=Application
 Categories=Audio
+MimeType=x-scheme-handler/soundpad;

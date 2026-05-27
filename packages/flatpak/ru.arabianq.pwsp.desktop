@@ -7,3 +7,4 @@ Terminal=false
 Type=Application
 Categories=AudioVideo;Audio;
 Keywords=soundpad;pipewire;audio;
+MimeType=x-scheme-handler/soundpad;

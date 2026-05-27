@@ -64,6 +64,9 @@ egui_extras = "0.34.1"
 egui_material_icons = "0.6.0"
 egui_dnd = "0.15.0"
 
+reqwest = "0.13.4"
+percent-encoding = "2.3.2"
+
 [[bin]]
 name = "pwsp-daemon"
 path = "src/bin/daemon.rs"

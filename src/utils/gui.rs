@@ -9,6 +9,7 @@ use crate::{
 };
 use anyhow::{Result, anyhow};
 use std::{
+    path::PathBuf,
     sync::{Arc, Mutex},
     time::Instant,
 };
@@ -34,6 +35,17 @@ pub fn make_request_async(request: Request) {
     tokio::spawn(async move {
         make_request(request).await.ok();
     });
+}
+
+pub fn ensure_pwsp_audio_dir() -> PathBuf {
+    let audio_dir = dirs::audio_dir().unwrap_or("~/Music".into());
+    let pwsp_audio_dir = audio_dir.join("PWSP");
+
+    if !pwsp_audio_dir.exists() {
+        std::fs::create_dir_all(&pwsp_audio_dir).ok();
+    }
+
+    pwsp_audio_dir
 }
 
 pub fn format_time_pair(position: f32, duration: f32) -> String {

@@ -1,4 +1,7 @@
-use crate::{types::socket::Request, utils::config::get_config_path};
+use crate::{
+    types::socket::Request,
+    utils::{config::get_config_path, gui::ensure_pwsp_audio_dir},
+};
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fs, path::PathBuf};
@@ -69,7 +72,7 @@ impl Default for GuiConfig {
             save_scale_factor: false,
             pause_on_exit: false,
 
-            dirs: vec![],
+            dirs: vec![ensure_pwsp_audio_dir()],
 
             preferred_theme: PreferredTheme::System,
         }
