@@ -5120,14 +5120,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/system-fonts/system-fonts-0.1.0.crate",
-        "sha256": "f369feb844d5e08bb4e938c3f88ff359261bc94c7553ddb34e174447120b64d6",
-        "dest": "cargo/vendor/system-fonts-0.1.0"
+        "url": "https://static.crates.io/crates/system-fonts/system-fonts-0.1.1.crate",
+        "sha256": "1cc60369af7fc908b8b079efe4c4fe11f25402caf29d21a773a62398407fe23a",
+        "dest": "cargo/vendor/system-fonts-0.1.1"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"f369feb844d5e08bb4e938c3f88ff359261bc94c7553ddb34e174447120b64d6\", \"files\": {}}",
-        "dest": "cargo/vendor/system-fonts-0.1.0",
+        "contents": "{\"package\": \"1cc60369af7fc908b8b079efe4c4fe11f25402caf29d21a773a62398407fe23a\", \"files\": {}}",
+        "dest": "cargo/vendor/system-fonts-0.1.1",
         "dest-filename": ".cargo-checksum.json"
     },
     {
