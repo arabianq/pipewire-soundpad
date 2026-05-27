@@ -146,32 +146,28 @@ impl SoundpadGui {
                     ui.label(
                         RichText::new(t!("gui.hotkeys.column_slot"))
                             .strong()
-                            .monospace()
-                            .color(Color32::LIGHT_GRAY),
+                            .monospace(),
                     );
                 });
                 header.col(|ui| {
                     ui.label(
                         RichText::new(t!("gui.hotkeys.column_sound"))
                             .strong()
-                            .monospace()
-                            .color(Color32::LIGHT_GRAY),
+                            .monospace(),
                     );
                 });
                 header.col(|ui| {
                     ui.label(
                         RichText::new(t!("gui.hotkeys.column_key_chord"))
                             .strong()
-                            .monospace()
-                            .color(Color32::LIGHT_GRAY),
+                            .monospace(),
                     );
                 });
                 header.col(|ui| {
                     ui.label(
                         RichText::new(t!("gui.hotkeys.column_actions"))
                             .strong()
-                            .monospace()
-                            .color(Color32::LIGHT_GRAY),
+                            .monospace(),
                     );
                 });
             })
@@ -180,10 +176,7 @@ impl SoundpadGui {
                     body.row(30.0, |mut row| {
                         row.col(|_| {});
                         row.col(|ui| {
-                            ui.label(
-                                RichText::new(t!("gui.hotkeys.no_hotkeys_configured"))
-                                    .color(Color32::GRAY),
-                            );
+                            ui.label(RichText::new(t!("gui.hotkeys.no_hotkeys_configured")));
                         });
                         row.col(|_| {});
                         row.col(|_| {});
