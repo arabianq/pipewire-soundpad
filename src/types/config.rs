@@ -35,6 +35,13 @@ impl DaemonConfig {
     }
 }
 
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+pub enum PreferredTheme {
+    System,
+    Light,
+    Dark,
+}
+
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(default)]
 pub struct GuiConfig {
@@ -47,6 +54,8 @@ pub struct GuiConfig {
     pub pause_on_exit: bool,
 
     pub dirs: Vec<PathBuf>,
+
+    pub preferred_theme: PreferredTheme,
 }
 
 impl Default for GuiConfig {
@@ -61,6 +70,8 @@ impl Default for GuiConfig {
             pause_on_exit: false,
 
             dirs: vec![],
+
+            preferred_theme: PreferredTheme::System,
         }
     }
 }

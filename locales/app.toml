@@ -195,6 +195,50 @@ kz = "GUI нұсқасы: %{version}"
 he = "גרסת ממשק משתמש: %{version}"
 pt-BR = "Versão da GUI: %{version}"
 
+[gui.settings.theme.label]
+en = "Color Scheme"
+ru = "Цветовая схема"
+es = "Esquema de color"
+fr = "Schéma de couleurs"
+zh = "配色方案"
+ar = "نظام الألوان"
+kz = "Түс схемасы"
+he = "ערכת צבעים"
+pt-BR = "Esquema de cores"
+
+[gui.settings.theme.system]
+en = "System"
+ru = "Системная"
+es = "Sistema"
+fr = "Système"
+zh = "系统"
+ar = "النظام"
+kz = "Жүйе"
+he = "מערכת"
+pt-BR = "Sistema"
+
+[gui.settings.theme.light]
+en = "Light"
+ru = "Светлая"
+es = "Claro"
+fr = "Clair"
+zh = "浅色"
+ar = "فاتح"
+kz = "Жарық"
+he = "בהיר"
+pt-BR = "Claro"
+
+[gui.settings.theme.dark]
+en = "Dark"
+ru = "Тёмная"
+es = "Oscuro"
+fr = "Sombre"
+zh = "暗色"
+ar = "داكن"
+kz = "Қараңғы"
+he = "כהה"
+pt-BR = "Escuro"
+
 # ----------------
 # Hotkeys
 # ----------------

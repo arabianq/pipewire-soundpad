@@ -1,6 +1,7 @@
 use crate::gui::SoundpadGui;
-use egui::{Align, Button, Color32, Layout, RichText, Ui};
+use egui::{Align, Button, Color32, ComboBox, Layout, RichText, Ui};
 use egui_material_icons::icons::ICON_ARROW_BACK;
+use pwsp::types::config::PreferredTheme;
 use rust_i18n::t;
 
 impl SoundpadGui {
@@ -49,6 +50,40 @@ impl SoundpadGui {
                 || save_scale_response.changed()
                 || pause_on_exit_response.changed()
             {
+                self.config.save_to_file().ok();
+            }
+            // --------------------------------
+
+            ui.separator();
+
+            // ---------- Selectors -----------
+            let mut selected_theme = self.config.preferred_theme.clone();
+            ComboBox::from_label(t!("gui.settings.theme.label"))
+                .selected_text(match self.config.preferred_theme {
+                    PreferredTheme::System => t!("gui.settings.theme.system"),
+                    PreferredTheme::Light => t!("gui.settings.theme.light"),
+                    PreferredTheme::Dark => t!("gui.settings.theme.dark"),
+                })
+                .show_ui(ui, |ui| {
+                    ui.selectable_value(
+                        &mut selected_theme,
+                        PreferredTheme::System,
+                        t!("gui.settings.theme.system"),
+                    );
+                    ui.selectable_value(
+                        &mut selected_theme,
+                        PreferredTheme::Light,
+                        t!("gui.settings.theme.light"),
+                    );
+                    ui.selectable_value(
+                        &mut selected_theme,
+                        PreferredTheme::Dark,
+                        t!("gui.settings.theme.dark"),
+                    );
+                });
+
+            if selected_theme != self.config.preferred_theme {
+                self.config.preferred_theme = selected_theme;
                 self.config.save_to_file().ok();
             }
             // --------------------------------
