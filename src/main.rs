@@ -19,9 +19,11 @@ async fn main() -> Result<()> {
             Ok(path) => println!("Successfully downloaded to: {:?}", path),
             Err(e) => eprintln!("Error downloading file: {}", e),
         }
+    } else {
+        gui::run().await?;
     }
 
-    gui::run().await
+    Ok(())
 }
 
 async fn download_audio_from_url(uri: &str) -> Result<PathBuf> {
