@@ -3672,7 +3672,7 @@ checksum = "3582f63211428f83597b51b2ddb88e2a91a9d52d12831f9d08f5e624e8977422"
 [[package]]
 name = "rodio"
 version = "0.22.2"
-source = "git+https://github.com/arabianq/rodio.git?rev=1a08f281c352622bd82b87b8731585245802d9cf#1a08f281c352622bd82b87b8731585245802d9cf"
+source = "git+https://github.com/arabianq/rodio.git?rev=33afba2a2d97bb730eb6537f09d2b3815bff0f33#33afba2a2d97bb730eb6537f09d2b3815bff0f33"
 dependencies = [
  "cpal",
  "dasp_sample",
