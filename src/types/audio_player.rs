@@ -349,7 +349,11 @@ impl AudioPlayer {
 
                 let duration = source.total_duration().map(|d| d.as_secs_f32());
 
-                let mixer = self.stream_handle.as_ref().unwrap().mixer();
+                let mixer = self
+                    .stream_handle
+                    .as_ref()
+                    .ok_or_else(|| anyhow::anyhow!("stream_handle is unexpectedly missing"))?
+                    .mixer();
                 let sink = Player::connect_new(mixer);
                 sink.set_volume(self.volume); // Default volume is 1.0 * master
                 sink.append(source);
