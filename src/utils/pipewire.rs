@@ -20,66 +20,54 @@ pub fn setup_pipewire_context() -> Result<(MainLoopRc, ContextRc), String> {
 fn parse_global_object(
     global_object: &GlobalObject<&DictRef>,
 ) -> (Option<AudioDevice>, Option<Port>) {
-    // Only objects with props can be devices/ports
-    if let Some(props) = global_object.props {
-        // Only objects with media.class can be devices
-        if let Some(media_class) = props.get("media.class") {
-            let node_id = global_object.id;
-            let node_nick = props.get("node.nick");
-            let node_name = props.get("node.name");
-            let node_description = props.get("node.description");
+    let props = match global_object.props {
+        Some(p) => p,
+        None => return (None, None),
+    };
 
-            // Check if the device is an input or output
-            return if media_class.starts_with("Audio/Source") {
-                let input_device = AudioDevice {
-                    id: node_id,
-                    nick: node_nick
-                        .unwrap_or(node_description.unwrap_or(node_name.unwrap_or_default()))
-                        .to_string(),
-                    name: node_name.unwrap_or_default().to_string(),
-                    device_type: DeviceType::Input,
+    if let Some(media_class) = props.get("media.class") {
+        let node_id = global_object.id;
+        let node_nick = props.get("node.nick");
+        let node_name = props.get("node.name");
+        let node_description = props.get("node.description");
 
-                    input_fl: None,
-                    input_fr: None,
-                    output_fl: None,
-                    output_fr: None,
-                };
-                (Some(input_device), None)
-            } else if media_class.starts_with("Stream/Output/Audio") {
-                let output_device = AudioDevice {
-                    id: node_id,
-                    nick: node_nick
-                        .unwrap_or(node_description.unwrap_or(node_name.unwrap_or_default()))
-                        .to_string(),
-                    name: node_name.unwrap_or_default().to_string(),
-                    device_type: DeviceType::Output,
-
-                    input_fl: None,
-                    input_fr: None,
-                    output_fl: None,
-                    output_fr: None,
-                };
-                (Some(output_device), None)
-            } else {
-                (None, None)
-            };
-            // Check if the object is a port
-        } else if props.get("port.direction").is_some()
-            && let (Some(node_id), Some(port_id), Some(port_name)) = (
-                props.get("node.id").and_then(|id| id.parse::<u32>().ok()),
-                props.get("port.id").and_then(|id| id.parse::<u32>().ok()),
-                props.get("port.name"),
-            )
-        {
-            let port = Port {
+        if media_class.starts_with("Audio/Source") {
+            let input_device = AudioDevice::new(
                 node_id,
-                port_id,
-                name: port_name.to_string(),
-            };
-
-            return (None, Some(port));
+                node_nick,
+                node_description,
+                node_name,
+                DeviceType::Input,
+            );
+            return (Some(input_device), None);
+        } else if media_class.starts_with("Stream/Output/Audio") {
+            let output_device = AudioDevice::new(
+                node_id,
+                node_nick,
+                node_description,
+                node_name,
+                DeviceType::Output,
+            );
+            return (Some(output_device), None);
         }
+        return (None, None);
     }
+
+    if props.get("port.direction").is_some()
+        && let (Some(node_id), Some(port_id), Some(port_name)) = (
+            props.get("node.id").and_then(|id| id.parse::<u32>().ok()),
+            props.get("port.id").and_then(|id| id.parse::<u32>().ok()),
+            props.get("port.name"),
+        )
+    {
+        let port = Port {
+            node_id,
+            port_id,
+            name: port_name.to_string(),
+        };
+        return (None, Some(port));
+    }
+
     (None, None)
 }
 
@@ -188,47 +176,14 @@ pub async fn get_all_devices() -> Result<(Vec<AudioDevice>, Vec<AudioDevice>)> {
                     let node_id = port.node_id;
 
                     if let Some(input_device) = input_devices.get_mut(&node_id) {
-                        match port.name.as_str() {
-                            "input_FL" => input_device.input_fl = Some(port),
-                            "input_FR" => input_device.input_fr = Some(port),
-                            "output_FL" => input_device.output_fl = Some(port),
-                            "output_FR" => input_device.output_fr = Some(port),
-                            "capture_FL" => input_device.output_fl = Some(port),
-                            "capture_FR" => input_device.output_fr = Some(port),
-                            "input_MONO" => {
-                                input_device.input_fl = Some(port.clone());
-                                input_device.input_fr = Some(port)
-                            }
-                            "capture_MONO" => {
-                                input_device.output_fl = Some(port.clone());
-                                input_device.output_fr = Some(port);
-                            }
-                            _ => {}
-                        }
+                        input_device.add_port(port);
                     } else if let Some(output_device) = output_devices.get_mut(&node_id) {
-                        match port.name.as_str() {
-                            "input_FL" => output_device.input_fl = Some(port),
-                            "input_FR" => output_device.input_fr = Some(port),
-                            "output_FL" => output_device.output_fl = Some(port),
-                            "output_FR" => output_device.output_fr = Some(port),
-                            "capture_FL" => output_device.output_fl = Some(port),
-                            "capture_FR" => output_device.output_fr = Some(port),
-                            "output_MONO" => {
-                                output_device.output_fl = Some(port.clone());
-                                output_device.output_fr = Some(port)
-                            }
-                            "capture_MONO" => {
-                                output_device.output_fl = Some(port.clone());
-                                output_device.output_fr = Some(port)
-                            }
-                            _ => {}
-                        }
+                        output_device.add_port(port);
                     }
                 }
 
-                let mut input_devices: Vec<AudioDevice> = input_devices.values().cloned().collect();
-                let mut output_devices: Vec<AudioDevice> =
-                    output_devices.values().cloned().collect();
+                let mut input_devices: Vec<AudioDevice> = input_devices.into_values().collect();
+                let mut output_devices: Vec<AudioDevice> = output_devices.into_values().collect();
 
                 input_devices.sort_by_key(|a| a.id);
                 output_devices.sort_by_key(|a| a.id);
