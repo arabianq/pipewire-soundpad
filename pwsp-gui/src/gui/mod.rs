@@ -6,7 +6,7 @@ use anyhow::{Result, anyhow};
 use eframe::{HardwareAcceleration, NativeOptions, icon_data::from_png_bytes, run_native};
 use egui::{Context, FontData, FontDefinitions, FontFamily, FontTweak, Vec2, ViewportBuilder};
 use itertools::Itertools;
-use pwsp::{
+use pwsp_lib::{
     types::{
         audio_player::PlayerState,
         config::GuiConfig,

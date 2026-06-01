@@ -35,7 +35,7 @@ modules:
       - install -Dm755 target/release/pwsp-cli /app/bin/pwsp-cli
       - install -Dm755 target/release/pwsp-gui /app/bin/pwsp-gui
       - install -Dm755 packages/flatpak/pwsp-wrapper.py /app/bin/pwsp-wrapper.py
-      - install -Dm644 assets/icon.png /app/share/icons/hicolor/256x256/apps/ru.arabianq.pwsp.png
+      - install -Dm644 pwsp-gui/assets/icon.png /app/share/icons/hicolor/256x256/apps/ru.arabianq.pwsp.png
       - install -Dm644 packages/flatpak/ru.arabianq.pwsp.desktop /app/share/applications/ru.arabianq.pwsp.desktop
       - install -Dm644 packages/flatpak/ru.arabianq.pwsp.metainfo.xml /app/share/metainfo/ru.arabianq.pwsp.metainfo.xml
     sources:

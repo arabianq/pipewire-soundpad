@@ -1,7 +1,7 @@
 mod gui;
 
 use anyhow::{Context, Result};
-use pwsp::utils::gui::ensure_pwsp_audio_dir;
+use pwsp_lib::utils::gui::ensure_pwsp_audio_dir;
 use rust_i18n::i18n;
 use std::{env, path::PathBuf};
 

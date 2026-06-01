@@ -1,7 +1,7 @@
 use crate::gui::SoundpadGui;
 use egui::{Context, Id, Key, Modifiers};
-use pwsp::types::socket::Request;
-use pwsp::utils::gui::make_request_async;
+use pwsp_lib::types::socket::Request;
+use pwsp_lib::utils::gui::make_request_async;
 
 /// Convert an egui Key + Modifiers to a normalized chord string like "Ctrl+Shift+A".
 fn chord_from_event(modifiers: &Modifiers, key: &Key) -> Option<String> {

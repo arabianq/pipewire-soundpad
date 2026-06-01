@@ -1,7 +1,7 @@
 use crate::gui::SoundpadGui;
 use egui::{Align, Button, Color32, ComboBox, Layout, RichText, Ui};
 use egui_material_icons::icons::ICON_ARROW_BACK;
-use pwsp::types::config::PreferredTheme;
+use pwsp_lib::types::config::PreferredTheme;
 use rust_i18n::t;
 
 impl SoundpadGui {

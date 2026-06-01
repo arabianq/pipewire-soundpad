@@ -2,8 +2,8 @@ use crate::gui::SoundpadGui;
 use egui::{Button, Color32, Label, RichText, TextEdit, Ui};
 use egui_extras::{Column, TableBuilder};
 use egui_material_icons::icons::*;
-use pwsp::types::socket::Request;
-use pwsp::utils::gui::make_request_async;
+use pwsp_lib::types::socket::Request;
+use pwsp_lib::utils::gui::make_request_async;
 use rust_i18n::t;
 use std::path::Path;
 

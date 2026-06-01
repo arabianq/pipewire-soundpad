@@ -1,6 +1,6 @@
 use anyhow::{Result, anyhow};
 use clap::{Parser, Subcommand};
-use pwsp::{
+use pwsp_lib::{
     types::socket::Request,
     utils::daemon::{make_request, wait_for_daemon},
 };
