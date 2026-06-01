@@ -3280,7 +3280,7 @@ checksum = "3d595e54a326bc53c1c197b32d295e14b169e3cfeaa8dc82b529f947fba6bcf5"
 
 [[package]]
 name = "pwsp"
-version = "1.9.1"
+version = "1.10.0"
 dependencies = [
  "anyhow",
  "async-trait",
