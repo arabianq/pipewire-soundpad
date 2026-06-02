@@ -3,6 +3,10 @@
 # prevent library files from being installed
 %global cargo_install_lib 0
 
+# disable debuginfo package generation (debugsourcefiles.list is empty for Rust)
+%global debug_package %{nil}
+
+
 Name:            pwsp
 Version:         1.11.0
 Release:         %autorelease
