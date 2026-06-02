@@ -6,6 +6,7 @@ authors.workspace = true
 homepage.workspace = true
 repository.workspace = true
 license.workspace = true
+description.workspace = true
 
 [dependencies]
 pwsp-lib.workspace = true
@@ -26,3 +27,37 @@ reqwest.workspace = true
 percent-encoding.workspace = true
 rfd.workspace = true
 itertools.workspace = true
+
+[package.metadata.deb]
+assets = [
+    [
+        "target/release/pwsp-daemon",
+        "usr/bin/",
+        "755",
+    ],
+    [
+        "target/release/pwsp-cli",
+        "usr/bin/",
+        "755",
+    ],
+    [
+        "target/release/pwsp-gui",
+        "usr/bin/",
+        "755",
+    ],
+    [
+        "assets/pwsp-gui.desktop",
+        "usr/share/applications/pwsp.desktop",
+        "644",
+    ],
+    [
+        "assets/icon.png",
+        "usr/share/icons/hicolor/256x256/apps/pwsp.png",
+        "644",
+    ],
+    [
+        "assets/pwsp-daemon.service",
+        "usr/lib/systemd/user/pwsp-daemon.service",
+        "644",
+    ],
+]

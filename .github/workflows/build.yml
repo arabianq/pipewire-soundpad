@@ -86,13 +86,14 @@ jobs:
           path: pwsp-*.zip
           retention-days: 7
 
-      - name: Install cargo-deb -p pwsp-gui and create .deb
+      - name: Install cargo-deb and create .deb
         shell: bash
         run: |
           set -euo pipefail
           cargo install --locked cargo-deb
           export PATH="$HOME/.cargo/bin:$PATH"
 
+          cargo build --release --locked
           cargo-deb -p pwsp-gui
 
       - name: Upload .deb(s) as artifacts

@@ -14,6 +14,7 @@ authors = ["arabian"]
 homepage = "https://pwsp.arabianq.ru"
 repository = "https://github.com/arabianq/pipewire-soundpad"
 license = "MIT"
+description = "PWSP lets you play audio files through your microphone. Has both CLI and GUI clients."
 keywords = ["soundpad", "pipewire", "linux", "cli", "gui"]
 
 [workspace.dependencies]
