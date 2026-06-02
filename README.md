@@ -1,7 +1,7 @@
 <div align="center">
   <h1>🎵 PipeWire Soundpad (PWSP)</h1>
   <p><b>A simple, modern, and powerful soundboard for Linux, written in Rust.</b></p>
-  <img src="assets/screenshot.png" alt="PWSP Screenshot" width="700"/>
+  <img src="pwsp-gui/assets/screenshot.png" alt="PWSP Screenshot" width="700"/>
 </div>
 
 ## 🌟 Overview
