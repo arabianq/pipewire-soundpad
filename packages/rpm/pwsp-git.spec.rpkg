@@ -1,0 +1,66 @@
+%bcond check 1
+
+# prevent library files from being installed
+%global cargo_install_lib 0
+
+# disable debuginfo package generation (debugsourcefiles.list is empty for Rust)
+%global debug_package %{nil}
+
+Name:            pwsp-git
+Version:         {{{ git_dir_version }}}
+Release:         1%{?dist}
+Summary:         Lets you play audio files through your microphone (git version)
+
+License:         MIT
+
+URL:             https://github.com/arabianq/pipewire-soundpad
+VCS:             {{{ git_dir_vcs }}}
+Source:          {{{ git_dir_pack }}}
+
+BuildRequires: rust
+BuildRequires: cargo
+BuildRequires: pipewire-devel
+BuildRequires: alsa-lib-devel
+BuildRequires: clang-devel
+BuildRequires: cmake
+BuildRequires: dbus-devel
+BuildRequires: pkgconf-pkg-config
+
+# Declare compatibility and conflicts with the stable package
+Provides:        pwsp = %{version}-%{release}
+Conflicts:       pwsp
+
+%global _description %{expand:
+PWSP lets you play audio files through your microphone. Has both CLI and
+GUI clients. This is the latest development (git) version.}
+
+%description %{_description}
+
+%prep
+{{{ git_dir_setup_macro }}}
+
+%build
+cargo build --release --locked
+
+%install
+install -Dm755 target/release/pwsp-cli %{buildroot}%{_bindir}/pwsp-cli
+install -Dm755 target/release/pwsp-daemon %{buildroot}%{_bindir}/pwsp-daemon
+install -Dm755 target/release/pwsp-gui %{buildroot}%{_bindir}/pwsp-gui
+
+install -Dm644 pwsp-gui/assets/pwsp-gui.desktop %{buildroot}%{_datadir}/applications/pwsp.desktop
+install -Dm644 pwsp-gui/assets/icon.png %{buildroot}%{_datadir}/icons/hicolor/256x256/apps/pwsp.png
+
+install -Dm644 pwsp-gui/assets/pwsp-daemon.service %{buildroot}/usr/lib/systemd/user/pwsp-daemon.service
+
+%files
+%license LICENSE
+%doc README.md
+%{_bindir}/pwsp-cli
+%{_bindir}/pwsp-daemon
+%{_bindir}/pwsp-gui
+%{_datadir}/applications/pwsp.desktop
+%{_datadir}/icons/hicolor/256x256/apps/pwsp.png
+/usr/lib/systemd/user/pwsp-daemon.service
+
+%changelog
+{{{ git_dir_changelog }}}
