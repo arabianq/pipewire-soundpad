@@ -85,9 +85,9 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Rust toolchain
-        uses: actions-rs/toolchain@v1
+        uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          toolchain: 1.94.1
+          toolchain: 1.96.0
 
       - name: Extract all binary names
         id: cargo-meta
@@ -131,49 +131,29 @@ jobs:
 
           zip -j "$ARCHIVE_NAME" "${FILES[@]}"
 
-      - name: Upload release archive
+      - name: Cache cargo-deb
+        id: cache-cargo-deb
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/cargo-deb
+          key: ${{ runner.os }}-cargo-deb-v1
+
+      - name: Install cargo-deb
+        if: steps.cache-cargo-deb.outputs.cache-hit != 'true'
+        run: cargo install --locked cargo-deb
+
+      - name: Create .deb package (release binaries)
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.cargo/bin:$PATH"
+          cargo-deb -p pwsp-gui --no-build
+
+      - name: Upload artifacts to Release
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ needs.prepare.outputs.tag }}
           files: |
             pwsp-*.zip
-
-      - name: Install cargo-deb and create .deb
-        shell: bash
-        run: |
-          set -euo pipefail
-          cargo install --locked cargo-deb
-          export PATH="$HOME/.cargo/bin:$PATH"
-
-          cargo build --release --locked
-          cargo-deb -p pwsp-gui
-
-      - name: Upload .deb(s) to release
-        uses: softprops/action-gh-release@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag_name: ${{ needs.prepare.outputs.tag }}
-          files: |
             target/debian/*.deb
-
-  flatpak-release:
-    needs: prepare
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-25.08
-      options: --privileged
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.prepare.outputs.tag }}
-        
-      - name: Build Flatpak
-        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
-        with:
-          bundle: ru.arabianq.pwsp.flatpak
-          manifest-path: packages/flatpak/ru.arabianq.pwsp.yaml
-          cache: true
-          branch: master
-          build-bundle: true
