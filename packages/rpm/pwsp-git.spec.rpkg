@@ -1,4 +1,3 @@
-%bcond check 1
 
 # prevent library files from being installed
 %global cargo_install_lib 0
