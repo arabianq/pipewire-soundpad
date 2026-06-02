@@ -1,6 +1,10 @@
-
 # prevent library files from being installed
 %global cargo_install_lib 0
+
+# Fallback macros for systems without rpmautospec (e.g. openSUSE)
+%{!?autorelease: %global autorelease 1}
+%{!?autochangelog: %global autochangelog * Tue Jun 02 2026 Arabian <arabianq@github> - %{version}-%{release}\n- Release build}
+
 
 # disable debuginfo package generation (debugsourcefiles.list is empty for Rust)
 %global debug_package %{nil}
