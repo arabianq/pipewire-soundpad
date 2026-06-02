@@ -238,3 +238,88 @@ impl Response {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_response_new() {
+        let res = Response::new(true, "success-msg");
+        assert!(res.status);
+        assert_eq!(res.message, "success-msg");
+    }
+
+    #[test]
+    fn test_request_constructors() {
+        // test ping
+        let req_ping = Request::ping();
+        assert_eq!(req_ping.name, "ping");
+        assert!(req_ping.args.is_empty());
+
+        // test kill
+        let req_kill = Request::kill();
+        assert_eq!(req_kill.name, "kill");
+
+        // test pause (with and without id)
+        let req_pause_no_id = Request::pause(None);
+        assert_eq!(req_pause_no_id.name, "pause");
+        assert!(req_pause_no_id.args.is_empty());
+
+        let req_pause_with_id = Request::pause(Some(42));
+        assert_eq!(req_pause_with_id.name, "pause");
+        assert_eq!(
+            req_pause_with_id.args.get("id").map(|s| s.as_str()),
+            Some("42")
+        );
+
+        // test play
+        let req_play = Request::play("/path/to/sound.mp3", true);
+        assert_eq!(req_play.name, "play");
+        assert_eq!(
+            req_play.args.get("file_path").map(|s| s.as_str()),
+            Some("/path/to/sound.mp3")
+        );
+        assert_eq!(
+            req_play.args.get("concurrent").map(|s| s.as_str()),
+            Some("true")
+        );
+
+        // test set_volume
+        let req_volume = Request::set_volume(0.8, Some(10));
+        assert_eq!(req_volume.name, "set_volume");
+        assert_eq!(
+            req_volume.args.get("volume").map(|s| s.as_str()),
+            Some("0.8")
+        );
+        assert_eq!(req_volume.args.get("id").map(|s| s.as_str()), Some("10"));
+
+        // test set_hotkey_action_and_key
+        let action = Request::ping();
+        let req_hotkey_action_and_key =
+            Request::set_hotkey_action_and_key("slot1", &action, "Ctrl+P");
+        assert_eq!(req_hotkey_action_and_key.name, "set_hotkey_action_and_key");
+        assert_eq!(
+            req_hotkey_action_and_key
+                .args
+                .get("slot")
+                .map(|s| s.as_str()),
+            Some("slot1")
+        );
+        assert_eq!(
+            req_hotkey_action_and_key
+                .args
+                .get("key_chord")
+                .map(|s| s.as_str()),
+            Some("Ctrl+P")
+        );
+        let action_json = serde_json::to_string(&action).unwrap();
+        assert_eq!(
+            req_hotkey_action_and_key
+                .args
+                .get("action")
+                .map(|s| s.as_str()),
+            Some(action_json.as_str())
+        );
+    }
+}

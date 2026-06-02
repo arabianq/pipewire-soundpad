@@ -139,3 +139,16 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
         }
     });
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_format_time_pair() {
+        assert_eq!(format_time_pair(0.0, 0.0), "00:00/00:00");
+        assert_eq!(format_time_pair(5.4, 10.0), "00:05/00:10");
+        assert_eq!(format_time_pair(59.9, 125.1), "01:00/02:05");
+        assert_eq!(format_time_pair(3600.0, 7205.0), "60:00/120:05");
+    }
+}

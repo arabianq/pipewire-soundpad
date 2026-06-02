@@ -218,3 +218,82 @@ impl HotkeyConfig {
             .collect()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_gui_config_default() {
+        let config = GuiConfig::default();
+        assert_eq!(config.scale_factor, 1.0);
+        assert_eq!(config.left_panel_width, 280.0);
+        assert!(!config.save_volume);
+        assert_eq!(config.preferred_theme, PreferredTheme::System);
+    }
+
+    #[test]
+    fn test_hotkey_config_operations() {
+        let mut config = HotkeyConfig::default();
+        assert!(config.slots.is_empty());
+
+        let req = Request::ping();
+        config.set_slot("slot1".to_string(), req.clone());
+        assert_eq!(config.slots.len(), 1);
+        assert_eq!(config.slots[0].slot, "slot1");
+        assert_eq!(config.slots[0].action, req);
+        assert!(config.slots[0].key_chord.is_none());
+
+        // Test find_slot
+        let found = config.find_slot("slot1");
+        assert!(found.is_some());
+        assert_eq!(found.unwrap().slot, "slot1");
+
+        // Test set_key_chord
+        let updated = config.set_key_chord("slot1", Some("Ctrl+A".to_string()));
+        assert!(updated);
+        assert_eq!(config.slots[0].key_chord.as_deref(), Some("Ctrl+A"));
+
+        // Test set_key_chord for non-existent slot
+        let updated_non_existent = config.set_key_chord("slot2", Some("Ctrl+B".to_string()));
+        assert!(!updated_non_existent);
+
+        // Test find_slot_mut
+        let found_mut = config.find_slot_mut("slot1");
+        assert!(found_mut.is_some());
+        found_mut.unwrap().key_chord = Some("Ctrl+B".to_string());
+        assert_eq!(config.slots[0].key_chord.as_deref(), Some("Ctrl+B"));
+
+        // Test slots_for_chord
+        let slots = config.slots_for_chord("Ctrl+B");
+        assert_eq!(slots.len(), 1);
+        assert_eq!(slots[0].slot, "slot1");
+
+        let empty_slots = config.slots_for_chord("Ctrl+A");
+        assert!(empty_slots.is_empty());
+
+        // Test remove_slot
+        let removed = config.remove_slot("slot1");
+        assert!(removed);
+        assert!(config.slots.is_empty());
+
+        let removed_non_existent = config.remove_slot("slot1");
+        assert!(!removed_non_existent);
+    }
+
+    #[test]
+    fn test_hotkey_config_conflicts() {
+        let mut config = HotkeyConfig::default();
+        config.set_slot("slot1".to_string(), Request::ping());
+        config.set_slot("slot2".to_string(), Request::ping());
+        config.set_slot("slot3".to_string(), Request::ping());
+
+        config.set_key_chord("slot1", Some("Ctrl+A".to_string()));
+        config.set_key_chord("slot2", Some("Ctrl+A".to_string())); // Conflict with slot1
+        config.set_key_chord("slot3", Some("Ctrl+B".to_string()));
+
+        let conflicts = config.find_conflicts();
+        assert_eq!(conflicts.len(), 1);
+        assert!(conflicts.contains(&("slot1", "slot2")) || conflicts.contains(&("slot2", "slot1")));
+    }
+}

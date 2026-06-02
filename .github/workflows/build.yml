@@ -37,6 +37,9 @@ jobs:
         with:
           toolchain: 1.94.1
 
+      - name: Run tests
+        run: cargo test --locked
+
       - name: Extract all binary names
         id: cargo-meta
         run: |

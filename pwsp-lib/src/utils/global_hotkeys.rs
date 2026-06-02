@@ -199,3 +199,79 @@ pub async fn start_global_hotkey_listener() {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_modifier_state() {
+        let mut state = ModifierState::new();
+        assert!(!state.any_active());
+
+        // Press Ctrl
+        state.update(KeyCode::KEY_LEFTCTRL, true);
+        assert!(state.ctrl);
+        assert!(state.any_active());
+
+        // Release Ctrl
+        state.update(KeyCode::KEY_LEFTCTRL, false);
+        assert!(!state.ctrl);
+        assert!(!state.any_active());
+
+        // Press multiple modifiers
+        state.update(KeyCode::KEY_RIGHTALT, true);
+        state.update(KeyCode::KEY_LEFTSHIFT, true);
+        assert!(state.alt);
+        assert!(state.shift);
+        assert!(state.any_active());
+
+        // Update a non-modifier key
+        state.update(KeyCode::KEY_A, true);
+        // Modifier states should remain unchanged
+        assert!(state.alt);
+        assert!(state.shift);
+    }
+
+    #[test]
+    fn test_is_modifier() {
+        assert!(ModifierState::is_modifier(KeyCode::KEY_LEFTCTRL));
+        assert!(ModifierState::is_modifier(KeyCode::KEY_RIGHTCTRL));
+        assert!(ModifierState::is_modifier(KeyCode::KEY_LEFTALT));
+        assert!(ModifierState::is_modifier(KeyCode::KEY_RIGHTALT));
+        assert!(ModifierState::is_modifier(KeyCode::KEY_LEFTSHIFT));
+        assert!(ModifierState::is_modifier(KeyCode::KEY_RIGHTSHIFT));
+        assert!(ModifierState::is_modifier(KeyCode::KEY_LEFTMETA));
+        assert!(ModifierState::is_modifier(KeyCode::KEY_RIGHTMETA));
+
+        assert!(!ModifierState::is_modifier(KeyCode::KEY_A));
+        assert!(!ModifierState::is_modifier(KeyCode::KEY_1));
+    }
+
+    #[test]
+    fn test_evdev_key_name() {
+        assert_eq!(evdev_key_name(KeyCode::KEY_A), Some("A"));
+        assert_eq!(evdev_key_name(KeyCode::KEY_Z), Some("Z"));
+        assert_eq!(evdev_key_name(KeyCode::KEY_0), Some("0"));
+        assert_eq!(evdev_key_name(KeyCode::KEY_F1), Some("F1"));
+        assert_eq!(evdev_key_name(KeyCode::KEY_F12), Some("F12"));
+        assert_eq!(evdev_key_name(KeyCode::KEY_ENTER), None);
+    }
+
+    #[test]
+    fn test_build_chord() {
+        let mut modifiers = ModifierState::new();
+
+        assert_eq!(build_chord(&modifiers, "A"), "A");
+
+        modifiers.ctrl = true;
+        assert_eq!(build_chord(&modifiers, "A"), "Ctrl+A");
+
+        modifiers.shift = true;
+        assert_eq!(build_chord(&modifiers, "B"), "Ctrl+Shift+B");
+
+        modifiers.alt = true;
+        modifiers.meta = true;
+        assert_eq!(build_chord(&modifiers, "F5"), "Ctrl+Alt+Shift+Super+F5");
+    }
+}
