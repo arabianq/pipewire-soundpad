@@ -2,8 +2,8 @@
     {
         "type": "git",
         "url": "https://github.com/rustaudio/cpal",
-        "commit": "2e7e09c1e8ab3d742c23f929eb6b0d93888e63cc",
-        "dest": "flatpak-cargo/git/cpal-2e7e09c"
+        "commit": "d2a268839bf9ada7c2477c8a5f9483c28aa12d0c",
+        "dest": "flatpak-cargo/git/cpal-d2a2688"
     },
     {
         "type": "git",
@@ -495,14 +495,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/bitflags/bitflags-2.11.1.crate",
-        "sha256": "c4512299f36f043ab09a583e57bceb5a5aab7a73db1805848e8fef3c9e8c78b3",
-        "dest": "cargo/vendor/bitflags-2.11.1"
+        "url": "https://static.crates.io/crates/bitflags/bitflags-2.12.1.crate",
+        "sha256": "84d7ced0ae9557296835c32bf1b1e02b44c746701f898460fb000d7eaa84f00a",
+        "dest": "cargo/vendor/bitflags-2.12.1"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"c4512299f36f043ab09a583e57bceb5a5aab7a73db1805848e8fef3c9e8c78b3\", \"files\": {}}",
-        "dest": "cargo/vendor/bitflags-2.11.1",
+        "contents": "{\"package\": \"84d7ced0ae9557296835c32bf1b1e02b44c746701f898460fb000d7eaa84f00a\", \"files\": {}}",
+        "dest": "cargo/vendor/bitflags-2.12.1",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -1028,7 +1028,7 @@
     {
         "type": "shell",
         "commands": [
-            "cp -r --reflink=auto \"flatpak-cargo/git/cpal-2e7e09c/.\" \"cargo/vendor/cpal\""
+            "cp -r --reflink=auto \"flatpak-cargo/git/cpal-d2a2688/.\" \"cargo/vendor/cpal\""
         ]
     },
     {
@@ -2970,14 +2970,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/log/log-0.4.30.crate",
-        "sha256": "616ec5685824bcc94416c6d4a7a446eea774a31efd7062c8480ba6fd06d7a6e5",
-        "dest": "cargo/vendor/log-0.4.30"
+        "url": "https://static.crates.io/crates/log/log-0.4.31.crate",
+        "sha256": "113b30b4cd05f7c06868fdb2854f66a7b9fece9a48425351cd532e810d74024f",
+        "dest": "cargo/vendor/log-0.4.31"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"616ec5685824bcc94416c6d4a7a446eea774a31efd7062c8480ba6fd06d7a6e5\", \"files\": {}}",
-        "dest": "cargo/vendor/log-0.4.30",
+        "contents": "{\"package\": \"113b30b4cd05f7c06868fdb2854f66a7b9fece9a48425351cd532e810d74024f\", \"files\": {}}",
+        "dest": "cargo/vendor/log-0.4.31",
         "dest-filename": ".cargo-checksum.json"
     },
     {
