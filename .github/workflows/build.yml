@@ -12,33 +12,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Install apt deps (dev-libs)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libpipewire-0.3-dev \
-            libclang-dev \
-            libasound2-dev \
-            libdbus-1-dev \
-            pkg-config
-
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: 1.94.1
-
-      - name: Run tests
-        run: cargo test --locked
-
   linux-build:
-    needs: test
     runs-on: ubuntu-latest
 
     steps:
@@ -62,6 +36,9 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: 1.94.1
+
+      - name: Run tests
+        run: cargo test --locked
 
       - name: Extract all binary names
         id: cargo-meta
@@ -130,7 +107,6 @@ jobs:
           retention-days: 7
 
   flatpak-build:
-    needs: test
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-25.08
