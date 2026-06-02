@@ -294,3 +294,45 @@ pub async fn run() -> Result<()> {
         Err(e) => Err(anyhow!(e.to_string())),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_filtered_files() {
+        let mut gui = SoundpadGui {
+            app_state: AppState::default(),
+            config: GuiConfig::default(),
+            audio_player_state: AudioPlayerState::default(),
+            audio_player_state_shared: Arc::new(Mutex::new(AudioPlayerState::default())),
+        };
+
+        // Create some dummy paths
+        // We will mock path properties using standard Rust PathBuf
+        let dir_a = PathBuf::from("a_dir");
+        let file_b = PathBuf::from("b_file.mp3");
+        let file_c = PathBuf::from("c_file.wav");
+        let file_txt = PathBuf::from("invalid.txt");
+
+        gui.app_state.listed_files.insert(dir_a.clone());
+        gui.app_state.listed_files.insert(file_b.clone());
+        gui.app_state.listed_files.insert(file_c.clone());
+        gui.app_state.listed_files.insert(file_txt.clone());
+
+        // Note: is_dir() check in get_filtered_files relies on physical filesystem properties.
+        // On the real OS filesystem, these paths don't exist, so they are treated as files.
+        // Unsupported extensions (like .txt) will be filtered out.
+        // So we expect only file_b and file_c, sorted alphabetically.
+        let filtered = gui.get_filtered_files();
+        assert_eq!(filtered.len(), 2);
+        assert_eq!(filtered[0], file_b);
+        assert_eq!(filtered[1], file_c);
+
+        // Test search query
+        gui.app_state.search_query = "c_fi".to_string();
+        let filtered_search = gui.get_filtered_files();
+        assert_eq!(filtered_search.len(), 1);
+        assert_eq!(filtered_search[0], file_c);
+    }
+}

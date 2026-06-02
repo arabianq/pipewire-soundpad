@@ -30,3 +30,26 @@ impl SoundpadGui {
         self.draw_footer(ui);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_volume_icon() {
+        assert_eq!(SoundpadGui::get_volume_icon(0.8), ICON_VOLUME_UP.codepoint);
+        assert_eq!(SoundpadGui::get_volume_icon(0.0), ICON_VOLUME_OFF.codepoint);
+        assert_eq!(
+            SoundpadGui::get_volume_icon(-0.1),
+            ICON_VOLUME_OFF.codepoint
+        );
+        assert_eq!(
+            SoundpadGui::get_volume_icon(0.2),
+            ICON_VOLUME_MUTE.codepoint
+        );
+        assert_eq!(
+            SoundpadGui::get_volume_icon(0.5),
+            ICON_VOLUME_DOWN.codepoint
+        );
+    }
+}

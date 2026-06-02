@@ -217,3 +217,70 @@ impl SoundpadGui {
         // });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use egui::{Key, Modifiers};
+
+    #[test]
+    fn test_chord_from_event() {
+        // Valid modifier + key
+        let mut mods = Modifiers::NONE;
+        mods.ctrl = true;
+        let chord = chord_from_event(&mods, &Key::A);
+        assert_eq!(chord, Some("Ctrl+A".to_string()));
+
+        // Multiple modifiers
+        mods.shift = true;
+        let chord = chord_from_event(&mods, &Key::F1);
+        assert_eq!(chord, Some("Ctrl+Shift+F1".to_string()));
+
+        // Missing modifiers (requires at least one modifier)
+        let no_mods = Modifiers::NONE;
+        let chord = chord_from_event(&no_mods, &Key::A);
+        assert_eq!(chord, None);
+
+        // Invalid keys (e.g. Escape or Enter shouldn't be accepted by chord_from_event)
+        mods.shift = false;
+        let chord = chord_from_event(&mods, &Key::Escape);
+        assert_eq!(chord, None);
+    }
+
+    #[test]
+    fn test_parse_chord() {
+        // Valid Ctrl+A
+        let res = parse_chord("Ctrl+A");
+        assert!(res.is_some());
+        let (mods, key) = res.unwrap();
+        assert!(mods.ctrl);
+        assert!(!mods.alt);
+        assert!(!mods.shift);
+        assert_eq!(key, Key::A);
+
+        // Valid Ctrl+Shift+F12
+        let res = parse_chord("Ctrl+Shift+F12");
+        assert!(res.is_some());
+        let (mods, key) = res.unwrap();
+        assert!(mods.ctrl);
+        assert!(mods.shift);
+        assert!(!mods.alt);
+        assert_eq!(key, Key::F12);
+
+        // Valid Ctrl+Alt+Shift+Super+B
+        let res = parse_chord("Ctrl+Alt+Shift+Super+B");
+        assert!(res.is_some());
+        let (mods, key) = res.unwrap();
+        assert!(mods.ctrl);
+        assert!(mods.alt);
+        assert!(mods.shift);
+        assert!(mods.command); // Super maps to command in egui Modifiers
+        assert_eq!(key, Key::B);
+
+        // Invalid keys/chords
+        assert!(parse_chord("").is_none());
+        assert!(parse_chord("Ctrl+").is_none());
+        assert!(parse_chord("Ctrl+Escape").is_none());
+        assert!(parse_chord("Invalid+A").is_none());
+    }
+}
