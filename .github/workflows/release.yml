@@ -131,6 +131,42 @@ jobs:
 
           zip -j "$ARCHIVE_NAME" "${FILES[@]}"
 
+      - name: Upload zip archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: zip-archive
+          path: pwsp-*.zip
+          retention-days: 1
+
+  deb-release:
+    needs: prepare
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install apt deps (dev-libs)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libpipewire-0.3-dev \
+            libclang-dev \
+            libasound2-dev \
+            libdbus-1-dev \
+            pkg-config
+
+      - name: Checkout code at tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+          fetch-depth: 0
+
+      - name: Setup Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: 1.96.0
+
+      - name: Build all release binaries
+        run: cargo build --release --locked
+
       - name: Cache cargo-deb
         id: cache-cargo-deb
         uses: actions/cache@v4
@@ -149,11 +185,34 @@ jobs:
           export PATH="$HOME/.cargo/bin:$PATH"
           cargo-deb -p pwsp-gui --no-build
 
+      - name: Upload deb package
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb-package
+          path: target/debian/*.deb
+          retention-days: 1
+
+  publish-release:
+    needs: [prepare, linux-release, deb-release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download zip archive
+        uses: actions/download-artifact@v4
+        with:
+          name: zip-archive
+          path: ./dist
+
+      - name: Download deb package
+        uses: actions/download-artifact@v4
+        with:
+          name: deb-package
+          path: ./dist
+
       - name: Upload artifacts to Release
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ needs.prepare.outputs.tag }}
           files: |
-            pwsp-*.zip
-            target/debian/*.deb
+            ./dist/pwsp-*.zip
+            ./dist/*.deb
