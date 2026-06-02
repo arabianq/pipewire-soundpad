@@ -5,7 +5,7 @@ use egui::{
 };
 use egui_dnd::dnd;
 use egui_material_icons::icons::*;
-use pwsp::types::{gui::AppState, gui::AudioPlayerState};
+use pwsp_lib::types::{gui::AppState, gui::AudioPlayerState};
 use rust_i18n::t;
 use std::{cmp::Ordering, path::Path, path::PathBuf};
 

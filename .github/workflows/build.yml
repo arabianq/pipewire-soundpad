@@ -42,7 +42,7 @@ jobs:
         run: |
           set -euo pipefail
           BIN_NAMES=$(cargo metadata --no-deps --format-version 1 \
-            | jq -r '.packages[0].targets[] | select(.kind[] | contains("bin")) | .name')
+            | jq -r '.packages[].targets[] | select(.kind[] | contains("bin")) | .name')
           echo "bin_names<<EOF" >> $GITHUB_OUTPUT
           echo "$BIN_NAMES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -93,7 +93,8 @@ jobs:
           cargo install --locked cargo-deb
           export PATH="$HOME/.cargo/bin:$PATH"
 
-          cargo-deb
+          cargo build --release --locked
+          cargo-deb -p pwsp-gui
 
       - name: Upload .deb(s) as artifacts
         uses: actions/upload-artifact@v4

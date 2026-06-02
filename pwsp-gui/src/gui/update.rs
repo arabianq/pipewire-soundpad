@@ -1,7 +1,7 @@
 use crate::gui::SoundpadGui;
 use eframe::{App, Frame as EFrame};
 use egui::{CentralPanel, Context, ThemePreference};
-use pwsp::{
+use pwsp_lib::{
     types::{config::PreferredTheme, socket::Request},
     utils::{daemon::get_daemon_config, gui::make_request_async},
 };

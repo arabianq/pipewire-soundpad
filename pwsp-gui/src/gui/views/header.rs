@@ -1,8 +1,8 @@
 use crate::gui::SoundpadGui;
 use egui::{Button, CollapsingHeader, FontFamily, Label, RichText, Slider, Ui};
 use egui_material_icons::icons::*;
-use pwsp::types::{audio_player::TrackInfo, gui::AppState};
-use pwsp::utils::gui::format_time_pair;
+use pwsp_lib::types::{audio_player::TrackInfo, gui::AppState};
+use pwsp_lib::utils::gui::format_time_pair;
 use std::time::Instant;
 
 pub(crate) enum TrackAction {
@@ -91,7 +91,7 @@ impl SoundpadGui {
 
     fn draw_position_control(
         ui: &mut Ui,
-        ui_state: &mut pwsp::types::gui::TrackUiState,
+        ui_state: &mut pwsp_lib::types::gui::TrackUiState,
         track: &TrackInfo,
         default_slider_width: f32,
     ) {
@@ -117,7 +117,7 @@ impl SoundpadGui {
 
     fn draw_volume_control(
         ui: &mut Ui,
-        ui_state: &mut pwsp::types::gui::TrackUiState,
+        ui_state: &mut pwsp_lib::types::gui::TrackUiState,
         track: &TrackInfo,
         default_slider_width: f32,
     ) {

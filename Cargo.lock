@@ -3279,32 +3279,68 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3d595e54a326bc53c1c197b32d295e14b169e3cfeaa8dc82b529f947fba6bcf5"
 
 [[package]]
-name = "pwsp"
+name = "pwsp-cli"
 version = "1.10.0"
 dependencies = [
  "anyhow",
- "async-trait",
  "clap",
- "dirs",
+ "pwsp-lib",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
+name = "pwsp-daemon"
+version = "1.10.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "pipewire",
+ "pwsp-lib",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
+name = "pwsp-gui"
+version = "1.10.0"
+dependencies = [
+ "anyhow",
  "eframe",
  "egui",
  "egui_dnd",
  "egui_extras",
  "egui_material_icons",
- "evdev",
  "itertools 0.14.0",
  "opener",
  "percent-encoding",
- "pipewire",
+ "pwsp-lib",
  "reqwest",
  "rfd",
- "rodio",
  "rust-i18n",
- "rustix 1.1.4",
  "serde",
  "serde_json",
  "sys-locale",
  "system-fonts",
+ "tokio",
+]
+
+[[package]]
+name = "pwsp-lib"
+version = "1.10.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "dirs",
+ "egui",
+ "evdev",
+ "itertools 0.14.0",
+ "pipewire",
+ "reqwest",
+ "rodio",
+ "rustix 1.1.4",
+ "serde",
+ "serde_json",
  "tokio",
 ]
 

@@ -1,17 +1,28 @@
-[package]
-name = "pwsp"
+[workspace]
+members = [
+    "pwsp-lib",
+    "pwsp-daemon",
+    "pwsp-cli",
+    "pwsp-gui"
+]
+resolver = "2"
+
+[workspace.package]
 version = "1.10.0"
 edition = "2024"
 authors = ["arabian"]
-description = "PWSP lets you play audio files through your microphone. Has both CLI and GUI clients."
-readme = "README.md"
 homepage = "https://pwsp.arabianq.ru"
 repository = "https://github.com/arabianq/pipewire-soundpad"
 license = "MIT"
+description = "PWSP lets you play audio files through your microphone. Has both CLI and GUI clients."
 keywords = ["soundpad", "pipewire", "linux", "cli", "gui"]
 
+[workspace.dependencies]
+pwsp-lib = { path = "pwsp-lib" }
+pwsp-daemon = { path = "pwsp-daemon" }
+pwsp-cli = { path = "pwsp-cli" }
+pwsp-gui = { path = "pwsp-gui" }
 
-[dependencies]
 tokio = { version = "1.52.3", features = ["full"] }
 async-trait = "0.1.89"
 
@@ -31,9 +42,7 @@ dirs = "6.0.0"
 itertools = "0.14.0"
 evdev = { version = "0.13.2", features = ["tokio"] }
 rfd = { version = "0.17.2", default-features = false, features = [
-
     "xdg-portal",
-
 ] }
 opener = { version = "0.8.4", features = ["reveal"] }
 system-fonts = "0.1.1"
@@ -67,18 +76,6 @@ egui_dnd = "0.15.0"
 reqwest = "0.13.4"
 percent-encoding = "2.3.2"
 
-[[bin]]
-name = "pwsp-daemon"
-path = "src/bin/daemon.rs"
-
-[[bin]]
-name = "pwsp-cli"
-path = "src/bin/cli.rs"
-
-[[bin]]
-name = "pwsp-gui"
-path = "src/main.rs"
-
 [profile.release]
 strip = true
 lto = true
@@ -86,36 +83,3 @@ codegen-units = 1
 opt-level = "z"
 panic = "abort"
 
-[package.metadata.deb]
-assets = [
-    [
-        "target/release/pwsp-daemon",
-        "usr/bin/",
-        "755",
-    ],
-    [
-        "target/release/pwsp-cli",
-        "usr/bin/",
-        "755",
-    ],
-    [
-        "target/release/pwsp-gui",
-        "usr/bin/",
-        "755",
-    ],
-    [
-        "assets/pwsp-gui.desktop",
-        "usr/share/applications/pwsp.desktop",
-        "644",
-    ],
-    [
-        "assets/icon.png",
-        "usr/share/icons/hicolor/256x256/apps/pwsp.png",
-        "644",
-    ],
-    [
-        "assets/pwsp-daemon.service",
-        "usr/lib/systemd/user/pwsp-daemon.service",
-        "644",
-    ],
-]

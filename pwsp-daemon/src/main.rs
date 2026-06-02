@@ -1,5 +1,5 @@
 use anyhow::{Result, anyhow};
-use pwsp::{
+use pwsp_lib::{
     types::socket::{MAX_MESSAGE_SIZE, Request, Response},
     utils::{
         commands::parse_command,
