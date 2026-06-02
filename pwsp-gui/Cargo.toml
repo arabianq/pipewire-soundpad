@@ -10,23 +10,29 @@ description.workspace = true
 
 [dependencies]
 pwsp-lib.workspace = true
+
 tokio.workspace = true
+
+opener.workspace = true
+rfd.workspace = true
+itertools.workspace = true
 anyhow.workspace = true
+
 serde.workspace = true
 serde_json.workspace = true
+
 egui.workspace = true
 eframe.workspace = true
 egui_extras.workspace = true
 egui_material_icons.workspace = true
 egui_dnd.workspace = true
-opener.workspace = true
+
 system-fonts.workspace = true
 rust-i18n.workspace = true
 sys-locale.workspace = true
+
 reqwest.workspace = true
 percent-encoding.workspace = true
-rfd.workspace = true
-itertools.workspace = true
 
 [package.metadata.deb]
 assets = [

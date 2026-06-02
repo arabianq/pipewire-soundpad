@@ -10,14 +10,19 @@ license.workspace = true
 [dependencies]
 tokio.workspace = true
 async-trait.workspace = true
+
 serde.workspace = true
 serde_json.workspace = true
+
 dirs.workspace = true
 itertools.workspace = true
 evdev.workspace = true
 anyhow.workspace = true
 rustix.workspace = true
+
 rodio.workspace = true
 pipewire.workspace = true
+
 egui.workspace = true
+
 reqwest.workspace = true
