@@ -13,7 +13,15 @@ on:
 
 jobs:
   linux-build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-latest
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+      fail-fast: false
+    runs-on: ${{ matrix.runner }}
 
     steps:
       - name: Install apt deps (jq/zip + dev-libs)
@@ -64,7 +72,7 @@ jobs:
         run: |
           set -euo pipefail
           COMMIT_SHA="${{ github.sha }}"
-          ARCHIVE_NAME="pwsp-${COMMIT_SHA}-linux-x64.zip"
+          ARCHIVE_NAME="pwsp-${COMMIT_SHA}-linux-${{ matrix.arch }}.zip"
           echo "Creating archive: $ARCHIVE_NAME"
 
           FILES=()
@@ -91,12 +99,20 @@ jobs:
       - name: Upload archive as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: archive
+          name: archive-${{ matrix.arch }}
           path: pwsp-*.zip
           retention-days: 7
 
   deb-build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-latest
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+      fail-fast: false
+    runs-on: ${{ matrix.runner }}
 
     steps:
       - name: Install apt deps (dev-libs)
@@ -149,13 +165,21 @@ jobs:
       - name: Upload .deb(s) as artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: deb-packages
+          name: deb-packages-${{ matrix.arch }}
           path: target/debian/*.deb
           retention-days: 7
 
   flatpak-build:
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-latest
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+      fail-fast: false
+    runs-on: ${{ matrix.runner }}
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-25.08
       options: --privileged
@@ -166,8 +190,9 @@ jobs:
       - name: Build Flatpak
         uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
-          bundle: ru.arabianq.pwsp.flatpak
+          bundle: ru.arabianq.pwsp_${{ matrix.arch }}.flatpak
           manifest-path: packages/flatpak/ru.arabianq.pwsp.yaml
           cache: true
           branch: master
           build-bundle: true
+          arch: ${{ matrix.arch }}

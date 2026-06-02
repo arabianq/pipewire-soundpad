@@ -64,7 +64,15 @@ jobs:
 
   linux-release:
     needs: prepare
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-latest
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+      fail-fast: false
+    runs-on: ${{ matrix.runner }}
 
     steps:
       - name: Install apt deps (jq/zip + dev-libs)
@@ -107,7 +115,7 @@ jobs:
         run: |
           set -euo pipefail
           TAG="${{ needs.prepare.outputs.tag }}"
-          ARCHIVE_NAME="pwsp-${TAG}-linux-x64.zip"
+          ARCHIVE_NAME="pwsp-${TAG}-linux-${{ matrix.arch }}.zip"
           echo "Creating archive: $ARCHIVE_NAME"
 
           FILES=()
@@ -134,13 +142,21 @@ jobs:
       - name: Upload zip archive
         uses: actions/upload-artifact@v4
         with:
-          name: zip-archive
+          name: zip-archive-${{ matrix.arch }}
           path: pwsp-*.zip
           retention-days: 1
 
   deb-release:
     needs: prepare
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-latest
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+      fail-fast: false
+    runs-on: ${{ matrix.runner }}
 
     steps:
       - name: Install apt deps (dev-libs)
@@ -188,7 +204,7 @@ jobs:
       - name: Upload deb package
         uses: actions/upload-artifact@v4
         with:
-          name: deb-package
+          name: deb-package-${{ matrix.arch }}
           path: target/debian/*.deb
           retention-days: 1
 
@@ -196,16 +212,28 @@ jobs:
     needs: [prepare, linux-release, deb-release]
     runs-on: ubuntu-latest
     steps:
-      - name: Download zip archive
+      - name: Download zip archive (x64)
         uses: actions/download-artifact@v4
         with:
-          name: zip-archive
+          name: zip-archive-x64
           path: ./dist
 
-      - name: Download deb package
+      - name: Download zip archive (arm64)
         uses: actions/download-artifact@v4
         with:
-          name: deb-package
+          name: zip-archive-arm64
+          path: ./dist
+
+      - name: Download deb package (x64)
+        uses: actions/download-artifact@v4
+        with:
+          name: deb-package-x64
+          path: ./dist
+
+      - name: Download deb package (arm64)
+        uses: actions/download-artifact@v4
+        with:
+          name: deb-package-arm64
           path: ./dist
 
       - name: Upload artifacts to Release

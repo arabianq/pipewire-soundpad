@@ -21,8 +21,8 @@ on:
         default: "stable"
 
 jobs:
-  flatter:
-    name: Flatter
+  flatter-x64:
+    name: Flatter (x86_64)
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -70,12 +70,66 @@ jobs:
           files: packages/flatpak/ru.arabianq.pwsp.yaml
           gpg-sign: ${{ steps.gpg.outputs.fingerprint }}
           upload-bundles: false
+          upload-pages-artifact: false
+          arch: x86_64
+
+  flatter-arm64:
+    name: Flatter (aarch64)
+    needs: flatter-x64
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+    container:
+      image: ghcr.io/andyholmes/flatter/freedesktop:25.08
+      options: --privileged
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag_name || github.ref }}
+
+      - name: Setup GPG
+        id: gpg
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Set Default Branch
+        id: set_branch
+        run: |
+          if [ "${{ github.event_name }}" == "release" ]; then
+            echo "branch=stable" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "branch=${{ inputs.build_branch }}" >> $GITHUB_OUTPUT
+          else
+            echo "branch=nightly" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Modify Manifest
+        run: |
+          echo "branch: ${{ steps.set_branch.outputs.branch }}" >> packages/flatpak/ru.arabianq.pwsp.yaml
+          echo "default-branch: ${{ steps.set_branch.outputs.branch }}" >> packages/flatpak/ru.arabianq.pwsp.yaml
+
+      - name: Install SDK Extensions
+        run:
+          flatpak install -y flathub org.freedesktop.Sdk.Extension.rust-stable//25.08
+          org.freedesktop.Sdk.Extension.llvm20//25.08
+
+      - name: Build Flatpak
+        uses: andyholmes/flatter@main
+        with:
+          files: packages/flatpak/ru.arabianq.pwsp.yaml
+          gpg-sign: ${{ steps.gpg.outputs.fingerprint }}
+          upload-bundles: false
           upload-pages-artifact: true
+          arch: aarch64
 
   deploy:
     name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
-    needs: flatter
+    needs: flatter-arm64
     permissions:
       pages: write
       id-token: write
