@@ -149,7 +149,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cargo/bin/cargo-deb
-          key: ${{ runner.os }}-cargo-deb-v1
+          key: ${{ runner.os }}-${{ runner.arch }}-cargo-deb-v1
 
       - name: Install cargo-deb
         if: steps.cache-cargo-deb.outputs.cache-hit != 'true'
