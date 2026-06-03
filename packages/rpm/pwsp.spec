@@ -3,7 +3,9 @@
 
 # Fallback macros for systems without rpmautospec (e.g. openSUSE)
 %{!?autorelease: %global autorelease 1}
-%{!?autochangelog: %global autochangelog * Tue Jun 02 2026 Arabian <arabianq@github> - %{version}-%{release}\n- Release build}
+%{!?autochangelog: %global autochangelog \
+* Tue Jun 02 2026 Arabian <arabianq@github> - %{version}-%{release}\
+- Release build}
 
 
 # disable debuginfo package generation (debugsourcefiles.list is empty for Rust)
