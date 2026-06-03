@@ -244,3 +244,19 @@ jobs:
           files: |
             ./dist/pwsp-*.zip
             ./dist/*.deb
+
+      - name: Install copr-cli
+        run: pip install copr-cli
+
+      - name: Trigger Copr Build
+        env:
+          COPR_CONFIG: ${{ secrets.COPR_CONFIG }}
+        run: |
+          mkdir -p ~/.config
+          echo "$COPR_CONFIG" > ~/.config/copr
+          copr-cli buildscm --clone-url https://github.com/arabianq/pipewire-soundpad.git \
+                            --commit ${{ needs.prepare.outputs.tag }} \
+                            --spec packages/rpm/pwsp.spec \
+                            --name pwsp \
+                            arabianq/pipewire-soundpad
+
