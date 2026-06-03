@@ -13,7 +13,7 @@ Summary:         Lets you play audio files through your microphone (git version)
 License:         MIT
 
 URL:             https://github.com/arabianq/pipewire-soundpad
-VCS:             {{{ git_vcs }}}
+VCS:             {{{ git_dir_vcs }}}
 Source:          {{{ git_pack }}}
 
 
