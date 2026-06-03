@@ -14,7 +14,7 @@ License:         MIT
 
 URL:             https://github.com/arabianq/pipewire-soundpad
 VCS:             {{{ git_dir_vcs }}}
-Source:          {{{ git_pack }}}
+Source:          {{{ git_cwd_pack }}}
 
 
 BuildRequires: rust
@@ -47,7 +47,7 @@ GUI clients. This is the latest development (git) version.}
 %description %{_description}
 
 %prep
-{{{ git_setup_macro }}}
+{{{ git_cwd_setup_macro }}}
 
 
 %build
