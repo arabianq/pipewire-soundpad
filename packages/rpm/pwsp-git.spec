@@ -6,15 +6,16 @@
 %global debug_package %{nil}
 
 Name:            pwsp-git
-Version:         {{{ git_dir_version }}}
+Version:         {{{ git_version }}}
 Release:         1%{?dist}
 Summary:         Lets you play audio files through your microphone (git version)
 
 License:         MIT
 
 URL:             https://github.com/arabianq/pipewire-soundpad
-VCS:             {{{ git_dir_vcs }}}
-Source:          {{{ git_dir_pack }}}
+VCS:             {{{ git_vcs }}}
+Source:          {{{ git_pack }}}
+
 
 BuildRequires: rust
 BuildRequires: cargo
@@ -46,7 +47,8 @@ GUI clients. This is the latest development (git) version.}
 %description %{_description}
 
 %prep
-{{{ git_dir_setup_macro }}}
+{{{ git_setup_macro }}}
+
 
 %build
 %if 0%{?suse_version} && 0%{?suse_version} <= 1500
@@ -77,4 +79,5 @@ install -Dm644 pwsp-gui/assets/pwsp-daemon.service %{buildroot}/usr/lib/systemd/
 /usr/lib/systemd/user/pwsp-daemon.service
 
 %changelog
-{{{ git_dir_changelog }}}
+{{{ git_changelog }}}
+
