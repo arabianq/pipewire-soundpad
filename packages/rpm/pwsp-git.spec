@@ -6,7 +6,7 @@
 %global debug_package %{nil}
 
 Name:            pwsp-git
-Version:         {{{ git_version }}}
+Version:         {{{ git_dir_version }}}
 Release:         1%{?dist}
 Summary:         Lets you play audio files through your microphone (git version)
 
@@ -79,5 +79,5 @@ install -Dm644 pwsp-gui/assets/pwsp-daemon.service %{buildroot}/usr/lib/systemd/
 /usr/lib/systemd/user/pwsp-daemon.service
 
 %changelog
-{{{ git_changelog }}}
+{{{ git_dir_changelog }}}
 
