@@ -25,11 +25,17 @@ Source:          https://github.com/arabianq/pipewire-soundpad/archive/refs/tags
 BuildRequires: rust
 BuildRequires: cargo
 BuildRequires: pipewire-devel
+%if 0%{?suse_version}
+BuildRequires: alsa-devel
+BuildRequires: dbus-1-devel
+%else
 BuildRequires: alsa-lib-devel
+BuildRequires: dbus-devel
+%endif
 BuildRequires: clang-devel
 BuildRequires: cmake
-BuildRequires: dbus-devel
 BuildRequires: pkgconf-pkg-config
+
 
 %global _description %{expand:
 PWSP lets you play audio files through your microphone. Has both CLI and

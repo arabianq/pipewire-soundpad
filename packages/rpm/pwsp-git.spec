@@ -19,11 +19,17 @@ Source:          {{{ git_dir_pack }}}
 BuildRequires: rust
 BuildRequires: cargo
 BuildRequires: pipewire-devel
+%if 0%{?suse_version}
+BuildRequires: alsa-devel
+BuildRequires: dbus-1-devel
+%else
 BuildRequires: alsa-lib-devel
+BuildRequires: dbus-devel
+%endif
 BuildRequires: clang-devel
 BuildRequires: cmake
-BuildRequires: dbus-devel
 BuildRequires: pkgconf-pkg-config
+
 
 # Declare compatibility and conflicts with the stable package
 Provides:        pwsp = %{version}-%{release}
