@@ -6,7 +6,7 @@
 %global debug_package %{nil}
 
 Name:            pwsp-git
-Version:         {{{ git_dir_version name=v }}}
+Version:         {{{ git describe --tags --always | sed 's/^v//' | sed -E 's/-([0-9]+)-(g[0-9a-f]+)/^git.\1.\2/' }}}
 Release:         1%{?dist}
 Summary:         Lets you play audio files through your microphone (git version)
 
