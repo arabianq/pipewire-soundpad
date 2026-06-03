@@ -35,6 +35,10 @@ BuildRequires: dbus-devel
 BuildRequires: clang-devel
 BuildRequires: cmake
 BuildRequires: pkgconfig
+%if 0%{?suse_version} && 0%{?suse_version} <= 1500
+BuildRequires: gcc13-c++
+%endif
+
 
 
 %global _description %{expand:
@@ -47,7 +51,12 @@ GUI clients.}
 %autosetup -n pipewire-soundpad-%{version} -p1
 
 %build
+%if 0%{?suse_version} && 0%{?suse_version} <= 1500
+export CC=gcc-13
+export CXX=g++-13
+%endif
 cargo build --release --locked
+
 
 %install
 install -Dm755 target/release/pwsp-cli %{buildroot}%{_bindir}/pwsp-cli

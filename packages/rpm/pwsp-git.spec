@@ -29,6 +29,10 @@ BuildRequires: dbus-devel
 BuildRequires: clang-devel
 BuildRequires: cmake
 BuildRequires: pkgconfig
+%if 0%{?suse_version} && 0%{?suse_version} <= 1500
+BuildRequires: gcc13-c++
+%endif
+
 
 
 # Declare compatibility and conflicts with the stable package
@@ -45,7 +49,12 @@ GUI clients. This is the latest development (git) version.}
 {{{ git_dir_setup_macro }}}
 
 %build
+%if 0%{?suse_version} && 0%{?suse_version} <= 1500
+export CC=gcc-13
+export CXX=g++-13
+%endif
 cargo build --release --locked
+
 
 %install
 install -Dm755 target/release/pwsp-cli %{buildroot}%{_bindir}/pwsp-cli
