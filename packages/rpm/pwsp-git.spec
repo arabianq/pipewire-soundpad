@@ -28,7 +28,7 @@ BuildRequires: dbus-devel
 %endif
 BuildRequires: clang-devel
 BuildRequires: cmake
-BuildRequires: pkgconf-pkg-config
+BuildRequires: pkgconfig
 
 
 # Declare compatibility and conflicts with the stable package
