@@ -257,6 +257,5 @@ jobs:
           copr-cli buildscm --clone-url https://github.com/arabianq/pipewire-soundpad.git \
                             --commit ${{ needs.prepare.outputs.tag }} \
                             --spec packages/rpm/pwsp.spec \
-                            --name pwsp \
                             arabianq/pipewire-soundpad
 
