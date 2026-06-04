@@ -125,6 +125,17 @@ kz = "Ыстық пернені тағайындау"
 he = "הקצה מקש קיצור"
 pt-BR = "Definir tecla de atalho"
 
+[gui.context.files.copy_cli_command]
+en = "Copy PWSP-CLI command"
+ru = "Скопировать команду для PWSP-CLI"
+es = "Copiar comando de PWSP-CLI"
+fr = "Copier la commande PWSP-CLI"
+zh = "复制 PWSP-CLI 命令"
+ar = "نسخ أمر PWSP-CLI"
+kz = "PWSP-CLI командасын көшіру"
+he = "העתק פקודת PWSP-CLI"
+pt-BR = "Copiar comando PWSP-CLI"
+
 # ----------------
 # Settings
 # ----------------

@@ -412,6 +412,24 @@ impl SoundpadGui {
                     actions.push(FileAction::AssignHotkey(path.clone()));
                     ui.close();
                 }
+
+                ui.separator();
+
+                if ui
+                    .button(format!(
+                        "{} {}",
+                        ICON_FILE_COPY.codepoint,
+                        t!("gui.context.files.copy_cli_command")
+                    ))
+                    .clicked()
+                {
+                    ui.ctx().copy_text(format!(
+                        "pwsp-cli action play \"{}\"",
+                        path.to_string_lossy()
+                            .replace('\\', "\\\\")
+                            .replace('"', "\\\"")
+                    ));
+                }
             });
         });
     }
