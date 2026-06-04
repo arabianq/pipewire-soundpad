@@ -4,7 +4,13 @@ use crate::{
 };
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, fs, path::PathBuf};
+use std::{
+    cmp::Ordering,
+    collections::HashMap,
+    fs,
+    path::{Path, PathBuf},
+    time::SystemTime,
+};
 
 #[derive(Default, Clone, Serialize, Deserialize)]
 #[serde(default)]
@@ -45,6 +51,21 @@ pub enum PreferredTheme {
     Dark,
 }
 
+#[derive(Default, Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+pub enum SortOrder {
+    #[default]
+    AlphabeticalAsc,
+    AlphabeticalDesc,
+    DateModifiedNewest,
+    DateModifiedOldest,
+}
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(default)]
+pub struct DirSettings {
+    pub sort_order: SortOrder,
+}
+
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(default)]
 pub struct GuiConfig {
@@ -57,8 +78,36 @@ pub struct GuiConfig {
     pub pause_on_exit: bool,
 
     pub dirs: Vec<PathBuf>,
+    pub dirs_settings: HashMap<PathBuf, DirSettings>,
 
     pub preferred_theme: PreferredTheme,
+}
+
+impl SortOrder {
+    pub fn compare(&self, a: &Path, b: &Path) -> Ordering {
+        match self {
+            SortOrder::AlphabeticalAsc => a.cmp(b),
+            SortOrder::AlphabeticalDesc => b.cmp(a),
+            SortOrder::DateModifiedNewest => {
+                let a_time = fs::metadata(a)
+                    .and_then(|m| m.modified())
+                    .unwrap_or(SystemTime::UNIX_EPOCH);
+                let b_time = fs::metadata(b)
+                    .and_then(|m| m.modified())
+                    .unwrap_or(SystemTime::UNIX_EPOCH);
+                b_time.cmp(&a_time)
+            }
+            SortOrder::DateModifiedOldest => {
+                let a_time = fs::metadata(a)
+                    .and_then(|m| m.modified())
+                    .unwrap_or(SystemTime::UNIX_EPOCH);
+                let b_time = fs::metadata(b)
+                    .and_then(|m| m.modified())
+                    .unwrap_or(SystemTime::UNIX_EPOCH);
+                a_time.cmp(&b_time)
+            }
+        }
+    }
 }
 
 impl Default for GuiConfig {
@@ -75,11 +124,23 @@ impl Default for GuiConfig {
             dirs: vec![ensure_pwsp_audio_dir()],
 
             preferred_theme: PreferredTheme::System,
+            dirs_settings: HashMap::new(),
         }
     }
 }
 
 impl GuiConfig {
+    pub fn get_sort_order(&self, path: &Path) -> SortOrder {
+        let mut current = Some(path);
+        while let Some(p) = current {
+            if let Some(settings) = self.dirs_settings.get(p) {
+                return settings.sort_order;
+            }
+            current = p.parent();
+        }
+        SortOrder::default()
+    }
+
     pub fn save_to_file(&mut self) -> Result<()> {
         let config_path = get_config_path()?.join("gui.json");
 

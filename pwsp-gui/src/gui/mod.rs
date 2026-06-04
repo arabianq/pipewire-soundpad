@@ -159,6 +159,13 @@ impl SoundpadGui {
 
     pub fn get_filtered_files(&self) -> Vec<PathBuf> {
         let mut files: Vec<PathBuf> = self.app_state.listed_files.iter().cloned().collect();
+        let sort_order = self
+            .app_state
+            .current_dir
+            .as_ref()
+            .map(|d| self.config.get_sort_order(d))
+            .unwrap_or_default();
+
         files.sort_by(|a, b| {
             let a_is_dir = a.is_dir();
             let b_is_dir = b.is_dir();
@@ -167,7 +174,7 @@ impl SoundpadGui {
             } else if !a_is_dir && b_is_dir {
                 Ordering::Greater
             } else {
-                a.cmp(b)
+                sort_order.compare(a, b)
             }
         });
 
@@ -334,5 +341,19 @@ mod tests {
         let filtered_search = gui.get_filtered_files();
         assert_eq!(filtered_search.len(), 1);
         assert_eq!(filtered_search[0], file_c);
+
+        // Test sort order descending
+        gui.app_state.current_dir = Some(PathBuf::from("dummy_dir"));
+        gui.config.dirs_settings.insert(
+            PathBuf::from("dummy_dir"),
+            pwsp_lib::types::config::DirSettings {
+                sort_order: pwsp_lib::types::config::SortOrder::AlphabeticalDesc,
+            },
+        );
+        gui.app_state.search_query = String::new();
+        let filtered_desc = gui.get_filtered_files();
+        assert_eq!(filtered_desc.len(), 2);
+        assert_eq!(filtered_desc[0], file_c);
+        assert_eq!(filtered_desc[1], file_b);
     }
 }

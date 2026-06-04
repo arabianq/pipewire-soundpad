@@ -5,7 +5,10 @@ use egui::{
 };
 use egui_dnd::dnd;
 use egui_material_icons::icons::*;
-use pwsp_lib::types::{gui::AppState, gui::AudioPlayerState};
+use pwsp_lib::types::{
+    config::{GuiConfig, SortOrder},
+    gui::{AppState, AudioPlayerState},
+};
 use rust_i18n::t;
 use std::{cmp::Ordering, path::Path, path::PathBuf};
 
@@ -135,6 +138,65 @@ impl SoundpadGui {
                             {
                                 self.app_state.dirs_to_remove.insert(path.clone());
                             }
+
+                            ui.separator();
+                            ui.label(t!("gui.context.dirs.sort_by"));
+
+                            let current_order = self
+                                .config
+                                .dirs_settings
+                                .get(path)
+                                .map(|s| s.sort_order)
+                                .unwrap_or_default();
+                            let mut new_order = None;
+
+                            if ui
+                                .radio(
+                                    current_order == SortOrder::AlphabeticalAsc,
+                                    t!("gui.sort.alpha_asc"),
+                                )
+                                .clicked()
+                            {
+                                new_order = Some(SortOrder::AlphabeticalAsc);
+                            }
+                            if ui
+                                .radio(
+                                    current_order == SortOrder::AlphabeticalDesc,
+                                    t!("gui.sort.alpha_desc"),
+                                )
+                                .clicked()
+                            {
+                                new_order = Some(SortOrder::AlphabeticalDesc);
+                            }
+                            if ui
+                                .radio(
+                                    current_order == SortOrder::DateModifiedNewest,
+                                    t!("gui.sort.date_newest"),
+                                )
+                                .clicked()
+                            {
+                                new_order = Some(SortOrder::DateModifiedNewest);
+                            }
+                            if ui
+                                .radio(
+                                    current_order == SortOrder::DateModifiedOldest,
+                                    t!("gui.sort.date_oldest"),
+                                )
+                                .clicked()
+                            {
+                                new_order = Some(SortOrder::DateModifiedOldest);
+                            }
+
+                            if let Some(order) = new_order {
+                                self.config
+                                    .dirs_settings
+                                    .entry(path.clone())
+                                    .or_default()
+                                    .sort_order = order;
+                                self.config.save_to_file().ok();
+                                self.app_state.dir_cache.remove(path);
+                                self.open_dir(path);
+                            }
                         });
                     });
                 });
@@ -192,6 +254,7 @@ impl SoundpadGui {
                     Self::draw_tree_node(
                         ui,
                         entry_path,
+                        &self.config,
                         &mut self.app_state,
                         &self.audio_player_state,
                         &mut actions,
@@ -226,6 +289,7 @@ impl SoundpadGui {
     fn draw_tree_node_dir(
         ui: &mut Ui,
         path: std::path::PathBuf,
+        config: &GuiConfig,
         app_state: &mut AppState,
         audio_player_state: &AudioPlayerState,
         actions: &mut Vec<FileAction>,
@@ -247,6 +311,7 @@ impl SoundpadGui {
                             read.push(entry.path());
                         }
                     }
+                    let sort_order = config.get_sort_order(&path);
                     read.sort_by(|a, b| {
                         let a_is_dir = a.is_dir();
                         let b_is_dir = b.is_dir();
@@ -255,7 +320,7 @@ impl SoundpadGui {
                         } else if !a_is_dir && b_is_dir {
                             Ordering::Greater
                         } else {
-                            a.cmp(b)
+                            sort_order.compare(a, b)
                         }
                     });
                     app_state.dir_cache.insert(path.clone(), read.clone());
@@ -287,7 +352,7 @@ impl SoundpadGui {
                             }
                         }
                     }
-                    Self::draw_tree_node(ui, child, app_state, audio_player_state, actions);
+                    Self::draw_tree_node(ui, child, config, app_state, audio_player_state, actions);
                 }
             });
     }
@@ -437,12 +502,13 @@ impl SoundpadGui {
     fn draw_tree_node(
         ui: &mut Ui,
         path: std::path::PathBuf,
+        config: &GuiConfig,
         app_state: &mut AppState,
         audio_player_state: &AudioPlayerState,
         actions: &mut Vec<FileAction>,
     ) {
         if path.is_dir() {
-            Self::draw_tree_node_dir(ui, path, app_state, audio_player_state, actions);
+            Self::draw_tree_node_dir(ui, path, config, app_state, audio_player_state, actions);
         } else {
             Self::draw_tree_node_file(ui, path, app_state, audio_player_state, actions);
         }
