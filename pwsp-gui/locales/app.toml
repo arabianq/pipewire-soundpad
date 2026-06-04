@@ -70,6 +70,61 @@ kz = "Жою"
 he = "הסר"
 pt-BR = "Remover"
 
+[gui.context.dirs.sort_by]
+en = "Sort by"
+ru = "Сортировка"
+es = "Ordenar por"
+fr = "Trier par"
+zh = "排序方式"
+ar = "ترتيب حسب"
+kz = "Сұрыптау"
+he = "מיין לפי"
+pt-BR = "Ordenar por"
+
+[gui.sort.alpha_asc]
+en = "Alphabetical (A-Z)"
+ru = "По алфавиту (А-Я)"
+es = "Alfabético (A-Z)"
+fr = "Alphabétique (A-Z)"
+zh = "字母顺序 (A-Z)"
+ar = "أبجدي (A-Z)"
+kz = "Әліпби бойынша (А-Я)"
+he = "אלפביתי (A-Z)"
+pt-BR = "Alfabético (A-Z)"
+
+[gui.sort.alpha_desc]
+en = "Alphabetical (Z-A)"
+ru = "По алфавиту (Я-А)"
+es = "Alfabético (Z-A)"
+fr = "Alphabétique (Z-A)"
+zh = "字母顺序 (Z-A)"
+ar = "أبجدي (Z-A)"
+kz = "Әліпби бойынша (Я-А)"
+he = "אלפביתי (Z-A)"
+pt-BR = "Alfabético (Z-A)"
+
+[gui.sort.date_newest]
+en = "Date modified (Newest first)"
+ru = "Дата изменения (Сначала новые)"
+es = "Fecha de modificación (Más nuevo primero)"
+fr = "Date de modification (Plus récent en premier)"
+zh = "修改日期 (最新优先)"
+ar = "تاريخ التعديل (الأحدث أولاً)"
+kz = "Өзгертілген күні (Жаңалары бірінші)"
+he = "תאריך שינוי (החדש ביותר ראשון)"
+pt-BR = "Data de modificação (Mais novo primeiro)"
+
+[gui.sort.date_oldest]
+en = "Date modified (Oldest first)"
+ru = "Дата изменения (Сначала старые)"
+es = "Fecha de modificación (Más antiguo primero)"
+fr = "Date de modification (Plus ancien en premier)"
+zh = "修改日期 (最旧优先)"
+ar = "تاريخ التعديل (الأقدم أولاً)"
+kz = "Өзгертілген күні (Ескілері бірінші)"
+he = "תאריך שינוי (הישן ביותר ראשון)"
+pt-BR = "Data de modificação (Mais antigo primeiro)"
+
 [gui.context.files.play_solo]
 en = "Play Solo"
 ru = "Играть"
