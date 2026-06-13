@@ -28,7 +28,10 @@ async fn main() -> Result<()> {
     }
 
     get_daemon_config(); // Initialize daemon config
-    create_virtual_mic()?;
+
+    // Virtual mic object must be kept alive by some variable until daemon exits
+    let _virtual_mic = create_virtual_mic().await?;
+
     if let Err(err) = get_audio_player().await {
         eprintln!("Failed to initialize audio player: {}", err);
     } // Initialize audio player
