@@ -34,9 +34,6 @@ sys-locale.workspace = true
 reqwest.workspace = true
 percent-encoding.workspace = true
 
-[dev-dependencies]
-criterion = "0.8.2"
-
 [package.metadata.deb]
 assets = [
     [
@@ -70,7 +67,3 @@ assets = [
         "644",
     ],
 ]
-
-[[bench]]
-name = "bench"
-harness = false
