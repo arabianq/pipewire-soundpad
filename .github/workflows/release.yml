@@ -97,6 +97,9 @@ jobs:
         with:
           toolchain: 1.96.0
 
+      - name: Rust Cache
+        uses: swatinem/rust-cache@v2
+
       - name: Extract all binary names
         id: cargo-meta
         run: |
@@ -180,6 +183,9 @@ jobs:
         with:
           toolchain: 1.96.0
 
+      - name: Rust Cache
+        uses: swatinem/rust-cache@v2
+
       - name: Build all release binaries
         run: cargo build --release --locked
 
@@ -258,4 +264,3 @@ jobs:
                             --commit ${{ needs.prepare.outputs.tag }} \
                             --spec packages/rpm/pwsp.spec \
                             arabianq/pwsp
-
