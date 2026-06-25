@@ -1,8 +1,8 @@
 use crate::{
-    types::pipewire::{DeviceType, Terminate},
+    types::pipewire::DeviceType,
     utils::{
         daemon::get_daemon_config,
-        pipewire::{create_link, get_device, link_player_to_virtual_mic},
+        pipewire::{PwTerminator, create_link, get_device, link_player_to_virtual_mic},
     },
 };
 use anyhow::{Result, anyhow};
@@ -58,8 +58,8 @@ pub struct AudioPlayer {
     pub tracks: HashMap<u32, PlayingSound>,
     pub next_id: u32,
 
-    input_link_sender: Option<pipewire::channel::Sender<Terminate>>,
-    player_link_sender: Option<pipewire::channel::Sender<Terminate>>,
+    input_link_sender: Option<PwTerminator>,
+    player_link_sender: Option<PwTerminator>,
     pub input_device_name: Option<String>,
 
     pub volume: f32, // Master volume
@@ -108,24 +108,16 @@ impl AudioPlayer {
     }
 
     fn abort_link_thread(&mut self) {
-        if let Some(sender) = &self.input_link_sender {
-            if sender.send(Terminate {}).is_ok() {
-                println!("Sent terminate signal to input link thread");
-                self.input_link_sender = None;
-            } else {
-                eprintln!("Failed to send terminate signal to input link thread");
-            }
+        if self.input_link_sender.is_some() {
+            println!("Sent terminate signal to input link thread");
+            self.input_link_sender = None;
         }
     }
 
     fn abort_player_link_thread(&mut self) {
-        if let Some(sender) = &self.player_link_sender {
-            if sender.send(Terminate {}).is_ok() {
-                println!("Sent terminate signal to player link thread");
-                self.player_link_sender = None;
-            } else {
-                eprintln!("Failed to send terminate signal to player link thread");
-            }
+        if self.player_link_sender.is_some() {
+            println!("Sent terminate signal to player link thread");
+            self.player_link_sender = None;
         }
     }
 
@@ -187,7 +179,7 @@ impl AudioPlayer {
             return Ok(());
         };
 
-        self.input_link_sender = Some(create_link(output_fl, output_fr, input_fl, input_fr)?);
+        self.input_link_sender = Some(create_link(output_fl, output_fr, input_fl, input_fr).await?);
 
         Ok(())
     }
