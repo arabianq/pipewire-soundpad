@@ -6251,9 +6251,9 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/wasm-bindgen/wasm-bindgen-0.2.122.crate",
-        "sha256": "3ed04576f974d2b2fba0f38c51dbc5518011e38c36bf1143164be765528fd409",
-        "dest": "cargo/vendor/wasm-bindgen-0.2.122"
+        "url": "https://static.crates.io/crates/wasm-bindgen/wasm-bindgen-0.2.125.crate",
+        "sha256": "8ddb3f79143bced6de84270411622a2699cee572fc0875aeaf1e7867cf9fca1a",
+        "dest": "cargo/vendor/wasm-bindgen-0.2.125"
     },
     {
         "type": "inline",
