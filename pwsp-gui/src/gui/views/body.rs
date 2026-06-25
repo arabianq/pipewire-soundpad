@@ -308,7 +308,19 @@ impl SoundpadGui {
                     let mut read = Vec::new();
                     if let Ok(entries) = std::fs::read_dir(&path) {
                         for entry in entries.filter_map(|e| e.ok()) {
-                            read.push(entry.path());
+                            let child_path = entry.path();
+                            if !child_path.is_dir()
+                                && !crate::gui::SUPPORTED_EXTENSIONS.contains(
+                                    &child_path
+                                        .extension()
+                                        .unwrap_or_default()
+                                        .to_str()
+                                        .unwrap_or_default(),
+                                )
+                            {
+                                continue;
+                            }
+                            read.push(child_path);
                         }
                     }
                     let sort_order = config.get_sort_order(&path);
@@ -331,25 +343,14 @@ impl SoundpadGui {
                 let search_query = search_query.trim();
 
                 for child in children {
-                    if !child.is_dir() {
-                        if !crate::gui::SUPPORTED_EXTENSIONS.contains(
-                            &child
-                                .extension()
-                                .unwrap_or_default()
-                                .to_str()
-                                .unwrap_or_default(),
-                        ) {
+                    if !child.is_dir() && !search_query.is_empty() {
+                        let file_name = child
+                            .file_name()
+                            .unwrap_or_default()
+                            .to_string_lossy()
+                            .to_string();
+                        if !file_name.to_lowercase().contains(search_query) {
                             continue;
-                        }
-                        if !search_query.is_empty() {
-                            let file_name = child
-                                .file_name()
-                                .unwrap_or_default()
-                                .to_string_lossy()
-                                .to_string();
-                            if !file_name.to_lowercase().contains(search_query) {
-                                continue;
-                            }
                         }
                     }
                     Self::draw_tree_node(ui, child, config, app_state, audio_player_state, actions);

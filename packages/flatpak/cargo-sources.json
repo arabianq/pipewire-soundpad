@@ -2,8 +2,8 @@
     {
         "type": "git",
         "url": "https://github.com/rustaudio/cpal",
-        "commit": "004897773f17fa15afbc3270b7cca37cfbbdef2a",
-        "dest": "flatpak-cargo/git/cpal-0048977"
+        "commit": "6ea4fcd74e002cfe660158a33014d7bb499de94c",
+        "dest": "flatpak-cargo/git/cpal-6ea4fcd"
     },
     {
         "type": "git",
@@ -14,14 +14,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/accesskit/accesskit-0.24.0.crate",
-        "sha256": "5351dcebb14b579ccab05f288596b2ae097005be7ee50a7c3d4ca9d0d5a66f6a",
-        "dest": "cargo/vendor/accesskit-0.24.0"
+        "url": "https://static.crates.io/crates/accesskit/accesskit-0.24.1.crate",
+        "sha256": "d3b7f7f85a7e5f68090000ed7622545829afd484d210358702ae4cb97dd0c320",
+        "dest": "cargo/vendor/accesskit-0.24.1"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"5351dcebb14b579ccab05f288596b2ae097005be7ee50a7c3d4ca9d0d5a66f6a\", \"files\": {}}",
-        "dest": "cargo/vendor/accesskit-0.24.0",
+        "contents": "{\"package\": \"d3b7f7f85a7e5f68090000ed7622545829afd484d210358702ae4cb97dd0c320\", \"files\": {}}",
+        "dest": "cargo/vendor/accesskit-0.24.1",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -495,14 +495,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/bitflags/bitflags-2.12.1.crate",
-        "sha256": "84d7ced0ae9557296835c32bf1b1e02b44c746701f898460fb000d7eaa84f00a",
-        "dest": "cargo/vendor/bitflags-2.12.1"
+        "url": "https://static.crates.io/crates/bitflags/bitflags-2.13.0.crate",
+        "sha256": "b4388bee8683e3d04af747c73422af53102d2bd24d9eadb6cbc100baef4b43f8",
+        "dest": "cargo/vendor/bitflags-2.13.0"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"84d7ced0ae9557296835c32bf1b1e02b44c746701f898460fb000d7eaa84f00a\", \"files\": {}}",
-        "dest": "cargo/vendor/bitflags-2.12.1",
+        "contents": "{\"package\": \"b4388bee8683e3d04af747c73422af53102d2bd24d9eadb6cbc100baef4b43f8\", \"files\": {}}",
+        "dest": "cargo/vendor/bitflags-2.13.0",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -690,14 +690,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/cc/cc-1.2.63.crate",
-        "sha256": "556e016178bb5662a08681bbe0f00f8e17631781a4dfc8c45e466e4b185ec27f",
-        "dest": "cargo/vendor/cc-1.2.63"
+        "url": "https://static.crates.io/crates/cc/cc-1.2.64.crate",
+        "sha256": "dad887fd958be91b5098c0248def011f4523ab786cd411be668777e55063501f",
+        "dest": "cargo/vendor/cc-1.2.64"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"556e016178bb5662a08681bbe0f00f8e17631781a4dfc8c45e466e4b185ec27f\", \"files\": {}}",
-        "dest": "cargo/vendor/cc-1.2.63",
+        "contents": "{\"package\": \"dad887fd958be91b5098c0248def011f4523ab786cd411be668777e55063501f\", \"files\": {}}",
+        "dest": "cargo/vendor/cc-1.2.64",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -1028,12 +1028,12 @@
     {
         "type": "shell",
         "commands": [
-            "cp -r --reflink=auto \"flatpak-cargo/git/cpal-0048977/.\" \"cargo/vendor/cpal\""
+            "cp -r --reflink=auto \"flatpak-cargo/git/cpal-6ea4fcd/.\" \"cargo/vendor/cpal\""
         ]
     },
     {
         "type": "inline",
-        "contents": "[package]\nname = \"cpal\"\nversion = \"0.18.0\"\ndescription = \"Low-level cross-platform audio I/O library.\"\nrepository = \"https://github.com/RustAudio/cpal\"\ndocumentation = \"https://docs.rs/cpal\"\nlicense = \"Apache-2.0\"\nkeywords = [\"audio\", \"sound\"]\nedition = \"2021\"\nrust-version = \"1.85\"\n\n[package.metadata.docs.rs]\nall-features = true\nrustdoc-args = [\"--cfg\", \"docsrs\"]\ntargets = [\"x86_64-unknown-linux-gnu\", \"x86_64-pc-windows-msvc\", \"x86_64-apple-darwin\", \"aarch64-apple-darwin\", \"aarch64-apple-ios\", \"wasm32-unknown-unknown\", \"aarch64-linux-android\", \"x86_64-unknown-freebsd\", \"x86_64-unknown-netbsd\", \"x86_64-unknown-dragonfly\"]\n\n[badges.maintenance]\nstatus = \"actively-developed\"\n\n[features]\ndefault = []\nrealtime = [\"dep:audio_thread_priority\", \"dep:alsa-sys\"]\nrealtime-dbus = [\"realtime\", \"audio_thread_priority/with_dbus\"]\nasio = [\"dep:asio-sys\", \"dep:num-traits\"]\naudioworklet = [\"wasm-bindgen\", \"web-sys/Blob\", \"web-sys/BlobPropertyBag\", \"web-sys/Url\", \"web-sys/AudioWorklet\", \"web-sys/AudioWorkletNode\", \"web-sys/AudioWorkletNodeOptions\"]\ncustom = []\njack = [\"dep:jack\"]\npipewire = [\"dep:pipewire\"]\npulseaudio = [\"dep:pulseaudio\", \"dep:futures\"]\nwasm-bindgen = [\"dep:wasm-bindgen\", \"dep:wasm-bindgen-futures\"]\n\n[dependencies]\ndasp_sample = \"0.11\"\n\n[dev-dependencies]\nanyhow = \"1.0\"\nhound = \"3.5\"\nringbuf = \"0.4\"\n\n[dev-dependencies.clap]\nversion = \">=4.6, <5\"\nfeatures = [\"derive\"]\n\n[target.\"cfg(target_os = \\\"windows\\\")\".dependencies.windows-core]\nversion = \">=0.61, <=0.62\"\n\n[target.\"cfg(target_os = \\\"windows\\\")\".dependencies.windows]\nversion = \">=0.61, <=0.62\"\nfeatures = [\"Win32_Media\", \"Win32_Media_Audio\", \"Win32_Foundation\", \"Win32_Devices_Properties\", \"Win32_Media_KernelStreaming\", \"Win32_System_Com_StructuredStorage\", \"Win32_System_Threading\", \"Win32_System_Performance\", \"Win32_Security\", \"Win32_System_SystemServices\", \"Win32_System_Variant\", \"Win32_Media_Multimedia\", \"Win32_UI_Shell_PropertiesSystem\"]\n\n[target.\"cfg(target_os = \\\"windows\\\")\".dependencies.audio_thread_priority]\nversion = \"0.35\"\noptional = true\ndefault-features = false\n\n[target.\"cfg(target_os = \\\"windows\\\")\".dependencies.asio-sys]\nversion = \"0.3.0\"\npath = \"asio-sys\"\noptional = true\n\n[target.\"cfg(target_os = \\\"windows\\\")\".dependencies.num-traits]\nversion = \"0.2\"\noptional = true\n\n[target.\"cfg(target_os = \\\"windows\\\")\".dependencies.jack]\nversion = \"0.13.5\"\noptional = true\n\n[target.\"cfg(any(target_os = \\\"linux\\\", target_os = \\\"dragonfly\\\", target_os = \\\"freebsd\\\", target_os = \\\"netbsd\\\"))\".dependencies]\nalsa = \"0.11\"\nlibc = \"0.2\"\n\n[target.\"cfg(any(target_os = \\\"linux\\\", target_os = \\\"dragonfly\\\", target_os = \\\"freebsd\\\", target_os = \\\"netbsd\\\"))\".dependencies.alsa-sys]\nversion = \"0.4\"\noptional = true\n\n[target.\"cfg(any(target_os = \\\"linux\\\", target_os = \\\"dragonfly\\\", target_os = \\\"freebsd\\\", target_os = \\\"netbsd\\\"))\".dependencies.audio_thread_priority]\nversion = \"0.35\"\noptional = true\ndefault-features = false\n\n[target.\"cfg(any(target_os = \\\"linux\\\", target_os = \\\"dragonfly\\\", target_os = \\\"freebsd\\\", target_os = \\\"netbsd\\\"))\".dependencies.jack]\nversion = \"0.13.5\"\noptional = true\n\n[target.\"cfg(any(target_os = \\\"linux\\\", target_os = \\\"dragonfly\\\", target_os = \\\"freebsd\\\", target_os = \\\"netbsd\\\"))\".dependencies.pulseaudio]\nversion = \"0.3\"\noptional = true\n\n[target.\"cfg(any(target_os = \\\"linux\\\", target_os = \\\"dragonfly\\\", target_os = \\\"freebsd\\\", target_os = \\\"netbsd\\\"))\".dependencies.futures]\nversion = \"0.3\"\noptional = true\n\n[target.\"cfg(any(target_os = \\\"linux\\\", target_os = \\\"dragonfly\\\", target_os = \\\"freebsd\\\", target_os = \\\"netbsd\\\"))\".dependencies.pipewire]\nversion = \"0.10\"\noptional = true\nfeatures = [\"v0_3_53\"]\n\n[target.\"cfg(target_vendor = \\\"apple\\\")\".dependencies]\nmach2 = \"0.6\"\n\n[target.\"cfg(target_vendor = \\\"apple\\\")\".dependencies.coreaudio-rs]\nversion = \"0.14.2\"\ndefault-features = false\nfeatures = [\"core_audio\", \"audio_toolbox\"]\n\n[target.\"cfg(target_vendor = \\\"apple\\\")\".dependencies.objc2-core-audio]\nversion = \"0.3\"\ndefault-features = false\nfeatures = [\"std\", \"AudioHardware\", \"AudioHardwareDeprecated\", \"objc2\", \"objc2-foundation\"]\n\n[target.\"cfg(target_vendor = \\\"apple\\\")\".dependencies.objc2-audio-toolbox]\nversion = \"0.3\"\ndefault-features = false\nfeatures = [\"std\", \"AUComponent\", \"AudioUnitProperties\"]\n\n[target.\"cfg(target_vendor = \\\"apple\\\")\".dependencies.objc2-core-audio-types]\nversion = \"0.3\"\ndefault-features = false\nfeatures = [\"std\", \"CoreAudioBaseTypes\"]\n\n[target.\"cfg(target_vendor = \\\"apple\\\")\".dependencies.objc2-core-foundation]\nversion = \"0.3\"\n\n[target.\"cfg(target_vendor = \\\"apple\\\")\".dependencies.objc2-foundation]\nversion = \"0.3\"\ndefault-features = false\nfeatures = [\"std\", \"NSArray\", \"NSString\", \"NSValue\"]\n\n[target.\"cfg(target_vendor = \\\"apple\\\")\".dependencies.objc2]\nversion = \"0.6\"\n\n[target.\"cfg(target_os = \\\"macos\\\")\".dependencies.jack]\nversion = \"0.13.5\"\noptional = true\n\n[target.\"cfg(any(target_os = \\\"ios\\\", target_os = \\\"tvos\\\"))\".dependencies]\nblock2 = \"0.6\"\n\n[target.\"cfg(any(target_os = \\\"ios\\\", target_os = \\\"tvos\\\"))\".dependencies.objc2-foundation]\nversion = \"0.3\"\nfeatures = [\"block2\", \"NSDictionary\", \"NSNotification\", \"NSOperation\"]\n\n[target.\"cfg(any(target_os = \\\"ios\\\", target_os = \\\"tvos\\\"))\".dependencies.objc2-avf-audio]\nversion = \"0.3\"\ndefault-features = false\nfeatures = [\"std\", \"AVAudioSession\", \"AVAudioSessionTypes\"]\n\n[target.\"cfg(all(target_arch = \\\"wasm32\\\", target_os = \\\"unknown\\\"))\".dependencies.wasm-bindgen]\nversion = \"0.2\"\noptional = true\n\n[target.\"cfg(all(target_arch = \\\"wasm32\\\", target_os = \\\"unknown\\\"))\".dependencies.wasm-bindgen-futures]\nversion = \"0.4\"\noptional = true\n\n[target.\"cfg(all(target_arch = \\\"wasm32\\\", target_os = \\\"unknown\\\"))\".dependencies.js-sys]\nversion = \"0.3\"\n\n[target.\"cfg(all(target_arch = \\\"wasm32\\\", target_os = \\\"unknown\\\"))\".dependencies.web-sys]\nversion = \"0.3\"\nfeatures = [\"AudioContext\", \"AudioContextOptions\", \"AudioBuffer\", \"AudioBufferSourceNode\", \"AudioNode\", \"AudioDestinationNode\", \"Window\", \"AudioContextState\"]\n\n[target.\"cfg(target_os = \\\"android\\\")\".dependencies]\nndk-context = \"0.1\"\njni = \"0.22\"\nlibc = \"0.2\"\nnum-derive = \"0.4\"\nnum-traits = \"0.2\"\n\n[target.\"cfg(target_os = \\\"android\\\")\".dependencies.audio_thread_priority]\nversion = \"0.35\"\noptional = true\ndefault-features = false\n\n[target.\"cfg(target_os = \\\"android\\\")\".dependencies.ndk]\nversion = \"0.9\"\ndefault-features = false\nfeatures = [\"audio\", \"api-level-26\"]\n\n[[example]]\nname = \"beep\"\n\n[[example]]\nname = \"enumerate\"\n\n[[example]]\nname = \"feedback\"\n\n[[example]]\nname = \"record_wav\"\n\n[[example]]\nname = \"synth_tones\"\n",
+        "contents": "[package]\nname = \"cpal\"\nversion = \"0.18.1\"\ndescription = \"Low-level cross-platform audio I/O library.\"\nrepository = \"https://github.com/RustAudio/cpal\"\ndocumentation = \"https://docs.rs/cpal\"\nlicense = \"Apache-2.0\"\nkeywords = [\"audio\", \"sound\"]\nedition = \"2021\"\nrust-version = \"1.85\"\n\n[package.metadata.docs.rs]\nfeatures = [\"asio\", \"audioworklet\", \"custom\", \"jack\", \"pulseaudio\", \"realtime\", \"realtime-dbus\", \"wasm-bindgen\"]\nrustdoc-args = [\"--cfg\", \"docsrs\"]\ntargets = [\"x86_64-unknown-linux-gnu\", \"x86_64-pc-windows-msvc\", \"x86_64-apple-darwin\", \"aarch64-apple-darwin\", \"aarch64-apple-ios\", \"wasm32-unknown-unknown\", \"aarch64-linux-android\", \"x86_64-unknown-freebsd\", \"x86_64-unknown-netbsd\", \"x86_64-unknown-dragonfly\"]\n\n[badges.maintenance]\nstatus = \"actively-developed\"\n\n[features]\ndefault = []\nrealtime = [\"dep:audio_thread_priority\", \"dep:alsa-sys\"]\nrealtime-dbus = [\"realtime\", \"audio_thread_priority/with_dbus\"]\nasio = [\"dep:asio-sys\", \"dep:num-traits\"]\naudioworklet = [\"wasm-bindgen\", \"web-sys/Blob\", \"web-sys/BlobPropertyBag\", \"web-sys/Url\", \"web-sys/AudioWorklet\", \"web-sys/AudioWorkletNode\", \"web-sys/AudioWorkletNodeOptions\"]\ncustom = []\njack = [\"dep:jack\"]\npipewire = [\"dep:pipewire\"]\npulseaudio = [\"dep:pulseaudio\", \"dep:futures\"]\nwasm-bindgen = [\"dep:wasm-bindgen\", \"dep:wasm-bindgen-futures\"]\n\n[dependencies]\ndasp_sample = \"0.11\"\n\n[dev-dependencies]\nanyhow = \"1.0\"\nhound = \"3.5\"\nringbuf = \"0.4\"\n\n[dev-dependencies.clap]\nversion = \">=4.6, <5\"\nfeatures = [\"derive\"]\n\n[target.\"cfg(target_os = \\\"windows\\\")\".dependencies]\nwindows-core = \"0.62\"\n\n[target.\"cfg(target_os = \\\"windows\\\")\".dependencies.windows]\nversion = \"0.62\"\nfeatures = [\"Win32_Media\", \"Win32_Media_Audio\", \"Win32_Foundation\", \"Win32_Devices_Properties\", \"Win32_Media_KernelStreaming\", \"Win32_System_Com_StructuredStorage\", \"Win32_System_Threading\", \"Win32_System_Performance\", \"Win32_Security\", \"Win32_System_SystemServices\", \"Win32_System_Variant\", \"Win32_Media_Multimedia\", \"Win32_UI_Shell_PropertiesSystem\"]\n\n[target.\"cfg(target_os = \\\"windows\\\")\".dependencies.audio_thread_priority]\nversion = \"0.35\"\noptional = true\ndefault-features = false\n\n[target.\"cfg(target_os = \\\"windows\\\")\".dependencies.asio-sys]\nversion = \"0.3.0\"\npath = \"asio-sys\"\noptional = true\n\n[target.\"cfg(target_os = \\\"windows\\\")\".dependencies.num-traits]\nversion = \"0.2\"\noptional = true\n\n[target.\"cfg(target_os = \\\"windows\\\")\".dependencies.jack]\nversion = \"0.13.5\"\noptional = true\n\n[target.\"cfg(any(target_os = \\\"linux\\\", target_os = \\\"dragonfly\\\", target_os = \\\"freebsd\\\", target_os = \\\"netbsd\\\"))\".dependencies]\nalsa = \"0.11\"\nlibc = \"0.2\"\n\n[target.\"cfg(any(target_os = \\\"linux\\\", target_os = \\\"dragonfly\\\", target_os = \\\"freebsd\\\", target_os = \\\"netbsd\\\"))\".dependencies.alsa-sys]\nversion = \"0.4\"\noptional = true\n\n[target.\"cfg(any(target_os = \\\"linux\\\", target_os = \\\"dragonfly\\\", target_os = \\\"freebsd\\\", target_os = \\\"netbsd\\\"))\".dependencies.audio_thread_priority]\nversion = \"0.35\"\noptional = true\ndefault-features = false\n\n[target.\"cfg(any(target_os = \\\"linux\\\", target_os = \\\"dragonfly\\\", target_os = \\\"freebsd\\\", target_os = \\\"netbsd\\\"))\".dependencies.jack]\nversion = \"0.13.5\"\noptional = true\n\n[target.\"cfg(any(target_os = \\\"linux\\\", target_os = \\\"dragonfly\\\", target_os = \\\"freebsd\\\", target_os = \\\"netbsd\\\"))\".dependencies.pulseaudio]\nversion = \"0.3\"\noptional = true\n\n[target.\"cfg(any(target_os = \\\"linux\\\", target_os = \\\"dragonfly\\\", target_os = \\\"freebsd\\\", target_os = \\\"netbsd\\\"))\".dependencies.futures]\nversion = \"0.3\"\noptional = true\n\n[target.\"cfg(any(target_os = \\\"linux\\\", target_os = \\\"dragonfly\\\", target_os = \\\"freebsd\\\", target_os = \\\"netbsd\\\"))\".dependencies.pipewire]\nversion = \"0.10\"\noptional = true\nfeatures = [\"v0_3_53\"]\n\n[target.\"cfg(target_vendor = \\\"apple\\\")\".dependencies]\nmach2 = \"0.6\"\n\n[target.\"cfg(target_vendor = \\\"apple\\\")\".dependencies.coreaudio-rs]\nversion = \"0.14.2\"\ndefault-features = false\nfeatures = [\"core_audio\", \"audio_toolbox\"]\n\n[target.\"cfg(target_vendor = \\\"apple\\\")\".dependencies.objc2-core-audio]\nversion = \"0.3\"\ndefault-features = false\nfeatures = [\"std\", \"AudioHardware\", \"AudioHardwareDeprecated\", \"objc2\", \"objc2-foundation\"]\n\n[target.\"cfg(target_vendor = \\\"apple\\\")\".dependencies.objc2-audio-toolbox]\nversion = \"0.3\"\ndefault-features = false\nfeatures = [\"std\", \"AUComponent\", \"AudioUnitProperties\"]\n\n[target.\"cfg(target_vendor = \\\"apple\\\")\".dependencies.objc2-core-audio-types]\nversion = \"0.3\"\ndefault-features = false\nfeatures = [\"std\", \"CoreAudioBaseTypes\"]\n\n[target.\"cfg(target_vendor = \\\"apple\\\")\".dependencies.objc2-core-foundation]\nversion = \"0.3\"\n\n[target.\"cfg(target_vendor = \\\"apple\\\")\".dependencies.objc2-foundation]\nversion = \"0.3\"\ndefault-features = false\nfeatures = [\"std\", \"NSArray\", \"NSString\", \"NSValue\"]\n\n[target.\"cfg(target_vendor = \\\"apple\\\")\".dependencies.objc2]\nversion = \"0.6\"\n\n[target.\"cfg(target_os = \\\"macos\\\")\".dependencies.jack]\nversion = \"0.13.5\"\noptional = true\n\n[target.\"cfg(any(target_os = \\\"ios\\\", target_os = \\\"tvos\\\"))\".dependencies]\nblock2 = \"0.6\"\n\n[target.\"cfg(any(target_os = \\\"ios\\\", target_os = \\\"tvos\\\"))\".dependencies.objc2-foundation]\nversion = \"0.3\"\nfeatures = [\"block2\", \"NSDictionary\", \"NSNotification\", \"NSOperation\"]\n\n[target.\"cfg(any(target_os = \\\"ios\\\", target_os = \\\"tvos\\\"))\".dependencies.objc2-avf-audio]\nversion = \"0.3\"\ndefault-features = false\nfeatures = [\"std\", \"AVAudioSession\", \"AVAudioSessionTypes\"]\n\n[target.\"cfg(all(target_arch = \\\"wasm32\\\", target_os = \\\"unknown\\\"))\".dependencies.wasm-bindgen]\nversion = \"0.2\"\noptional = true\n\n[target.\"cfg(all(target_arch = \\\"wasm32\\\", target_os = \\\"unknown\\\"))\".dependencies.wasm-bindgen-futures]\nversion = \"0.4\"\noptional = true\n\n[target.\"cfg(all(target_arch = \\\"wasm32\\\", target_os = \\\"unknown\\\"))\".dependencies.js-sys]\nversion = \"0.3\"\n\n[target.\"cfg(all(target_arch = \\\"wasm32\\\", target_os = \\\"unknown\\\"))\".dependencies.web-sys]\nversion = \"0.3\"\nfeatures = [\"AudioContext\", \"AudioContextOptions\", \"AudioBuffer\", \"AudioBufferSourceNode\", \"AudioNode\", \"AudioDestinationNode\", \"Window\", \"AudioContextState\"]\n\n[target.\"cfg(target_os = \\\"android\\\")\".dependencies]\nndk-context = \"0.1\"\njni = \"0.22\"\nlibc = \"0.2\"\nnum-derive = \"0.4\"\nnum-traits = \"0.2\"\n\n[target.\"cfg(target_os = \\\"android\\\")\".dependencies.audio_thread_priority]\nversion = \"0.35\"\noptional = true\ndefault-features = false\n\n[target.\"cfg(target_os = \\\"android\\\")\".dependencies.ndk]\nversion = \"0.9\"\ndefault-features = false\nfeatures = [\"audio\", \"api-level-26\"]\n\n[[example]]\nname = \"beep\"\n\n[[example]]\nname = \"enumerate\"\n\n[[example]]\nname = \"feedback\"\n\n[[example]]\nname = \"record_wav\"\n\n[[example]]\nname = \"synth_tones\"\n",
         "dest": "cargo/vendor/cpal",
         "dest-filename": "Cargo.toml"
     },
@@ -2242,14 +2242,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/http/http-1.4.1.crate",
-        "sha256": "8be7462df143984c4598a256ef469b251d7d7f9e271135073e78fc535414f3d0",
-        "dest": "cargo/vendor/http-1.4.1"
+        "url": "https://static.crates.io/crates/http/http-1.4.2.crate",
+        "sha256": "6970f50e31d6fc17d3fa27329444bfa74e196cf62e95052a3f6fee181dba6425",
+        "dest": "cargo/vendor/http-1.4.2"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"8be7462df143984c4598a256ef469b251d7d7f9e271135073e78fc535414f3d0\", \"files\": {}}",
-        "dest": "cargo/vendor/http-1.4.1",
+        "contents": "{\"package\": \"6970f50e31d6fc17d3fa27329444bfa74e196cf62e95052a3f6fee181dba6425\", \"files\": {}}",
+        "dest": "cargo/vendor/http-1.4.2",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -2450,14 +2450,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/ignore/ignore-0.4.25.crate",
-        "sha256": "d3d782a365a015e0f5c04902246139249abf769125006fbe7649e2ee88169b4a",
-        "dest": "cargo/vendor/ignore-0.4.25"
+        "url": "https://static.crates.io/crates/ignore/ignore-0.4.26.crate",
+        "sha256": "b915661dd01db3f05050265b2477bcc6527b3792388e2749b41623cc592be67d",
+        "dest": "cargo/vendor/ignore-0.4.26"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"d3d782a365a015e0f5c04902246139249abf769125006fbe7649e2ee88169b4a\", \"files\": {}}",
-        "dest": "cargo/vendor/ignore-0.4.25",
+        "contents": "{\"package\": \"b915661dd01db3f05050265b2477bcc6527b3792388e2749b41623cc592be67d\", \"files\": {}}",
+        "dest": "cargo/vendor/ignore-0.4.26",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -2671,14 +2671,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/js-sys/js-sys-0.3.99.crate",
-        "sha256": "142bc4740e452c1e57ade0cbc129f139c9093e354346f0872ef985f4f5cf5f11",
-        "dest": "cargo/vendor/js-sys-0.3.99"
+        "url": "https://static.crates.io/crates/js-sys/js-sys-0.3.102.crate",
+        "sha256": "03d04c30968dffe80775bd4d7fb676131cd04a1fb46d2686dbffbaec2d9dfd31",
+        "dest": "cargo/vendor/js-sys-0.3.102"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"142bc4740e452c1e57ade0cbc129f139c9093e354346f0872ef985f4f5cf5f11\", \"files\": {}}",
-        "dest": "cargo/vendor/js-sys-0.3.99",
+        "contents": "{\"package\": \"03d04c30968dffe80775bd4d7fb676131cd04a1fb46d2686dbffbaec2d9dfd31\", \"files\": {}}",
+        "dest": "cargo/vendor/js-sys-0.3.102",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -2944,14 +2944,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/memchr/memchr-2.8.1.crate",
-        "sha256": "6b947ae49db0d222b1dbc6b113ce7248a3fc3a6ca21b696717bfc000ba4484d8",
-        "dest": "cargo/vendor/memchr-2.8.1"
+        "url": "https://static.crates.io/crates/memchr/memchr-2.8.2.crate",
+        "sha256": "88904434abc2901f197fe8cc55f0445e7ded921dba5911dad2e2b39b48e663c4",
+        "dest": "cargo/vendor/memchr-2.8.2"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"6b947ae49db0d222b1dbc6b113ce7248a3fc3a6ca21b696717bfc000ba4484d8\", \"files\": {}}",
-        "dest": "cargo/vendor/memchr-2.8.1",
+        "contents": "{\"package\": \"88904434abc2901f197fe8cc55f0445e7ded921dba5911dad2e2b39b48e663c4\", \"files\": {}}",
+        "dest": "cargo/vendor/memchr-2.8.2",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -4413,14 +4413,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/regex/regex-1.12.3.crate",
-        "sha256": "e10754a14b9137dd7b1e3e5b0493cc9171fdd105e0ab477f51b72e7f3ac0e276",
-        "dest": "cargo/vendor/regex-1.12.3"
+        "url": "https://static.crates.io/crates/regex/regex-1.12.4.crate",
+        "sha256": "f1292b7759ae1cb9ec195452d1390a074f0cd8541ab7a5a8c31cd6db45d4a6ba",
+        "dest": "cargo/vendor/regex-1.12.4"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"e10754a14b9137dd7b1e3e5b0493cc9171fdd105e0ab477f51b72e7f3ac0e276\", \"files\": {}}",
-        "dest": "cargo/vendor/regex-1.12.3",
+        "contents": "{\"package\": \"f1292b7759ae1cb9ec195452d1390a074f0cd8541ab7a5a8c31cd6db45d4a6ba\", \"files\": {}}",
+        "dest": "cargo/vendor/regex-1.12.4",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -4439,14 +4439,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/regex-syntax/regex-syntax-0.8.10.crate",
-        "sha256": "dc897dd8d9e8bd1ed8cdad82b5966c3e0ecae09fb1907d58efaa013543185d0a",
-        "dest": "cargo/vendor/regex-syntax-0.8.10"
+        "url": "https://static.crates.io/crates/regex-syntax/regex-syntax-0.8.11.crate",
+        "sha256": "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4",
+        "dest": "cargo/vendor/regex-syntax-0.8.11"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"dc897dd8d9e8bd1ed8cdad82b5966c3e0ecae09fb1907d58efaa013543185d0a\", \"files\": {}}",
-        "dest": "cargo/vendor/regex-syntax-0.8.10",
+        "contents": "{\"package\": \"d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4\", \"files\": {}}",
+        "dest": "cargo/vendor/regex-syntax-0.8.11",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -5107,14 +5107,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/smallvec/smallvec-1.15.1.crate",
-        "sha256": "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03",
-        "dest": "cargo/vendor/smallvec-1.15.1"
+        "url": "https://static.crates.io/crates/smallvec/smallvec-1.15.2.crate",
+        "sha256": "8ed6a63f02c8539c91a8685a86f4099661ba3da017932f6ebbea6de3f0fa7c90",
+        "dest": "cargo/vendor/smallvec-1.15.2"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03\", \"files\": {}}",
-        "dest": "cargo/vendor/smallvec-1.15.1",
+        "contents": "{\"package\": \"8ed6a63f02c8539c91a8685a86f4099661ba3da017932f6ebbea6de3f0fa7c90\", \"files\": {}}",
+        "dest": "cargo/vendor/smallvec-1.15.2",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -6134,14 +6134,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/uuid/uuid-1.23.2.crate",
-        "sha256": "d258b83ceec21034727ecee8c382cfa6c3e133699b0742c64571814fb420c9f7",
-        "dest": "cargo/vendor/uuid-1.23.2"
+        "url": "https://static.crates.io/crates/uuid/uuid-1.23.3.crate",
+        "sha256": "144d6b123cef80b301b8f72a9e2ca4370ddec21950d0a103dd22c437006d2db7",
+        "dest": "cargo/vendor/uuid-1.23.3"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"d258b83ceec21034727ecee8c382cfa6c3e133699b0742c64571814fb420c9f7\", \"files\": {}}",
-        "dest": "cargo/vendor/uuid-1.23.2",
+        "contents": "{\"package\": \"144d6b123cef80b301b8f72a9e2ca4370ddec21950d0a103dd22c437006d2db7\", \"files\": {}}",
+        "dest": "cargo/vendor/uuid-1.23.3",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -6238,79 +6238,79 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/wasip2/wasip2-1.0.3+wasi-0.2.9.crate",
-        "sha256": "20064672db26d7cdc89c7798c48a0fdfac8213434a1186e5ef29fd560ae223d6",
-        "dest": "cargo/vendor/wasip2-1.0.3+wasi-0.2.9"
+        "url": "https://static.crates.io/crates/wasip2/wasip2-1.0.4+wasi-0.2.12.crate",
+        "sha256": "b67efb37e106e55ce722a510d6b5f9c17f083e5fc79afc2badeb12cc313d9487",
+        "dest": "cargo/vendor/wasip2-1.0.4+wasi-0.2.12"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"20064672db26d7cdc89c7798c48a0fdfac8213434a1186e5ef29fd560ae223d6\", \"files\": {}}",
-        "dest": "cargo/vendor/wasip2-1.0.3+wasi-0.2.9",
+        "contents": "{\"package\": \"b67efb37e106e55ce722a510d6b5f9c17f083e5fc79afc2badeb12cc313d9487\", \"files\": {}}",
+        "dest": "cargo/vendor/wasip2-1.0.4+wasi-0.2.12",
         "dest-filename": ".cargo-checksum.json"
     },
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/wasm-bindgen/wasm-bindgen-0.2.122.crate",
-        "sha256": "3ed04576f974d2b2fba0f38c51dbc5518011e38c36bf1143164be765528fd409",
-        "dest": "cargo/vendor/wasm-bindgen-0.2.122"
+        "url": "https://static.crates.io/crates/wasm-bindgen/wasm-bindgen-0.2.125.crate",
+        "sha256": "8ddb3f79143bced6de84270411622a2699cee572fc0875aeaf1e7867cf9fca1a",
+        "dest": "cargo/vendor/wasm-bindgen-0.2.125"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"3ed04576f974d2b2fba0f38c51dbc5518011e38c36bf1143164be765528fd409\", \"files\": {}}",
-        "dest": "cargo/vendor/wasm-bindgen-0.2.122",
+        "contents": "{\"package\": \"8ddb3f79143bced6de84270411622a2699cee572fc0875aeaf1e7867cf9fca1a\", \"files\": {}}",
+        "dest": "cargo/vendor/wasm-bindgen-0.2.125",
         "dest-filename": ".cargo-checksum.json"
     },
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/wasm-bindgen-futures/wasm-bindgen-futures-0.4.72.crate",
-        "sha256": "9473dbd2991ae90b6291c3c32c30c6187ac49aa32f9905d1cce280ec1e110b0f",
-        "dest": "cargo/vendor/wasm-bindgen-futures-0.4.72"
+        "url": "https://static.crates.io/crates/wasm-bindgen-futures/wasm-bindgen-futures-0.4.75.crate",
+        "sha256": "503b14d284f2c8dac03b819967e155ea753f573586193b2b2c95990cb5d69280",
+        "dest": "cargo/vendor/wasm-bindgen-futures-0.4.75"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"9473dbd2991ae90b6291c3c32c30c6187ac49aa32f9905d1cce280ec1e110b0f\", \"files\": {}}",
-        "dest": "cargo/vendor/wasm-bindgen-futures-0.4.72",
+        "contents": "{\"package\": \"503b14d284f2c8dac03b819967e155ea753f573586193b2b2c95990cb5d69280\", \"files\": {}}",
+        "dest": "cargo/vendor/wasm-bindgen-futures-0.4.75",
         "dest-filename": ".cargo-checksum.json"
     },
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/wasm-bindgen-macro/wasm-bindgen-macro-0.2.122.crate",
-        "sha256": "916151b09da36bd82f6615cbf3a419e2f0ba23a03c6160e8e92eb6bd4aa1dec6",
-        "dest": "cargo/vendor/wasm-bindgen-macro-0.2.122"
+        "url": "https://static.crates.io/crates/wasm-bindgen-macro/wasm-bindgen-macro-0.2.125.crate",
+        "sha256": "4e21a184b13fb19e157296e2c46056aec9092264fab83e4ba59e68c61b323c3d",
+        "dest": "cargo/vendor/wasm-bindgen-macro-0.2.125"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"916151b09da36bd82f6615cbf3a419e2f0ba23a03c6160e8e92eb6bd4aa1dec6\", \"files\": {}}",
-        "dest": "cargo/vendor/wasm-bindgen-macro-0.2.122",
+        "contents": "{\"package\": \"4e21a184b13fb19e157296e2c46056aec9092264fab83e4ba59e68c61b323c3d\", \"files\": {}}",
+        "dest": "cargo/vendor/wasm-bindgen-macro-0.2.125",
         "dest-filename": ".cargo-checksum.json"
     },
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/wasm-bindgen-macro-support/wasm-bindgen-macro-support-0.2.122.crate",
-        "sha256": "299047362ccbfce148b67ab7e73349f77748e00c8296f9542adfad2ad82c5c5e",
-        "dest": "cargo/vendor/wasm-bindgen-macro-support-0.2.122"
+        "url": "https://static.crates.io/crates/wasm-bindgen-macro-support/wasm-bindgen-macro-support-0.2.125.crate",
+        "sha256": "fecefd9c35bd935a20fc3fc344b5f29138961e4f47fb03297d88f2587afb5ebd",
+        "dest": "cargo/vendor/wasm-bindgen-macro-support-0.2.125"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"299047362ccbfce148b67ab7e73349f77748e00c8296f9542adfad2ad82c5c5e\", \"files\": {}}",
-        "dest": "cargo/vendor/wasm-bindgen-macro-support-0.2.122",
+        "contents": "{\"package\": \"fecefd9c35bd935a20fc3fc344b5f29138961e4f47fb03297d88f2587afb5ebd\", \"files\": {}}",
+        "dest": "cargo/vendor/wasm-bindgen-macro-support-0.2.125",
         "dest-filename": ".cargo-checksum.json"
     },
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/wasm-bindgen-shared/wasm-bindgen-shared-0.2.122.crate",
-        "sha256": "9a929b2c61f11ba3e9bc35b50c1f25cb38e0e892c0c231ae2b8cf78d5dad4437",
-        "dest": "cargo/vendor/wasm-bindgen-shared-0.2.122"
+        "url": "https://static.crates.io/crates/wasm-bindgen-shared/wasm-bindgen-shared-0.2.125.crate",
+        "sha256": "23939e44bb9a5d7576fa2b563dc2e136628f1224e88a8deed09e04858b77871f",
+        "dest": "cargo/vendor/wasm-bindgen-shared-0.2.125"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"9a929b2c61f11ba3e9bc35b50c1f25cb38e0e892c0c231ae2b8cf78d5dad4437\", \"files\": {}}",
-        "dest": "cargo/vendor/wasm-bindgen-shared-0.2.122",
+        "contents": "{\"package\": \"23939e44bb9a5d7576fa2b563dc2e136628f1224e88a8deed09e04858b77871f\", \"files\": {}}",
+        "dest": "cargo/vendor/wasm-bindgen-shared-0.2.125",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -6459,14 +6459,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/web-sys/web-sys-0.3.99.crate",
-        "sha256": "6d621441cfc37b84979402712047321980c178f299193a3589d05b99e8763436",
-        "dest": "cargo/vendor/web-sys-0.3.99"
+        "url": "https://static.crates.io/crates/web-sys/web-sys-0.3.102.crate",
+        "sha256": "a6430a72df5eb332242960fe84b3002a241163998241eb596d4f739b9757061d",
+        "dest": "cargo/vendor/web-sys-0.3.102"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"6d621441cfc37b84979402712047321980c178f299193a3589d05b99e8763436\", \"files\": {}}",
-        "dest": "cargo/vendor/web-sys-0.3.99",
+        "contents": "{\"package\": \"a6430a72df5eb332242960fe84b3002a241163998241eb596d4f739b9757061d\", \"files\": {}}",
+        "dest": "cargo/vendor/web-sys-0.3.102",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -7291,27 +7291,27 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/zerocopy/zerocopy-0.8.50.crate",
-        "sha256": "3b065d4f0e55f82fae73202e189638116a87c55ab6b8e6c2721e13dd9d854ad1",
-        "dest": "cargo/vendor/zerocopy-0.8.50"
+        "url": "https://static.crates.io/crates/zerocopy/zerocopy-0.8.52.crate",
+        "sha256": "ce1022995ff5ff5d841ad7d994facc23098cd40152f2c1d11cd607c6f530653f",
+        "dest": "cargo/vendor/zerocopy-0.8.52"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"3b065d4f0e55f82fae73202e189638116a87c55ab6b8e6c2721e13dd9d854ad1\", \"files\": {}}",
-        "dest": "cargo/vendor/zerocopy-0.8.50",
+        "contents": "{\"package\": \"ce1022995ff5ff5d841ad7d994facc23098cd40152f2c1d11cd607c6f530653f\", \"files\": {}}",
+        "dest": "cargo/vendor/zerocopy-0.8.52",
         "dest-filename": ".cargo-checksum.json"
     },
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/zerocopy-derive/zerocopy-derive-0.8.50.crate",
-        "sha256": "0b631b19d36a892ab55420c92dbc83ccd79274f25be714855d3074aa71cab639",
-        "dest": "cargo/vendor/zerocopy-derive-0.8.50"
+        "url": "https://static.crates.io/crates/zerocopy-derive/zerocopy-derive-0.8.52.crate",
+        "sha256": "1ae7f38b72ec2a254e2b87ef277cf2cd4fb97cbebf944faa6f33354da0867930",
+        "dest": "cargo/vendor/zerocopy-derive-0.8.52"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"0b631b19d36a892ab55420c92dbc83ccd79274f25be714855d3074aa71cab639\", \"files\": {}}",
-        "dest": "cargo/vendor/zerocopy-derive-0.8.50",
+        "contents": "{\"package\": \"1ae7f38b72ec2a254e2b87ef277cf2cd4fb97cbebf944faa6f33354da0867930\", \"files\": {}}",
+        "dest": "cargo/vendor/zerocopy-derive-0.8.52",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -7343,14 +7343,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/zeroize/zeroize-1.8.2.crate",
-        "sha256": "b97154e67e32c85465826e8bcc1c59429aaaf107c1e4a9e53c8d8ccd5eff88d0",
-        "dest": "cargo/vendor/zeroize-1.8.2"
+        "url": "https://static.crates.io/crates/zeroize/zeroize-1.9.0.crate",
+        "sha256": "e13c156562582aa81c60cb29407084cdb54c4164760106ab78e6c5b0858cf64e",
+        "dest": "cargo/vendor/zeroize-1.9.0"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"b97154e67e32c85465826e8bcc1c59429aaaf107c1e4a9e53c8d8ccd5eff88d0\", \"files\": {}}",
-        "dest": "cargo/vendor/zeroize-1.8.2",
+        "contents": "{\"package\": \"e13c156562582aa81c60cb29407084cdb54c4164760106ab78e6c5b0858cf64e\", \"files\": {}}",
+        "dest": "cargo/vendor/zeroize-1.9.0",
         "dest-filename": ".cargo-checksum.json"
     },
     {
