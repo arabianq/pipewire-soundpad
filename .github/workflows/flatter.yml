@@ -60,9 +60,9 @@ jobs:
           echo "default-branch: ${{ steps.set_branch.outputs.branch }}" >> packages/flatpak/ru.arabianq.pwsp.yaml
 
       - name: Install SDK Extensions
-        run: |
+        run:
           flatpak install -y flathub org.freedesktop.Sdk.Extension.rust-stable//25.08
-          flatpak install -y flathub org.freedesktop.Sdk.Extension.llvm20//25.08
+          org.freedesktop.Sdk.Extension.llvm20//25.08
 
       - name: Build Flatpak
         uses: andyholmes/flatter@main
@@ -72,7 +72,6 @@ jobs:
           upload-bundles: false
           upload-pages-artifact: false
           arch: x86_64
-          cache: true
 
   flatter-arm64:
     name: Flatter (aarch64)
@@ -114,9 +113,9 @@ jobs:
           echo "default-branch: ${{ steps.set_branch.outputs.branch }}" >> packages/flatpak/ru.arabianq.pwsp.yaml
 
       - name: Install SDK Extensions
-        run: |
+        run:
           flatpak install -y flathub org.freedesktop.Sdk.Extension.rust-stable//25.08
-          flatpak install -y flathub org.freedesktop.Sdk.Extension.llvm20//25.08
+          org.freedesktop.Sdk.Extension.llvm20//25.08
 
       - name: Build Flatpak
         uses: andyholmes/flatter@main
@@ -126,7 +125,6 @@ jobs:
           upload-bundles: false
           upload-pages-artifact: true
           arch: aarch64
-          cache: true
 
   deploy:
     name: Deploy to GitHub Pages

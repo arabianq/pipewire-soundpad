@@ -316,10 +316,9 @@ impl SoundpadGui {
                                         .unwrap_or_default()
                                         .to_str()
                                         .unwrap_or_default(),
-                                )
-                            {
-                                continue;
-                            }
+                                ) {
+                                    continue;
+                                }
                             read.push(child_path);
                         }
                     }
@@ -343,16 +342,17 @@ impl SoundpadGui {
                 let search_query = search_query.trim();
 
                 for child in children {
-                    if !child.is_dir() && !search_query.is_empty() {
-                        let file_name = child
-                            .file_name()
-                            .unwrap_or_default()
-                            .to_string_lossy()
-                            .to_string();
-                        if !file_name.to_lowercase().contains(search_query) {
-                            continue;
+                    if !child.is_dir()
+                        && !search_query.is_empty() {
+                            let file_name = child
+                                .file_name()
+                                .unwrap_or_default()
+                                .to_string_lossy()
+                                .to_string();
+                            if !file_name.to_lowercase().contains(search_query) {
+                                continue;
+                            }
                         }
-                    }
                     Self::draw_tree_node(ui, child, config, app_state, audio_player_state, actions);
                 }
             });
