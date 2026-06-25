@@ -1,15 +1,9 @@
 [
     {
         "type": "git",
-        "url": "https://github.com/rustaudio/cpal",
-        "commit": "6ea4fcd74e002cfe660158a33014d7bb499de94c",
-        "dest": "flatpak-cargo/git/cpal-6ea4fcd"
-    },
-    {
-        "type": "git",
         "url": "https://github.com/arabianq/rodio",
-        "commit": "c6a81b5a46e00a6a682c0c431dff62e86f57d819",
-        "dest": "flatpak-cargo/git/rodio-c6a81b5"
+        "commit": "4746803c2e5f67004264ac946708d47a9faf510c",
+        "dest": "flatpak-cargo/git/rodio-4746803"
     },
     {
         "type": "archive",
@@ -209,14 +203,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/arrayvec/arrayvec-0.7.6.crate",
-        "sha256": "7c02d123df017efcdfbd739ef81735b36c5ba83ec3c59c80a9d7ecc718f92e50",
-        "dest": "cargo/vendor/arrayvec-0.7.6"
+        "url": "https://static.crates.io/crates/arrayvec/arrayvec-0.7.7.crate",
+        "sha256": "f02882884d3e1bc524fb12c79f107f6ad0e1cfd498c536ffb494301740995dfe",
+        "dest": "cargo/vendor/arrayvec-0.7.7"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"7c02d123df017efcdfbd739ef81735b36c5ba83ec3c59c80a9d7ecc718f92e50\", \"files\": {}}",
-        "dest": "cargo/vendor/arrayvec-0.7.6",
+        "contents": "{\"package\": \"f02882884d3e1bc524fb12c79f107f6ad0e1cfd498c536ffb494301740995dfe\", \"files\": {}}",
+        "dest": "cargo/vendor/arrayvec-0.7.7",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -508,14 +502,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/bitvec/bitvec-1.0.1.crate",
-        "sha256": "1bc2832c24239b0141d5674bb9174f9d68a8b5b3f2753311927c172ca46f7e9c",
-        "dest": "cargo/vendor/bitvec-1.0.1"
+        "url": "https://static.crates.io/crates/bitvec/bitvec-1.1.1.crate",
+        "sha256": "ddcec3d12c579d40898fe0a9a358a803c23e9c52ca3c425707f81c9436211837",
+        "dest": "cargo/vendor/bitvec-1.1.1"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"1bc2832c24239b0141d5674bb9174f9d68a8b5b3f2753311927c172ca46f7e9c\", \"files\": {}}",
-        "dest": "cargo/vendor/bitvec-1.0.1",
+        "contents": "{\"package\": \"ddcec3d12c579d40898fe0a9a358a803c23e9c52ca3c425707f81c9436211837\", \"files\": {}}",
+        "dest": "cargo/vendor/bitvec-1.1.1",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -560,14 +554,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/bstr/bstr-1.12.1.crate",
-        "sha256": "63044e1ae8e69f3b5a92c736ca6269b8d12fa7efe39bf34ddb06d102cf0e2cab",
-        "dest": "cargo/vendor/bstr-1.12.1"
+        "url": "https://static.crates.io/crates/bstr/bstr-1.12.3.crate",
+        "sha256": "5cee35f73844aa3014bb606320a6c1f010249dbdf43342fe54b5a4f6a8ed4b79",
+        "dest": "cargo/vendor/bstr-1.12.3"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"63044e1ae8e69f3b5a92c736ca6269b8d12fa7efe39bf34ddb06d102cf0e2cab\", \"files\": {}}",
-        "dest": "cargo/vendor/bstr-1.12.1",
+        "contents": "{\"package\": \"5cee35f73844aa3014bb606320a6c1f010249dbdf43342fe54b5a4f6a8ed4b79\", \"files\": {}}",
+        "dest": "cargo/vendor/bstr-1.12.3",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -625,14 +619,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/bytes/bytes-1.11.1.crate",
-        "sha256": "1e748733b7cbc798e1434b6ac524f0c1ff2ab456fe201501e6497c8417a4fc33",
-        "dest": "cargo/vendor/bytes-1.11.1"
+        "url": "https://static.crates.io/crates/bytes/bytes-1.12.0.crate",
+        "sha256": "8ae3f5d315924270530207e2a68396c3cc547f6dca3fbdca317cfb1a51edb593",
+        "dest": "cargo/vendor/bytes-1.12.0"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"1e748733b7cbc798e1434b6ac524f0c1ff2ab456fe201501e6497c8417a4fc33\", \"files\": {}}",
-        "dest": "cargo/vendor/bytes-1.11.1",
+        "contents": "{\"package\": \"8ae3f5d315924270530207e2a68396c3cc547f6dca3fbdca317cfb1a51edb593\", \"files\": {}}",
+        "dest": "cargo/vendor/bytes-1.12.0",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -690,14 +684,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/cc/cc-1.2.64.crate",
-        "sha256": "dad887fd958be91b5098c0248def011f4523ab786cd411be668777e55063501f",
-        "dest": "cargo/vendor/cc-1.2.64"
+        "url": "https://static.crates.io/crates/cc/cc-1.2.65.crate",
+        "sha256": "e228eec9be7c17ccb640b59b36a5cd805ea2a564a4c5e162c2f659fea30d3b96",
+        "dest": "cargo/vendor/cc-1.2.65"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"dad887fd958be91b5098c0248def011f4523ab786cd411be668777e55063501f\", \"files\": {}}",
-        "dest": "cargo/vendor/cc-1.2.64",
+        "contents": "{\"package\": \"e228eec9be7c17ccb640b59b36a5cd805ea2a564a4c5e162c2f659fea30d3b96\", \"files\": {}}",
+        "dest": "cargo/vendor/cc-1.2.65",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -1026,21 +1020,16 @@
         "dest-filename": ".cargo-checksum.json"
     },
     {
-        "type": "shell",
-        "commands": [
-            "cp -r --reflink=auto \"flatpak-cargo/git/cpal-6ea4fcd/.\" \"cargo/vendor/cpal\""
-        ]
+        "type": "archive",
+        "archive-type": "tar-gzip",
+        "url": "https://static.crates.io/crates/cpal/cpal-0.18.1.crate",
+        "sha256": "5f77b11176c37874be37e8d691c946e31b2b8c357abce9526f6a99eb469e1028",
+        "dest": "cargo/vendor/cpal-0.18.1"
     },
     {
         "type": "inline",
-        "contents": "[package]\nname = \"cpal\"\nversion = \"0.18.1\"\ndescription = \"Low-level cross-platform audio I/O library.\"\nrepository = \"https://github.com/RustAudio/cpal\"\ndocumentation = \"https://docs.rs/cpal\"\nlicense = \"Apache-2.0\"\nkeywords = [\"audio\", \"sound\"]\nedition = \"2021\"\nrust-version = \"1.85\"\n\n[package.metadata.docs.rs]\nfeatures = [\"asio\", \"audioworklet\", \"custom\", \"jack\", \"pulseaudio\", \"realtime\", \"realtime-dbus\", \"wasm-bindgen\"]\nrustdoc-args = [\"--cfg\", \"docsrs\"]\ntargets = [\"x86_64-unknown-linux-gnu\", \"x86_64-pc-windows-msvc\", \"x86_64-apple-darwin\", \"aarch64-apple-darwin\", \"aarch64-apple-ios\", \"wasm32-unknown-unknown\", \"aarch64-linux-android\", \"x86_64-unknown-freebsd\", \"x86_64-unknown-netbsd\", \"x86_64-unknown-dragonfly\"]\n\n[badges.maintenance]\nstatus = \"actively-developed\"\n\n[features]\ndefault = []\nrealtime = [\"dep:audio_thread_priority\", \"dep:alsa-sys\"]\nrealtime-dbus = [\"realtime\", \"audio_thread_priority/with_dbus\"]\nasio = [\"dep:asio-sys\", \"dep:num-traits\"]\naudioworklet = [\"wasm-bindgen\", \"web-sys/Blob\", \"web-sys/BlobPropertyBag\", \"web-sys/Url\", \"web-sys/AudioWorklet\", \"web-sys/AudioWorkletNode\", \"web-sys/AudioWorkletNodeOptions\"]\ncustom = []\njack = [\"dep:jack\"]\npipewire = [\"dep:pipewire\"]\npulseaudio = [\"dep:pulseaudio\", \"dep:futures\"]\nwasm-bindgen = [\"dep:wasm-bindgen\", \"dep:wasm-bindgen-futures\"]\n\n[dependencies]\ndasp_sample = \"0.11\"\n\n[dev-dependencies]\nanyhow = \"1.0\"\nhound = \"3.5\"\nringbuf = \"0.4\"\n\n[dev-dependencies.clap]\nversion = \">=4.6, <5\"\nfeatures = [\"derive\"]\n\n[target.\"cfg(target_os = \\\"windows\\\")\".dependencies]\nwindows-core = \"0.62\"\n\n[target.\"cfg(target_os = \\\"windows\\\")\".dependencies.windows]\nversion = \"0.62\"\nfeatures = [\"Win32_Media\", \"Win32_Media_Audio\", \"Win32_Foundation\", \"Win32_Devices_Properties\", \"Win32_Media_KernelStreaming\", \"Win32_System_Com_StructuredStorage\", \"Win32_System_Threading\", \"Win32_System_Performance\", \"Win32_Security\", \"Win32_System_SystemServices\", \"Win32_System_Variant\", \"Win32_Media_Multimedia\", \"Win32_UI_Shell_PropertiesSystem\"]\n\n[target.\"cfg(target_os = \\\"windows\\\")\".dependencies.audio_thread_priority]\nversion = \"0.35\"\noptional = true\ndefault-features = false\n\n[target.\"cfg(target_os = \\\"windows\\\")\".dependencies.asio-sys]\nversion = \"0.3.0\"\npath = \"asio-sys\"\noptional = true\n\n[target.\"cfg(target_os = \\\"windows\\\")\".dependencies.num-traits]\nversion = \"0.2\"\noptional = true\n\n[target.\"cfg(target_os = \\\"windows\\\")\".dependencies.jack]\nversion = \"0.13.5\"\noptional = true\n\n[target.\"cfg(any(target_os = \\\"linux\\\", target_os = \\\"dragonfly\\\", target_os = \\\"freebsd\\\", target_os = \\\"netbsd\\\"))\".dependencies]\nalsa = \"0.11\"\nlibc = \"0.2\"\n\n[target.\"cfg(any(target_os = \\\"linux\\\", target_os = \\\"dragonfly\\\", target_os = \\\"freebsd\\\", target_os = \\\"netbsd\\\"))\".dependencies.alsa-sys]\nversion = \"0.4\"\noptional = true\n\n[target.\"cfg(any(target_os = \\\"linux\\\", target_os = \\\"dragonfly\\\", target_os = \\\"freebsd\\\", target_os = \\\"netbsd\\\"))\".dependencies.audio_thread_priority]\nversion = \"0.35\"\noptional = true\ndefault-features = false\n\n[target.\"cfg(any(target_os = \\\"linux\\\", target_os = \\\"dragonfly\\\", target_os = \\\"freebsd\\\", target_os = \\\"netbsd\\\"))\".dependencies.jack]\nversion = \"0.13.5\"\noptional = true\n\n[target.\"cfg(any(target_os = \\\"linux\\\", target_os = \\\"dragonfly\\\", target_os = \\\"freebsd\\\", target_os = \\\"netbsd\\\"))\".dependencies.pulseaudio]\nversion = \"0.3\"\noptional = true\n\n[target.\"cfg(any(target_os = \\\"linux\\\", target_os = \\\"dragonfly\\\", target_os = \\\"freebsd\\\", target_os = \\\"netbsd\\\"))\".dependencies.futures]\nversion = \"0.3\"\noptional = true\n\n[target.\"cfg(any(target_os = \\\"linux\\\", target_os = \\\"dragonfly\\\", target_os = \\\"freebsd\\\", target_os = \\\"netbsd\\\"))\".dependencies.pipewire]\nversion = \"0.10\"\noptional = true\nfeatures = [\"v0_3_53\"]\n\n[target.\"cfg(target_vendor = \\\"apple\\\")\".dependencies]\nmach2 = \"0.6\"\n\n[target.\"cfg(target_vendor = \\\"apple\\\")\".dependencies.coreaudio-rs]\nversion = \"0.14.2\"\ndefault-features = false\nfeatures = [\"core_audio\", \"audio_toolbox\"]\n\n[target.\"cfg(target_vendor = \\\"apple\\\")\".dependencies.objc2-core-audio]\nversion = \"0.3\"\ndefault-features = false\nfeatures = [\"std\", \"AudioHardware\", \"AudioHardwareDeprecated\", \"objc2\", \"objc2-foundation\"]\n\n[target.\"cfg(target_vendor = \\\"apple\\\")\".dependencies.objc2-audio-toolbox]\nversion = \"0.3\"\ndefault-features = false\nfeatures = [\"std\", \"AUComponent\", \"AudioUnitProperties\"]\n\n[target.\"cfg(target_vendor = \\\"apple\\\")\".dependencies.objc2-core-audio-types]\nversion = \"0.3\"\ndefault-features = false\nfeatures = [\"std\", \"CoreAudioBaseTypes\"]\n\n[target.\"cfg(target_vendor = \\\"apple\\\")\".dependencies.objc2-core-foundation]\nversion = \"0.3\"\n\n[target.\"cfg(target_vendor = \\\"apple\\\")\".dependencies.objc2-foundation]\nversion = \"0.3\"\ndefault-features = false\nfeatures = [\"std\", \"NSArray\", \"NSString\", \"NSValue\"]\n\n[target.\"cfg(target_vendor = \\\"apple\\\")\".dependencies.objc2]\nversion = \"0.6\"\n\n[target.\"cfg(target_os = \\\"macos\\\")\".dependencies.jack]\nversion = \"0.13.5\"\noptional = true\n\n[target.\"cfg(any(target_os = \\\"ios\\\", target_os = \\\"tvos\\\"))\".dependencies]\nblock2 = \"0.6\"\n\n[target.\"cfg(any(target_os = \\\"ios\\\", target_os = \\\"tvos\\\"))\".dependencies.objc2-foundation]\nversion = \"0.3\"\nfeatures = [\"block2\", \"NSDictionary\", \"NSNotification\", \"NSOperation\"]\n\n[target.\"cfg(any(target_os = \\\"ios\\\", target_os = \\\"tvos\\\"))\".dependencies.objc2-avf-audio]\nversion = \"0.3\"\ndefault-features = false\nfeatures = [\"std\", \"AVAudioSession\", \"AVAudioSessionTypes\"]\n\n[target.\"cfg(all(target_arch = \\\"wasm32\\\", target_os = \\\"unknown\\\"))\".dependencies.wasm-bindgen]\nversion = \"0.2\"\noptional = true\n\n[target.\"cfg(all(target_arch = \\\"wasm32\\\", target_os = \\\"unknown\\\"))\".dependencies.wasm-bindgen-futures]\nversion = \"0.4\"\noptional = true\n\n[target.\"cfg(all(target_arch = \\\"wasm32\\\", target_os = \\\"unknown\\\"))\".dependencies.js-sys]\nversion = \"0.3\"\n\n[target.\"cfg(all(target_arch = \\\"wasm32\\\", target_os = \\\"unknown\\\"))\".dependencies.web-sys]\nversion = \"0.3\"\nfeatures = [\"AudioContext\", \"AudioContextOptions\", \"AudioBuffer\", \"AudioBufferSourceNode\", \"AudioNode\", \"AudioDestinationNode\", \"Window\", \"AudioContextState\"]\n\n[target.\"cfg(target_os = \\\"android\\\")\".dependencies]\nndk-context = \"0.1\"\njni = \"0.22\"\nlibc = \"0.2\"\nnum-derive = \"0.4\"\nnum-traits = \"0.2\"\n\n[target.\"cfg(target_os = \\\"android\\\")\".dependencies.audio_thread_priority]\nversion = \"0.35\"\noptional = true\ndefault-features = false\n\n[target.\"cfg(target_os = \\\"android\\\")\".dependencies.ndk]\nversion = \"0.9\"\ndefault-features = false\nfeatures = [\"audio\", \"api-level-26\"]\n\n[[example]]\nname = \"beep\"\n\n[[example]]\nname = \"enumerate\"\n\n[[example]]\nname = \"feedback\"\n\n[[example]]\nname = \"record_wav\"\n\n[[example]]\nname = \"synth_tones\"\n",
-        "dest": "cargo/vendor/cpal",
-        "dest-filename": "Cargo.toml"
-    },
-    {
-        "type": "inline",
-        "contents": "{\"package\": null, \"files\": {}}",
-        "dest": "cargo/vendor/cpal",
+        "contents": "{\"package\": \"5f77b11176c37874be37e8d691c946e31b2b8c357abce9526f6a99eb469e1028\", \"files\": {}}",
+        "dest": "cargo/vendor/cpal-0.18.1",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -1995,6 +1984,19 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
+        "url": "https://static.crates.io/crates/getrandom/getrandom-0.4.3.crate",
+        "sha256": "300e883d756b2e4ec94e02791f39b04b522276138852cfc41d9fb7e904106099",
+        "dest": "cargo/vendor/getrandom-0.4.3"
+    },
+    {
+        "type": "inline",
+        "contents": "{\"package\": \"300e883d756b2e4ec94e02791f39b04b522276138852cfc41d9fb7e904106099\", \"files\": {}}",
+        "dest": "cargo/vendor/getrandom-0.4.3",
+        "dest-filename": ".cargo-checksum.json"
+    },
+    {
+        "type": "archive",
+        "archive-type": "tar-gzip",
         "url": "https://static.crates.io/crates/gl_generator/gl_generator-0.14.0.crate",
         "sha256": "1a95dfc23a2b4a9a2f5ab41d194f8bfda3cabec42af4e39f08c339eb2a0c124d",
         "dest": "cargo/vendor/gl_generator-0.14.0"
@@ -2125,14 +2127,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/h2/h2-0.4.14.crate",
-        "sha256": "171fefbc92fe4a4de27e0698d6a5b392d6a0e333506bc49133760b3bcf948733",
-        "dest": "cargo/vendor/h2-0.4.14"
+        "url": "https://static.crates.io/crates/h2/h2-0.4.15.crate",
+        "sha256": "6cb093c84e8bd9b188d4c4a8cb6579fc016968d14c99882163cd3ff402a4f155",
+        "dest": "cargo/vendor/h2-0.4.15"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"171fefbc92fe4a4de27e0698d6a5b392d6a0e333506bc49133760b3bcf948733\", \"files\": {}}",
-        "dest": "cargo/vendor/h2-0.4.14",
+        "contents": "{\"package\": \"6cb093c84e8bd9b188d4c4a8cb6579fc016968d14c99882163cd3ff402a4f155\", \"files\": {}}",
+        "dest": "cargo/vendor/h2-0.4.15",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -2671,14 +2673,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/js-sys/js-sys-0.3.102.crate",
-        "sha256": "03d04c30968dffe80775bd4d7fb676131cd04a1fb46d2686dbffbaec2d9dfd31",
-        "dest": "cargo/vendor/js-sys-0.3.102"
+        "url": "https://static.crates.io/crates/js-sys/js-sys-0.3.103.crate",
+        "sha256": "53b44bfcdb3f8d5837a46dae1ca9660a837176eee74a28b229bc626816589102",
+        "dest": "cargo/vendor/js-sys-0.3.103"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"03d04c30968dffe80775bd4d7fb676131cd04a1fb46d2686dbffbaec2d9dfd31\", \"files\": {}}",
-        "dest": "cargo/vendor/js-sys-0.3.102",
+        "contents": "{\"package\": \"53b44bfcdb3f8d5837a46dae1ca9660a837176eee74a28b229bc626816589102\", \"files\": {}}",
+        "dest": "cargo/vendor/js-sys-0.3.103",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -2905,14 +2907,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/log/log-0.4.32.crate",
-        "sha256": "953f07c43838f8e6f9758cab68bf5bed85465e7587ebe0b823f1bcd81978ad3a",
-        "dest": "cargo/vendor/log-0.4.32"
+        "url": "https://static.crates.io/crates/log/log-0.4.33.crate",
+        "sha256": "0ceec5bc11778974d1bcb055b18002eba7f4b3518b6a0081b3af5f21666da9ad",
+        "dest": "cargo/vendor/log-0.4.33"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"953f07c43838f8e6f9758cab68bf5bed85465e7587ebe0b823f1bcd81978ad3a\", \"files\": {}}",
-        "dest": "cargo/vendor/log-0.4.32",
+        "contents": "{\"package\": \"0ceec5bc11778974d1bcb055b18002eba7f4b3518b6a0081b3af5f21666da9ad\", \"files\": {}}",
+        "dest": "cargo/vendor/log-0.4.33",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -2957,14 +2959,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/memmap2/memmap2-0.9.10.crate",
-        "sha256": "714098028fe011992e1c3962653c96b2d578c4b4bce9036e15ff220319b1e0e3",
-        "dest": "cargo/vendor/memmap2-0.9.10"
+        "url": "https://static.crates.io/crates/memmap2/memmap2-0.9.11.crate",
+        "sha256": "d1219ed1b7f229ee7104d281dd01d6802fe28bb6e95d292942c4daacdeb798c0",
+        "dest": "cargo/vendor/memmap2-0.9.11"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"714098028fe011992e1c3962653c96b2d578c4b4bce9036e15ff220319b1e0e3\", \"files\": {}}",
-        "dest": "cargo/vendor/memmap2-0.9.10",
+        "contents": "{\"package\": \"d1219ed1b7f229ee7104d281dd01d6802fe28bb6e95d292942c4daacdeb798c0\", \"files\": {}}",
+        "dest": "cargo/vendor/memmap2-0.9.11",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -4166,27 +4168,27 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/quinn/quinn-0.11.9.crate",
-        "sha256": "b9e20a958963c291dc322d98411f541009df2ced7b5a4f2bd52337638cfccf20",
-        "dest": "cargo/vendor/quinn-0.11.9"
+        "url": "https://static.crates.io/crates/quinn/quinn-0.11.11.crate",
+        "sha256": "0c1a41e437b6bbd489372cd4971de128e85c855f56c57f283d20ff016cf7c0a8",
+        "dest": "cargo/vendor/quinn-0.11.11"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"b9e20a958963c291dc322d98411f541009df2ced7b5a4f2bd52337638cfccf20\", \"files\": {}}",
-        "dest": "cargo/vendor/quinn-0.11.9",
+        "contents": "{\"package\": \"0c1a41e437b6bbd489372cd4971de128e85c855f56c57f283d20ff016cf7c0a8\", \"files\": {}}",
+        "dest": "cargo/vendor/quinn-0.11.11",
         "dest-filename": ".cargo-checksum.json"
     },
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/quinn-proto/quinn-proto-0.11.14.crate",
-        "sha256": "434b42fec591c96ef50e21e886936e66d3cc3f737104fdb9b737c40ffb94c098",
-        "dest": "cargo/vendor/quinn-proto-0.11.14"
+        "url": "https://static.crates.io/crates/quinn-proto/quinn-proto-0.11.15.crate",
+        "sha256": "4fcb935c5bec503c2f0e306bdd3e58bb9029dcb14fa8d9ac76e3a5256ac0763e",
+        "dest": "cargo/vendor/quinn-proto-0.11.15"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"434b42fec591c96ef50e21e886936e66d3cc3f737104fdb9b737c40ffb94c098\", \"files\": {}}",
-        "dest": "cargo/vendor/quinn-proto-0.11.14",
+        "contents": "{\"package\": \"4fcb935c5bec503c2f0e306bdd3e58bb9029dcb14fa8d9ac76e3a5256ac0763e\", \"files\": {}}",
+        "dest": "cargo/vendor/quinn-proto-0.11.15",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -4205,14 +4207,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/quote/quote-1.0.45.crate",
-        "sha256": "41f2619966050689382d2b44f664f4bc593e129785a36d6ee376ddf37259b924",
-        "dest": "cargo/vendor/quote-1.0.45"
+        "url": "https://static.crates.io/crates/quote/quote-1.0.46.crate",
+        "sha256": "dfbc457d0c7a0759a614551b11a6409e5951f6c7537be1f1b7682b9ae9230368",
+        "dest": "cargo/vendor/quote-1.0.46"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"41f2619966050689382d2b44f664f4bc593e129785a36d6ee376ddf37259b924\", \"files\": {}}",
-        "dest": "cargo/vendor/quote-1.0.45",
+        "contents": "{\"package\": \"dfbc457d0c7a0759a614551b11a6409e5951f6c7537be1f1b7682b9ae9230368\", \"files\": {}}",
+        "dest": "cargo/vendor/quote-1.0.46",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -4226,6 +4228,19 @@
         "type": "inline",
         "contents": "{\"package\": \"69cdb34c158ceb288df11e18b4bd39de994f6657d83847bdffdbd7f346754b0f\", \"files\": {}}",
         "dest": "cargo/vendor/r-efi-5.3.0",
+        "dest-filename": ".cargo-checksum.json"
+    },
+    {
+        "type": "archive",
+        "archive-type": "tar-gzip",
+        "url": "https://static.crates.io/crates/r-efi/r-efi-6.0.0.crate",
+        "sha256": "f8dcc9c7d52a811697d2151c701e0d08956f92b0e24136cf4cf27b57a6a0d9bf",
+        "dest": "cargo/vendor/r-efi-6.0.0"
+    },
+    {
+        "type": "inline",
+        "contents": "{\"package\": \"f8dcc9c7d52a811697d2151c701e0d08956f92b0e24136cf4cf27b57a6a0d9bf\", \"files\": {}}",
+        "dest": "cargo/vendor/r-efi-6.0.0",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -4517,12 +4532,12 @@
     {
         "type": "shell",
         "commands": [
-            "cp -r --reflink=auto \"flatpak-cargo/git/rodio-c6a81b5/.\" \"cargo/vendor/rodio\""
+            "cp -r --reflink=auto \"flatpak-cargo/git/rodio-4746803/.\" \"cargo/vendor/rodio\""
         ]
     },
     {
         "type": "inline",
-        "contents": "[package]\nname = \"rodio\"\nversion = \"0.22.2\"\nlicense = \"MIT OR Apache-2.0\"\ndescription = \"Audio playback and recording library\"\nkeywords = [\"audio\", \"playback\", \"recording\", \"gamedev\"]\nrepository = \"https://github.com/RustAudio/rodio\"\ndocumentation = \"https://docs.rs/rodio\"\nexclude = [\"assets/**\", \"tests/**\"]\nedition = \"2021\"\nrust-version = \"1.89\"\n\n[package.metadata.docs.rs]\nall-features = true\nrustdoc-args = [\"--cfg\", \"docsrs\"]\ncargo-args = [\"-Zunstable-options\"]\n\n[features]\ndefault = [\"playback\", \"recording\", \"flac\", \"mp3\", \"mp4\", \"vorbis\", \"wav\", \"pulseaudio\", \"simd\"]\nplayback = [\"dep:cpal\"]\nrecording = [\"dep:cpal\", \"dep:rtrb\"]\nwav_output = [\"dep:hound\"]\ntracing = [\"dep:tracing\"]\nexperimental = [\"dep:atomic_float\"]\ndither = [\"noise\"]\nnoise = [\"rand\", \"rand_distr\"]\n64bit = []\nrealtime = [\"cpal/realtime\"]\nrealtime-dbus = [\"cpal/realtime-dbus\"]\nsimd = [\"symphonia/opt-simd\"]\nasio = [\"cpal/asio\"]\naudio-worklet = [\"cpal/audioworklet\"]\njack = [\"cpal/jack\"]\npipewire = [\"cpal/pipewire\"]\npulseaudio = [\"cpal/pulseaudio\"]\nwasm-bindgen = [\"cpal/wasm-bindgen\"]\nsymphonia = [\"dep:symphonia\"]\nflac = [\"symphonia-flac\"]\nmp3 = [\"symphonia-mp3\"]\nmp4 = [\"symphonia-isomp4\", \"symphonia-aac\"]\nvorbis = [\"symphonia-ogg\", \"symphonia-vorbis\"]\nwav = [\"symphonia-wav\", \"symphonia-pcm\"]\nsymphonia-all = [\"symphonia/all-formats\", \"symphonia/all-codecs\"]\nsymphonia-flac = [\"symphonia/flac\"]\nsymphonia-mp1 = [\"symphonia/mp1\"]\nsymphonia-mp2 = [\"symphonia/mp2\"]\nsymphonia-mp3 = [\"symphonia/mp3\"]\nsymphonia-mpa = [\"symphonia/mpa\"]\nsymphonia-aiff = [\"symphonia/aiff\"]\nsymphonia-caf = [\"symphonia/caf\"]\nsymphonia-isomp4 = [\"symphonia/isomp4\"]\nsymphonia-mkv = [\"symphonia/mkv\"]\nsymphonia-ogg = [\"symphonia/ogg\"]\nsymphonia-aac = [\"symphonia/aac\"]\nsymphonia-adpcm = [\"symphonia/adpcm\"]\nsymphonia-alac = [\"symphonia/alac\"]\nsymphonia-pcm = [\"symphonia/pcm\"]\nsymphonia-vorbis = [\"symphonia/vorbis\"]\nsymphonia-wav = [\"symphonia/wav\"]\nsymphonia-libopus = [\"symphonia\", \"dep:symphonia-adapter-libopus\"]\nclaxon = [\"dep:claxon\"]\nhound = [\"dep:hound\"]\nminimp3 = [\"dep:minimp3_fixed\"]\nlewton = [\"dep:lewton\"]\n\n[dependencies]\ndasp_sample = \"0.11\"\nthiserror = \"2\"\nnum-rational = \"0.4.2\"\n\n[dependencies.cpal]\ngit = \"https://github.com/RustAudio/cpal\"\noptional = true\n\n[dependencies.claxon]\nversion = \"0.4\"\noptional = true\n\n[dependencies.hound]\nversion = \"3.5\"\noptional = true\n\n[dependencies.lewton]\nversion = \"0.10\"\noptional = true\n\n[dependencies.minimp3_fixed]\nversion = \"0.5.4\"\noptional = true\n\n[dependencies.symphonia]\nversion = \"0.5.5\"\noptional = true\ndefault-features = false\n\n[dependencies.crossbeam-channel]\nversion = \"0.5.15\"\noptional = true\n\n[dependencies.rand]\nversion = \"0.10\"\noptional = true\n\n[dependencies.rand_distr]\nversion = \"0.6\"\noptional = true\n\n[dependencies.tracing]\nversion = \"0.1.40\"\noptional = true\n\n[dependencies.atomic_float]\nversion = \"1.1.0\"\noptional = true\n\n[dependencies.rtrb]\nversion = \"0.3.2\"\noptional = true\n\n[dependencies.symphonia-adapter-libopus]\nversion = \"0.2.8\"\noptional = true\n\n[dev-dependencies]\nquickcheck = \"1\"\nrstest = \"0.26\"\nrstest_reuse = \"0.7\"\napprox = \"0.5.1\"\ndivan = \"0.1.14\"\ninquire = \"0.9.3\"\nsymphonia-adapter-fdk-aac = \"0.1\"\n\n[[bench]]\nname = \"effects\"\nharness = false\nrequired-features = [\"wav\"]\n\n[[bench]]\nname = \"conversions\"\nharness = false\nrequired-features = [\"wav\"]\n\n[[bench]]\nname = \"resampler\"\nharness = false\nrequired-features = [\"wav\"]\n\n[[bench]]\nname = \"pipeline\"\nharness = false\nrequired-features = [\"wav\"]\n\n[[example]]\nname = \"automatic_gain_control\"\nrequired-features = [\"playback\", \"flac\"]\n\n[[example]]\nname = \"basic\"\nrequired-features = [\"playback\", \"vorbis\"]\n\n[[example]]\nname = \"callback_on_end\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"custom_config\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"distortion\"\nrequired-features = [\"playback\"]\n\n[[example]]\nname = \"distortion_mp3\"\nrequired-features = [\"playback\", \"mp3\"]\n\n[[example]]\nname = \"distortion_wav\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"distortion_wav_alternate\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"error_callback\"\nrequired-features = [\"playback\"]\n\n[[example]]\nname = \"into_file\"\nrequired-features = [\"mp3\", \"wav_output\"]\n\n[[example]]\nname = \"limit_wav\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"low_pass\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"microphone\"\nrequired-features = [\"playback\", \"recording\", \"wav_output\"]\n\n[[example]]\nname = \"mix_multiple_sources\"\nrequired-features = [\"playback\"]\n\n[[example]]\nname = \"music_flac\"\nrequired-features = [\"playback\", \"flac\"]\n\n[[example]]\nname = \"music_m4a\"\nrequired-features = [\"playback\", \"mp4\"]\n\n[[example]]\nname = \"music_mp3\"\nrequired-features = [\"playback\", \"mp3\"]\n\n[[example]]\nname = \"music_ogg\"\nrequired-features = [\"playback\", \"vorbis\"]\n\n[[example]]\nname = \"music_wav\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"music_opus\"\nrequired-features = [\"playback\", \"symphonia-libopus\"]\n\n[[example]]\nname = \"noise_generator\"\nrequired-features = [\"playback\", \"noise\"]\n\n[[example]]\nname = \"reverb\"\nrequired-features = [\"playback\", \"vorbis\"]\n\n[[example]]\nname = \"seek_mp3\"\nrequired-features = [\"playback\", \"mp3\"]\n\n[[example]]\nname = \"signal_generator\"\nrequired-features = [\"playback\"]\n\n[[example]]\nname = \"spatial\"\nrequired-features = [\"playback\", \"vorbis\"]\n\n[[example]]\nname = \"stereo\"\nrequired-features = [\"playback\", \"vorbis\"]\n\n[[example]]\nname = \"third_party_codec\"\nrequired-features = [\"playback\", \"symphonia\", \"symphonia-isomp4\"]\n",
+        "contents": "[package]\nname = \"rodio\"\nversion = \"0.22.2\"\nlicense = \"MIT OR Apache-2.0\"\ndescription = \"Audio playback and recording library\"\nkeywords = [\"audio\", \"playback\", \"recording\", \"gamedev\"]\nrepository = \"https://github.com/RustAudio/rodio\"\ndocumentation = \"https://docs.rs/rodio\"\nexclude = [\"assets/**\", \"tests/**\"]\nedition = \"2021\"\nrust-version = \"1.89\"\n\n[package.metadata.docs.rs]\nall-features = true\nrustdoc-args = [\"--cfg\", \"docsrs\"]\ncargo-args = [\"-Zunstable-options\"]\n\n[features]\ndefault = [\"playback\", \"recording\", \"flac\", \"mp3\", \"mp4\", \"vorbis\", \"wav\", \"pulseaudio\", \"simd\"]\nplayback = [\"dep:cpal\"]\nrecording = [\"dep:cpal\", \"dep:rtrb\"]\nwav_output = [\"dep:hound\"]\ntracing = [\"dep:tracing\"]\nexperimental = [\"dep:atomic_float\"]\ndither = [\"noise\"]\nnoise = [\"rand\", \"rand_distr\"]\n64bit = []\nrealtime = [\"cpal/realtime\"]\nrealtime-dbus = [\"cpal/realtime-dbus\"]\nsimd = [\"symphonia/opt-simd\"]\nasio = [\"cpal/asio\"]\naudio-worklet = [\"cpal/audioworklet\"]\njack = [\"cpal/jack\"]\npipewire = [\"cpal/pipewire\"]\npulseaudio = [\"cpal/pulseaudio\"]\nwasm-bindgen = [\"cpal/wasm-bindgen\"]\nsymphonia = [\"dep:symphonia\"]\nflac = [\"symphonia-flac\"]\nmp3 = [\"symphonia-mp3\"]\nmp4 = [\"symphonia-isomp4\", \"symphonia-aac\"]\nvorbis = [\"symphonia-ogg\", \"symphonia-vorbis\"]\nwav = [\"symphonia-wav\", \"symphonia-pcm\"]\nsymphonia-all = [\"symphonia/all-formats\", \"symphonia/all-codecs\"]\nsymphonia-flac = [\"symphonia/flac\"]\nsymphonia-mp1 = [\"symphonia/mp1\"]\nsymphonia-mp2 = [\"symphonia/mp2\"]\nsymphonia-mp3 = [\"symphonia/mp3\"]\nsymphonia-mpa = [\"symphonia/mpa\"]\nsymphonia-aiff = [\"symphonia/aiff\"]\nsymphonia-caf = [\"symphonia/caf\"]\nsymphonia-isomp4 = [\"symphonia/isomp4\"]\nsymphonia-mkv = [\"symphonia/mkv\"]\nsymphonia-ogg = [\"symphonia/ogg\"]\nsymphonia-aac = [\"symphonia/aac\"]\nsymphonia-adpcm = [\"symphonia/adpcm\"]\nsymphonia-alac = [\"symphonia/alac\"]\nsymphonia-pcm = [\"symphonia/pcm\"]\nsymphonia-vorbis = [\"symphonia/vorbis\"]\nsymphonia-wav = [\"symphonia/wav\"]\nsymphonia-libopus = [\"symphonia\", \"dep:symphonia-adapter-libopus\"]\nclaxon = [\"dep:claxon\"]\nhound = [\"dep:hound\"]\nminimp3 = [\"dep:minimp3_fixed\"]\nlewton = [\"dep:lewton\"]\n\n[dependencies]\ndasp_sample = \"0.11\"\nthiserror = \"2\"\nnum-rational = \"0.4.2\"\n\n[dependencies.cpal]\nversion = \"0.18\"\noptional = true\n\n[dependencies.claxon]\nversion = \"0.4\"\noptional = true\n\n[dependencies.hound]\nversion = \"3.5\"\noptional = true\n\n[dependencies.lewton]\nversion = \"0.10\"\noptional = true\n\n[dependencies.minimp3_fixed]\nversion = \"0.5.4\"\noptional = true\n\n[dependencies.symphonia]\nversion = \"0.5.5\"\noptional = true\ndefault-features = false\n\n[dependencies.crossbeam-channel]\nversion = \"0.5.15\"\noptional = true\n\n[dependencies.rand]\nversion = \"0.10\"\noptional = true\n\n[dependencies.rand_distr]\nversion = \"0.6\"\noptional = true\n\n[dependencies.tracing]\nversion = \"0.1.40\"\noptional = true\n\n[dependencies.atomic_float]\nversion = \"1.1.0\"\noptional = true\n\n[dependencies.rtrb]\nversion = \"0.3.2\"\noptional = true\n\n[dependencies.symphonia-adapter-libopus]\nversion = \"0.2.8\"\noptional = true\n\n[dev-dependencies]\nquickcheck = \"1\"\nrstest = \"0.26\"\nrstest_reuse = \"0.7\"\napprox = \"0.5.1\"\ndivan = \"0.1.14\"\ninquire = \"0.9.3\"\nsymphonia-adapter-fdk-aac = \"0.1\"\n\n[[bench]]\nname = \"effects\"\nharness = false\nrequired-features = [\"wav\"]\n\n[[bench]]\nname = \"conversions\"\nharness = false\nrequired-features = [\"wav\"]\n\n[[bench]]\nname = \"resampler\"\nharness = false\nrequired-features = [\"wav\"]\n\n[[bench]]\nname = \"pipeline\"\nharness = false\nrequired-features = [\"wav\"]\n\n[[example]]\nname = \"automatic_gain_control\"\nrequired-features = [\"playback\", \"flac\"]\n\n[[example]]\nname = \"basic\"\nrequired-features = [\"playback\", \"vorbis\"]\n\n[[example]]\nname = \"callback_on_end\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"custom_config\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"distortion\"\nrequired-features = [\"playback\"]\n\n[[example]]\nname = \"distortion_mp3\"\nrequired-features = [\"playback\", \"mp3\"]\n\n[[example]]\nname = \"distortion_wav\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"distortion_wav_alternate\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"error_callback\"\nrequired-features = [\"playback\"]\n\n[[example]]\nname = \"into_file\"\nrequired-features = [\"mp3\", \"wav_output\"]\n\n[[example]]\nname = \"limit_wav\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"low_pass\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"microphone\"\nrequired-features = [\"playback\", \"recording\", \"wav_output\"]\n\n[[example]]\nname = \"mix_multiple_sources\"\nrequired-features = [\"playback\"]\n\n[[example]]\nname = \"music_flac\"\nrequired-features = [\"playback\", \"flac\"]\n\n[[example]]\nname = \"music_m4a\"\nrequired-features = [\"playback\", \"mp4\"]\n\n[[example]]\nname = \"music_mp3\"\nrequired-features = [\"playback\", \"mp3\"]\n\n[[example]]\nname = \"music_ogg\"\nrequired-features = [\"playback\", \"vorbis\"]\n\n[[example]]\nname = \"music_wav\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"music_opus\"\nrequired-features = [\"playback\", \"symphonia-libopus\"]\n\n[[example]]\nname = \"noise_generator\"\nrequired-features = [\"playback\", \"noise\"]\n\n[[example]]\nname = \"reverb\"\nrequired-features = [\"playback\", \"vorbis\"]\n\n[[example]]\nname = \"seek_mp3\"\nrequired-features = [\"playback\", \"mp3\"]\n\n[[example]]\nname = \"signal_generator\"\nrequired-features = [\"playback\"]\n\n[[example]]\nname = \"spatial\"\nrequired-features = [\"playback\", \"vorbis\"]\n\n[[example]]\nname = \"stereo\"\nrequired-features = [\"playback\", \"vorbis\"]\n\n[[example]]\nname = \"third_party_codec\"\nrequired-features = [\"playback\", \"symphonia\", \"symphonia-isomp4\"]\n",
         "dest": "cargo/vendor/rodio",
         "dest-filename": "Cargo.toml"
     },
@@ -4652,14 +4667,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/rustls/rustls-0.23.40.crate",
-        "sha256": "ef86cd5876211988985292b91c96a8f2d298df24e75989a43a3c73f2d4d8168b",
-        "dest": "cargo/vendor/rustls-0.23.40"
+        "url": "https://static.crates.io/crates/rustls/rustls-0.23.41.crate",
+        "sha256": "6b92b125634d9b795e7beca796cc790df15a7fb38323bf3196fda83292d06b1f",
+        "dest": "cargo/vendor/rustls-0.23.41"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"ef86cd5876211988985292b91c96a8f2d298df24e75989a43a3c73f2d4d8168b\", \"files\": {}}",
-        "dest": "cargo/vendor/rustls-0.23.40",
+        "contents": "{\"package\": \"6b92b125634d9b795e7beca796cc790df15a7fb38323bf3196fda83292d06b1f\", \"files\": {}}",
+        "dest": "cargo/vendor/rustls-0.23.41",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -5458,14 +5473,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/syn/syn-2.0.117.crate",
-        "sha256": "e665b8803e7b1d2a727f4023456bbbbe74da67099c585258af0ad9c5013b9b99",
-        "dest": "cargo/vendor/syn-2.0.117"
+        "url": "https://static.crates.io/crates/syn/syn-2.0.118.crate",
+        "sha256": "1b9ae57f904213ebb649ce6895b8a66c66f0203b9319718f69a5612a065b1422",
+        "dest": "cargo/vendor/syn-2.0.118"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"e665b8803e7b1d2a727f4023456bbbbe74da67099c585258af0ad9c5013b9b99\", \"files\": {}}",
-        "dest": "cargo/vendor/syn-2.0.117",
+        "contents": "{\"package\": \"1b9ae57f904213ebb649ce6895b8a66c66f0203b9319718f69a5612a065b1422\", \"files\": {}}",
+        "dest": "cargo/vendor/syn-2.0.118",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -6134,14 +6149,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/uuid/uuid-1.23.3.crate",
-        "sha256": "144d6b123cef80b301b8f72a9e2ca4370ddec21950d0a103dd22c437006d2db7",
-        "dest": "cargo/vendor/uuid-1.23.3"
+        "url": "https://static.crates.io/crates/uuid/uuid-1.23.4.crate",
+        "sha256": "bf80a72845275afea99e7f2b434723d3bc7e38470fcd1c7ed39a599c73319a53",
+        "dest": "cargo/vendor/uuid-1.23.4"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"144d6b123cef80b301b8f72a9e2ca4370ddec21950d0a103dd22c437006d2db7\", \"files\": {}}",
-        "dest": "cargo/vendor/uuid-1.23.3",
+        "contents": "{\"package\": \"bf80a72845275afea99e7f2b434723d3bc7e38470fcd1c7ed39a599c73319a53\", \"files\": {}}",
+        "dest": "cargo/vendor/uuid-1.23.4",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -6251,66 +6266,66 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/wasm-bindgen/wasm-bindgen-0.2.125.crate",
-        "sha256": "8ddb3f79143bced6de84270411622a2699cee572fc0875aeaf1e7867cf9fca1a",
-        "dest": "cargo/vendor/wasm-bindgen-0.2.125"
+        "url": "https://static.crates.io/crates/wasm-bindgen/wasm-bindgen-0.2.126.crate",
+        "sha256": "4b067c0c11094aef6b7a801c1e34a26affafdf3d051dba08456b868789aaf9a4",
+        "dest": "cargo/vendor/wasm-bindgen-0.2.126"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"8ddb3f79143bced6de84270411622a2699cee572fc0875aeaf1e7867cf9fca1a\", \"files\": {}}",
-        "dest": "cargo/vendor/wasm-bindgen-0.2.125",
+        "contents": "{\"package\": \"4b067c0c11094aef6b7a801c1e34a26affafdf3d051dba08456b868789aaf9a4\", \"files\": {}}",
+        "dest": "cargo/vendor/wasm-bindgen-0.2.126",
         "dest-filename": ".cargo-checksum.json"
     },
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/wasm-bindgen-futures/wasm-bindgen-futures-0.4.75.crate",
-        "sha256": "503b14d284f2c8dac03b819967e155ea753f573586193b2b2c95990cb5d69280",
-        "dest": "cargo/vendor/wasm-bindgen-futures-0.4.75"
+        "url": "https://static.crates.io/crates/wasm-bindgen-futures/wasm-bindgen-futures-0.4.76.crate",
+        "sha256": "c62df1340f32221cb9c54d6a27b030e3dba64361d4a95bed55f9aacb44da291d",
+        "dest": "cargo/vendor/wasm-bindgen-futures-0.4.76"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"503b14d284f2c8dac03b819967e155ea753f573586193b2b2c95990cb5d69280\", \"files\": {}}",
-        "dest": "cargo/vendor/wasm-bindgen-futures-0.4.75",
+        "contents": "{\"package\": \"c62df1340f32221cb9c54d6a27b030e3dba64361d4a95bed55f9aacb44da291d\", \"files\": {}}",
+        "dest": "cargo/vendor/wasm-bindgen-futures-0.4.76",
         "dest-filename": ".cargo-checksum.json"
     },
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/wasm-bindgen-macro/wasm-bindgen-macro-0.2.125.crate",
-        "sha256": "4e21a184b13fb19e157296e2c46056aec9092264fab83e4ba59e68c61b323c3d",
-        "dest": "cargo/vendor/wasm-bindgen-macro-0.2.125"
+        "url": "https://static.crates.io/crates/wasm-bindgen-macro/wasm-bindgen-macro-0.2.126.crate",
+        "sha256": "167ce5e579f6bcf889c4f7175a8a5a585de84e8ff93976ce393efa5f2837aab1",
+        "dest": "cargo/vendor/wasm-bindgen-macro-0.2.126"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"4e21a184b13fb19e157296e2c46056aec9092264fab83e4ba59e68c61b323c3d\", \"files\": {}}",
-        "dest": "cargo/vendor/wasm-bindgen-macro-0.2.125",
+        "contents": "{\"package\": \"167ce5e579f6bcf889c4f7175a8a5a585de84e8ff93976ce393efa5f2837aab1\", \"files\": {}}",
+        "dest": "cargo/vendor/wasm-bindgen-macro-0.2.126",
         "dest-filename": ".cargo-checksum.json"
     },
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/wasm-bindgen-macro-support/wasm-bindgen-macro-support-0.2.125.crate",
-        "sha256": "fecefd9c35bd935a20fc3fc344b5f29138961e4f47fb03297d88f2587afb5ebd",
-        "dest": "cargo/vendor/wasm-bindgen-macro-support-0.2.125"
+        "url": "https://static.crates.io/crates/wasm-bindgen-macro-support/wasm-bindgen-macro-support-0.2.126.crate",
+        "sha256": "f3997c7839262f4ef12cf90b818d6340c18e80f263f1a94bf157d0ec4420380e",
+        "dest": "cargo/vendor/wasm-bindgen-macro-support-0.2.126"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"fecefd9c35bd935a20fc3fc344b5f29138961e4f47fb03297d88f2587afb5ebd\", \"files\": {}}",
-        "dest": "cargo/vendor/wasm-bindgen-macro-support-0.2.125",
+        "contents": "{\"package\": \"f3997c7839262f4ef12cf90b818d6340c18e80f263f1a94bf157d0ec4420380e\", \"files\": {}}",
+        "dest": "cargo/vendor/wasm-bindgen-macro-support-0.2.126",
         "dest-filename": ".cargo-checksum.json"
     },
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/wasm-bindgen-shared/wasm-bindgen-shared-0.2.125.crate",
-        "sha256": "23939e44bb9a5d7576fa2b563dc2e136628f1224e88a8deed09e04858b77871f",
-        "dest": "cargo/vendor/wasm-bindgen-shared-0.2.125"
+        "url": "https://static.crates.io/crates/wasm-bindgen-shared/wasm-bindgen-shared-0.2.126.crate",
+        "sha256": "dc1b4cb0cc549fcf58d7dfc081778139b3d283a081644e833e84682ad71cea24",
+        "dest": "cargo/vendor/wasm-bindgen-shared-0.2.126"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"23939e44bb9a5d7576fa2b563dc2e136628f1224e88a8deed09e04858b77871f\", \"files\": {}}",
-        "dest": "cargo/vendor/wasm-bindgen-shared-0.2.125",
+        "contents": "{\"package\": \"dc1b4cb0cc549fcf58d7dfc081778139b3d283a081644e833e84682ad71cea24\", \"files\": {}}",
+        "dest": "cargo/vendor/wasm-bindgen-shared-0.2.126",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -6368,14 +6383,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/wayland-protocols/wayland-protocols-0.32.12.crate",
-        "sha256": "563a85523cade2429938e790815fd7319062103b9f4a2dc806e9b53b95982d8f",
-        "dest": "cargo/vendor/wayland-protocols-0.32.12"
+        "url": "https://static.crates.io/crates/wayland-protocols/wayland-protocols-0.32.13.crate",
+        "sha256": "23d0c813de3daa2ed6520af85a3bd49b0e722a3078506899aa9686fea58dc4b6",
+        "dest": "cargo/vendor/wayland-protocols-0.32.13"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"563a85523cade2429938e790815fd7319062103b9f4a2dc806e9b53b95982d8f\", \"files\": {}}",
-        "dest": "cargo/vendor/wayland-protocols-0.32.12",
+        "contents": "{\"package\": \"23d0c813de3daa2ed6520af85a3bd49b0e722a3078506899aa9686fea58dc4b6\", \"files\": {}}",
+        "dest": "cargo/vendor/wayland-protocols-0.32.13",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -6459,14 +6474,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/web-sys/web-sys-0.3.102.crate",
-        "sha256": "a6430a72df5eb332242960fe84b3002a241163998241eb596d4f739b9757061d",
-        "dest": "cargo/vendor/web-sys-0.3.102"
+        "url": "https://static.crates.io/crates/web-sys/web-sys-0.3.103.crate",
+        "sha256": "8622dcb61c0bcc9fffa6938bed81210af2da9a7e4a1a834b2e37a59b6dfb6141",
+        "dest": "cargo/vendor/web-sys-0.3.103"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"a6430a72df5eb332242960fe84b3002a241163998241eb596d4f739b9757061d\", \"files\": {}}",
-        "dest": "cargo/vendor/web-sys-0.3.102",
+        "contents": "{\"package\": \"8622dcb61c0bcc9fffa6938bed81210af2da9a7e4a1a834b2e37a59b6dfb6141\", \"files\": {}}",
+        "dest": "cargo/vendor/web-sys-0.3.103",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -6498,14 +6513,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/webpki-root-certs/webpki-root-certs-1.0.7.crate",
-        "sha256": "f31141ce3fc3e300ae89b78c0dd67f9708061d1d2eda54b8209346fd6be9a92c",
-        "dest": "cargo/vendor/webpki-root-certs-1.0.7"
+        "url": "https://static.crates.io/crates/webpki-root-certs/webpki-root-certs-1.0.8.crate",
+        "sha256": "0d46a5a140e6f7afeccd8eae97eff335163939eac8b929834875168b29b3d267",
+        "dest": "cargo/vendor/webpki-root-certs-1.0.8"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"f31141ce3fc3e300ae89b78c0dd67f9708061d1d2eda54b8209346fd6be9a92c\", \"files\": {}}",
-        "dest": "cargo/vendor/webpki-root-certs-1.0.7",
+        "contents": "{\"package\": \"0d46a5a140e6f7afeccd8eae97eff335163939eac8b929834875168b29b3d267\", \"files\": {}}",
+        "dest": "cargo/vendor/webpki-root-certs-1.0.8",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -7511,7 +7526,7 @@
     },
     {
         "type": "inline",
-        "contents": "[source.vendored-sources]\ndirectory = \"cargo/vendor\"\n\n[source.crates-io]\nreplace-with = \"vendored-sources\"\n\n[source.\"https://github.com/rustaudio/cpal\"]\ngit = \"https://github.com/rustaudio/cpal\"\nreplace-with = \"vendored-sources\"\n\n[source.\"https://github.com/arabianq/rodio\"]\ngit = \"https://github.com/arabianq/rodio\"\nreplace-with = \"vendored-sources\"\nrev = \"c6a81b5a46e00a6a682c0c431dff62e86f57d819\"\n",
+        "contents": "[source.vendored-sources]\ndirectory = \"cargo/vendor\"\n\n[source.crates-io]\nreplace-with = \"vendored-sources\"\n\n[source.\"https://github.com/arabianq/rodio\"]\ngit = \"https://github.com/arabianq/rodio\"\nreplace-with = \"vendored-sources\"\nrev = \"4746803c2e5f67004264ac946708d47a9faf510c\"\n",
         "dest": "cargo",
         "dest-filename": "config"
     }
