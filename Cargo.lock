@@ -116,9 +116,9 @@ checksum = "940b3a0ca603d1eade50a4846a2afffd5ef57a9feac2c0e2ec2e14f9ead76000"
 
 [[package]]
 name = "anyhow"
-version = "1.0.102"
+version = "1.0.103"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f202df86484c868dbad7eaa557ef785d5c66295e41b460ef922eca0723b842c"
+checksum = "2a4385e2e34eb35d6b3efe798b9eb88096925d87726c0798709bf56d9ed84af3"
 
 [[package]]
 name = "arboard"
@@ -3239,7 +3239,7 @@ checksum = "3d595e54a326bc53c1c197b32d295e14b169e3cfeaa8dc82b529f947fba6bcf5"
 
 [[package]]
 name = "pwsp-cli"
-version = "1.12.0"
+version = "1.12.1"
 dependencies = [
  "anyhow",
  "clap",
@@ -3250,7 +3250,7 @@ dependencies = [
 
 [[package]]
 name = "pwsp-daemon"
-version = "1.12.0"
+version = "1.12.1"
 dependencies = [
  "anyhow",
  "clap",
@@ -3262,7 +3262,7 @@ dependencies = [
 
 [[package]]
 name = "pwsp-gui"
-version = "1.12.0"
+version = "1.12.1"
 dependencies = [
  "anyhow",
  "eframe",
@@ -3286,7 +3286,7 @@ dependencies = [
 
 [[package]]
 name = "pwsp-lib"
-version = "1.12.0"
+version = "1.12.1"
 dependencies = [
  "anyhow",
  "async-trait",
