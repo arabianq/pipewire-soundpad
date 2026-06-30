@@ -59,7 +59,7 @@ rodio = { git = "https://github.com/arabianq/rodio.git", rev = "4746803c2e5f6700
 ] }
 pipewire = "0.10.0"
 
-egui = { version = "0.34.2", default-features = false, features = [
+egui = { version = "0.35.0", default-features = false, features = [
     "default_fonts",
     "rayon",
 ] }
