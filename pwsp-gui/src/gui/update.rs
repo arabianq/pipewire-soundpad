@@ -121,7 +121,7 @@ impl App for SoundpadGui {
 
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut EFrame) {
         // Draw UI
-        CentralPanel::default().show_inside(ui, |ui| {
+        CentralPanel::default().show(ui, |ui| {
             if !self.audio_player_state.is_daemon_running {
                 self.draw_waiting_for_daemon(ui);
                 return;
