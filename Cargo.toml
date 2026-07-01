@@ -71,7 +71,7 @@ eframe = { version = "0.35.0", default-features = false, features = [
 ] }
 egui_extras = "0.35.0"
 egui_material_icons = "0.6.0"
-egui_dnd = "0.15.0"
+egui_dnd = "0.16.0"
 
 reqwest = "0.13.4"
 percent-encoding = "2.3.2"
