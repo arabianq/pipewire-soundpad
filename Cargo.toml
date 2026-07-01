@@ -70,7 +70,7 @@ eframe = { version = "0.35.0", default-features = false, features = [
     "wayland",
 ] }
 egui_extras = "0.35.0"
-egui_material_icons = "0.6.0"
+egui_material_icons = "0.7.0"
 egui_dnd = "0.15.0"
 
 reqwest = "0.13.4"
