@@ -3,7 +3,7 @@ mod update;
 mod views;
 
 use anyhow::{Result, anyhow};
-use eframe::{HardwareAcceleration, NativeOptions, icon_data::from_png_bytes, run_native};
+use eframe::{NativeOptions, icon_data::from_png_bytes, run_native};
 use egui::{Context, FontData, FontDefinitions, FontFamily, FontTweak, Vec2, ViewportBuilder};
 use itertools::Itertools;
 use pwsp_lib::{
@@ -219,7 +219,7 @@ impl SoundpadGui {
 fn add_font(font_name: &str, font_bytes: &[u8], fonts: &mut FontDefinitions) -> Result<()> {
     let font_data = FontData::from_owned(font_bytes.to_vec()).tweak(FontTweak {
         scale: 1.0,
-        hinting_override: Some(true),
+        hinting: Some(true),
         ..Default::default()
     });
 
@@ -265,9 +265,7 @@ pub async fn run() -> Result<()> {
     const ICON: &[u8] = include_bytes!("../../assets/icon.png");
 
     let options = NativeOptions {
-        vsync: true,
         centered: true,
-        hardware_acceleration: HardwareAcceleration::Preferred,
 
         viewport: ViewportBuilder::default()
             .with_app_id("ru.arabianq.pwsp")
