@@ -155,6 +155,21 @@ jobs:
           # Update summary and sign the repository
           flatpak build-update-repo --generate-static-deltas --gpg-sign=${{ steps.gpg.outputs.fingerprint }} pages-repo
 
+          # Export GPG public key for manual import
+          gpg --export ${{ steps.gpg.outputs.fingerprint }} > pages-repo/pwsp.gpg
+
+          # Generate a .flatpakrepo file for easy installation
+          GPG_BASE64=$(gpg --export ${{ steps.gpg.outputs.fingerprint }} | base64 -w 0)
+          cat <<EOF > pages-repo/pwsp.flatpakrepo
+          [Flatpak Repo]
+          Title=PipeWire Soundpad
+          Url=https://arabianq.github.io/pipewire-soundpad/
+          Homepage=https://github.com/arabianq/pipewire-soundpad
+          Comment=PipeWire Soundpad Flatpak Repository
+          Description=Official repository for PWSP
+          GPGKey=\${GPG_BASE64}
+          EOF
+
       - name: Deploy Flatpak Repo to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:

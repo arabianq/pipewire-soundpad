@@ -33,7 +33,7 @@ Add our official OSTree repository and install the application:
 
 ```bash
 # Add the repository
-flatpak remote-add --if-not-exists arabianq-repo https://arabianq.github.io/pipewire-soundpad/
+flatpak remote-add --if-not-exists arabianq-repo https://arabianq.github.io/pipewire-soundpad/pwsp.flatpakrepo
 
 # Install the Stable version
 flatpak install arabianq-repo ru.arabianq.pwsp//stable

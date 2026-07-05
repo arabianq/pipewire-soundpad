@@ -33,7 +33,7 @@
 
 ```bash
 # Добавьте репозиторий
-flatpak remote-add --if-not-exists arabianq-repo https://arabianq.github.io/pipewire-soundpad/
+flatpak remote-add --if-not-exists arabianq-repo https://arabianq.github.io/pipewire-soundpad/pwsp.flatpakrepo
 
 # Установите стабильную (Stable) версию
 flatpak install arabianq-repo ru.arabianq.pwsp//stable
