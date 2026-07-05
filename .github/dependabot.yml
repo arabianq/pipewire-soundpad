@@ -1,6 +1,29 @@
 version: 2
 updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
   - package-ecosystem: "cargo"
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      egui-stack:
+        patterns:
+          - "egui*"
+          - "eframe"
+
+      serde-stack:
+        patterns:
+          - "serde*"
+
+      tokio-stack:
+        patterns:
+          - "tokio*"
+          - "reqwest"
+
+      clap-stack:
+        patterns:
+          - "clap*"

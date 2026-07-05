@@ -23,46 +23,32 @@ jobs:
         id: tag
         run: |
           set -euo pipefail
-
           INPUT_TAG="${{ github.event.inputs.tag || '' }}"
-          if [ -n "$INPUT_TAG" ]; then
-            echo "Using input tag: $INPUT_TAG"
-            echo "tag=$INPUT_TAG" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
           EVENT_TAG="${{ github.event.release.tag_name || '' }}"
-          if [ -n "$EVENT_TAG" ]; then
-            echo "Using event tag: $EVENT_TAG"
+
+          if [ -n "$INPUT_TAG" ]; then
+            echo "tag=$INPUT_TAG" >> $GITHUB_OUTPUT
+          elif [ -n "$EVENT_TAG" ]; then
             echo "tag=$EVENT_TAG" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          if [[ "${GITHUB_REF:-}" =~ ^refs/tags/(.+)$ ]]; then
-            echo "Using GITHUB_REF tag: ${BASH_REMATCH[1]}"
+          elif [[ "${GITHUB_REF:-}" =~ ^refs/tags/(.+)$ ]]; then
             echo "tag=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
-            exit 0
+          else
+            LATEST_JSON=$(curl -sSf -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${{ github.repository }}/releases/latest" || true)
+            TAG_NAME=$(echo "$LATEST_JSON" | jq -r '.tag_name // empty')
+            if [ -n "$TAG_NAME" ]; then
+              echo "tag=$TAG_NAME" >> $GITHUB_OUTPUT
+            else
+              echo "tag=" >> $GITHUB_OUTPUT
+            fi
           fi
-
-          echo "No tag in input/event/GITHUB_REF — querying latest release via API..."
-          LATEST_JSON=$(curl -sSf -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${{ github.repository }}/releases/latest" || true)
-          TAG_NAME=$(echo "$LATEST_JSON" | jq -r '.tag_name // empty')
-          if [ -n "$TAG_NAME" ]; then
-            echo "Found latest release tag: $TAG_NAME"
-            echo "tag=$TAG_NAME" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          echo "No tag found"
-          echo "tag=" >> $GITHUB_OUTPUT
 
       - name: Fail if no tag determined
         if: ${{ steps.tag.outputs.tag == '' }}
         run: |
-          echo "ERROR: No tag determined. Provide a tag when running manually or ensure a release exists."
+          echo "ERROR: No tag determined."
           exit 1
 
-  linux-release:
+  build-release:
     needs: prepare
     strategy:
       matrix:
@@ -75,7 +61,7 @@ jobs:
     runs-on: ${{ matrix.runner }}
 
     steps:
-      - name: Install apt deps (jq/zip + dev-libs)
+      - name: Install apt deps
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -95,10 +81,13 @@ jobs:
       - name: Setup Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          toolchain: 1.96.0
+          toolchain: stable
+          cache: false
 
       - name: Rust Cache
         uses: swatinem/rust-cache@v2
+        with:
+          prefix-key: "v3-${{ matrix.runner }}"
 
       - name: Extract all binary names
         id: cargo-meta
@@ -113,13 +102,12 @@ jobs:
       - name: Build all release binaries
         run: cargo build --release --locked
 
-      - name: Package all binaries into one archive
+      - name: Package ZIP archive
         shell: bash
         run: |
           set -euo pipefail
           TAG="${{ needs.prepare.outputs.tag }}"
           ARCHIVE_NAME="pwsp-${TAG}-linux-${{ matrix.arch }}.zip"
-          echo "Creating archive: $ARCHIVE_NAME"
 
           FILES=()
           while IFS= read -r BIN; do
@@ -127,67 +115,14 @@ jobs:
             FILES+=("target/release/$BIN")
           done <<< "${{ steps.cargo-meta.outputs.bin_names }}"
 
-          if [ "${#FILES[@]}" -eq 0 ]; then
-            echo "Error: no binaries were discovered via cargo metadata." >&2
-            exit 1
-          fi
-
-          for f in "${FILES[@]}"; do
-            if [ ! -f "$f" ]; then
-              echo "Error: expected binary not found: $f" >&2
-              exit 1
-            fi
-            echo "Will add: $f"
-          done
-
           zip -j "$ARCHIVE_NAME" "${FILES[@]}"
 
-      - name: Upload zip archive
+      - name: Upload ZIP artifact
         uses: actions/upload-artifact@v4
         with:
           name: zip-archive-${{ matrix.arch }}
           path: pwsp-*.zip
           retention-days: 1
-
-  deb-release:
-    needs: prepare
-    strategy:
-      matrix:
-        include:
-          - arch: x64
-            runner: ubuntu-latest
-          - arch: arm64
-            runner: ubuntu-24.04-arm
-      fail-fast: false
-    runs-on: ${{ matrix.runner }}
-
-    steps:
-      - name: Install apt deps (dev-libs)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libpipewire-0.3-dev \
-            libclang-dev \
-            libasound2-dev \
-            libdbus-1-dev \
-            pkg-config
-
-      - name: Checkout code at tag
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.prepare.outputs.tag }}
-          fetch-depth: 0
-
-      - name: Setup Rust toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          toolchain: 1.96.0
-
-      - name: Rust Cache
-        uses: swatinem/rust-cache@v2
-
-      - name: Build all release binaries
-        run: cargo build --release --locked
 
       - name: Cache cargo-deb
         id: cache-cargo-deb
@@ -200,14 +135,14 @@ jobs:
         if: steps.cache-cargo-deb.outputs.cache-hit != 'true'
         run: cargo install --locked cargo-deb
 
-      - name: Create .deb package (release binaries)
+      - name: Create .deb package
         shell: bash
         run: |
           set -euo pipefail
           export PATH="$HOME/.cargo/bin:$PATH"
           cargo-deb -p pwsp-gui --no-build
 
-      - name: Upload deb package
+      - name: Upload DEB artifact
         uses: actions/upload-artifact@v4
         with:
           name: deb-package-${{ matrix.arch }}
@@ -215,32 +150,14 @@ jobs:
           retention-days: 1
 
   publish-release:
-    needs: [prepare, linux-release, deb-release]
+    needs: [prepare, build-release]
     runs-on: ubuntu-latest
     steps:
-      - name: Download zip archive (x64)
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          name: zip-archive-x64
           path: ./dist
-
-      - name: Download zip archive (arm64)
-        uses: actions/download-artifact@v4
-        with:
-          name: zip-archive-arm64
-          path: ./dist
-
-      - name: Download deb package (x64)
-        uses: actions/download-artifact@v4
-        with:
-          name: deb-package-x64
-          path: ./dist
-
-      - name: Download deb package (arm64)
-        uses: actions/download-artifact@v4
-        with:
-          name: deb-package-arm64
-          path: ./dist
+          merge-multiple: true
 
       - name: Upload artifacts to Release
         uses: softprops/action-gh-release@v2
@@ -251,6 +168,10 @@ jobs:
             ./dist/pwsp-*.zip
             ./dist/*.deb
 
+  trigger-copr:
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
       - name: Install copr-cli
         run: pip install copr-cli
 
@@ -265,3 +186,75 @@ jobs:
                             --commit ${{ needs.prepare.outputs.tag }} \
                             --spec packages/rpm/pwsp.spec \
                             arabianq/pwsp
+
+  build-apt-repo:
+    needs: [prepare, build-release]
+    runs-on: ubuntu-latest
+    concurrency: gh-pages-deploy
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup GPG
+        id: gpg
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Download DEB artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: deb-package-*
+          path: debs
+          merge-multiple: true
+
+      - name: Checkout existing gh-pages
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages-branch
+        continue-on-error: true
+
+      - name: Generate APT Repository
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y reprepro
+
+          mkdir -p apt-repo/conf
+
+          cat <<EOF > apt-repo/conf/distributions
+          Origin: arabianq
+          Label: PipeWire Soundpad
+          Codename: stable
+          Architectures: amd64 arm64
+          Components: main
+          Description: APT Repository for PWSP
+          SignWith: ${{ steps.gpg.outputs.fingerprint }}
+          EOF
+
+          # Export public key for users to download
+          gpg --armor --export ${{ steps.gpg.outputs.fingerprint }} > apt-repo/pubkey.gpg
+
+          if [ -d "gh-pages-branch/apt" ]; then
+            cp -r gh-pages-branch/apt/* apt-repo/ || true
+          fi
+
+          cd apt-repo
+
+          for deb in ../debs/*.deb; do
+            if [ -f "$deb" ]; then
+              echo "Adding $deb to APT repository..."
+              reprepro includedeb stable "$deb"
+            fi
+          done
+
+      - name: Deploy APT Repo to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./apt-repo
+          destination_dir: apt
+          keep_files: true

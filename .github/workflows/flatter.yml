@@ -21,9 +21,17 @@ on:
         default: "stable"
 
 jobs:
-  flatter-x64:
-    name: Flatter (x86_64)
-    runs-on: ubuntu-latest
+  build-flatpak:
+    name: Build Flatpak (${{ matrix.arch }})
+    strategy:
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-latest
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+      fail-fast: false
+    runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
     container:
@@ -56,6 +64,8 @@ jobs:
 
       - name: Modify Manifest
         run: |
+          sed -i '/^branch:/d' packages/flatpak/ru.arabianq.pwsp.yaml
+          sed -i '/^default-branch:/d' packages/flatpak/ru.arabianq.pwsp.yaml
           echo "branch: ${{ steps.set_branch.outputs.branch }}" >> packages/flatpak/ru.arabianq.pwsp.yaml
           echo "default-branch: ${{ steps.set_branch.outputs.branch }}" >> packages/flatpak/ru.arabianq.pwsp.yaml
 
@@ -69,26 +79,28 @@ jobs:
         with:
           files: packages/flatpak/ru.arabianq.pwsp.yaml
           gpg-sign: ${{ steps.gpg.outputs.fingerprint }}
-          upload-bundles: false
+          upload-bundles: true
           upload-pages-artifact: false
-          arch: x86_64
+          arch: ${{ matrix.arch }}
           cache: true
 
-  flatter-arm64:
-    name: Flatter (aarch64)
-    needs: flatter-x64
-    runs-on: ubuntu-24.04-arm
-    permissions:
-      contents: read
+  prepare-repo:
+    name: Prepare OSTree Repo
+    needs: build-flatpak
+    runs-on: ubuntu-latest
+    concurrency: gh-pages-deploy
     container:
       image: ghcr.io/andyholmes/flatter/freedesktop:25.08
       options: --privileged
+    permissions:
+      contents: write # Needed to upload files to GitHub Release
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Download Flatpak Bundles
+        uses: actions/download-artifact@v4
         with:
-          ref: ${{ inputs.tag_name || github.ref }}
+          path: bundles
+          pattern: flatpak-bundle-*
 
       - name: Setup GPG
         id: gpg
@@ -97,49 +109,40 @@ jobs:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
 
-      - name: Set Default Branch
-        id: set_branch
+      - name: Create OSTree Repo and Prepare Release Bundles
         run: |
-          if [ "${{ github.event_name }}" == "release" ]; then
-            echo "branch=stable" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "branch=${{ inputs.build_branch }}" >> $GITHUB_OUTPUT
-          else
-            echo "branch=nightly" >> $GITHUB_OUTPUT
-          fi
+          mkdir -p pages-repo release-bundles
+          ostree init --mode=archive-z2 --repo=pages-repo
 
-      - name: Modify Manifest
-        run: |
-          echo "branch: ${{ steps.set_branch.outputs.branch }}" >> packages/flatpak/ru.arabianq.pwsp.yaml
-          echo "default-branch: ${{ steps.set_branch.outputs.branch }}" >> packages/flatpak/ru.arabianq.pwsp.yaml
+          for dir in bundles/flatpak-bundle-*; do
+            arch=$(basename "$dir" | sed 's/flatpak-bundle-//')
 
-      - name: Install SDK Extensions
-        run: |
-          flatpak install -y flathub org.freedesktop.Sdk.Extension.rust-stable//25.08
-          flatpak install -y flathub org.freedesktop.Sdk.Extension.llvm20//25.08
+            # Find the flatpak file inside the dir
+            bundle=$(find "$dir" -name "*.flatpak" | head -n 1)
 
-      - name: Build Flatpak
-        uses: andyholmes/flatter@main
+            if [ -n "$bundle" ]; then
+              echo "Importing $bundle for architecture $arch..."
+              flatpak build-import-bundle pages-repo "$bundle"
+
+              # Copy with a unique name for GitHub Release
+              cp "$bundle" "release-bundles/ru.arabianq.pwsp-${arch}.flatpak"
+            fi
+          done
+
+          # Update summary and sign the repository
+          flatpak build-update-repo --generate-static-deltas --gpg-sign=${{ steps.gpg.outputs.fingerprint }} pages-repo
+
+      - name: Deploy Flatpak Repo to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          files: packages/flatpak/ru.arabianq.pwsp.yaml
-          gpg-sign: ${{ steps.gpg.outputs.fingerprint }}
-          upload-bundles: false
-          upload-pages-artifact: true
-          arch: aarch64
-          cache: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./pages-repo
+          destination_dir: .
+          keep_files: true
 
-  deploy:
-    name: Deploy to GitHub Pages
-    runs-on: ubuntu-latest
-    needs: flatter-arm64
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - name: GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Upload bundles to GitHub Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-bundles/*.flatpak
+          tag_name: ${{ github.event.release.tag_name }}
