@@ -127,6 +127,9 @@ jobs:
             cp -r gh-pages-branch pages-repo
             # Clean up the .git folder so it doesn't interfere
             rm -rf pages-repo/.git
+            # Recreate empty OSTree directories that Git ignored when pushing previously
+            mkdir -p pages-repo/refs/heads pages-repo/refs/mirrors pages-repo/refs/remotes \
+                     pages-repo/objects pages-repo/state pages-repo/extensions pages-repo/tmp
           else
             echo "Initializing new OSTree repository..."
             mkdir -p pages-repo
