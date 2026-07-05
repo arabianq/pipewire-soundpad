@@ -111,7 +111,16 @@ jobs:
         run: |
           set -euo pipefail
           export PATH="$HOME/.cargo/bin:$PATH"
-          cargo-deb -p pwsp-gui --no-build --no-strip --profile dev
+          if [ "${{ github.event_name }}" == "push" ] && [ "${{ github.ref }}" == "refs/heads/main" ]; then
+             BASE_VERSION=$(grep '^version =' Cargo.toml | head -1 | cut -d'"' -f2)
+             GIT_REV=$(git rev-parse --short HEAD)
+             DATE=$(date +%Y%m%d)
+             DEB_VER="${BASE_VERSION}+git${DATE}.${GIT_REV}"
+             echo "Building nightly deb version: $DEB_VER"
+             cargo-deb -p pwsp-gui --no-build --no-strip --profile dev --deb-version "$DEB_VER"
+          else
+             cargo-deb -p pwsp-gui --no-build --no-strip --profile dev
+          fi
 
       - name: Upload .deb artifact
         uses: actions/upload-artifact@v4
@@ -119,6 +128,85 @@ jobs:
           name: deb-packages-${{ matrix.arch }}
           path: target/debian/*.deb
           retention-days: 7
+
+  deploy-nightly-apt:
+    needs: build-and-package
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    concurrency: gh-pages-deploy
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup GPG
+        id: gpg
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Download DEB artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: deb-packages-*
+          path: debs
+          merge-multiple: true
+
+      - name: Checkout existing gh-pages
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages-branch
+        continue-on-error: true
+
+      - name: Generate Nightly APT Repository
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y reprepro
+
+          mkdir -p apt-repo
+          if [ -d "gh-pages-branch/apt" ]; then
+            cp -r gh-pages-branch/apt/* apt-repo/ || true
+          fi
+
+          mkdir -p apt-repo/conf
+          cat <<EOF > apt-repo/conf/distributions
+          Origin: arabianq
+          Label: PipeWire Soundpad
+          Codename: stable
+          Architectures: amd64 arm64
+          Components: main
+          Description: APT Repository for PWSP
+          SignWith: ${{ steps.gpg.outputs.fingerprint }}
+
+          Origin: arabianq
+          Label: PipeWire Soundpad
+          Codename: nightly
+          Architectures: amd64 arm64
+          Components: main
+          Description: Nightly APT Repository for PWSP
+          SignWith: ${{ steps.gpg.outputs.fingerprint }}
+          EOF
+
+          gpg --armor --export ${{ steps.gpg.outputs.fingerprint }} > apt-repo/pubkey.gpg
+
+          cd apt-repo
+          for deb in ../debs/*.deb; do
+            if [ -f "$deb" ]; then
+              echo "Adding $deb to nightly APT repository..."
+              reprepro includedeb nightly "$deb"
+            fi
+          done
+
+      - name: Deploy APT Repo to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./apt-repo
+          destination_dir: apt
+          keep_files: true
 
   flatpak-build:
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'

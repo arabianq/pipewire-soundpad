@@ -241,6 +241,14 @@ jobs:
           Components: main
           Description: APT Repository for PWSP
           SignWith: ${{ steps.gpg.outputs.fingerprint }}
+
+          Origin: arabianq
+          Label: PipeWire Soundpad
+          Codename: nightly
+          Architectures: amd64 arm64
+          Components: main
+          Description: Nightly APT Repository for PWSP
+          SignWith: ${{ steps.gpg.outputs.fingerprint }}
           EOF
 
           gpg --armor --export ${{ steps.gpg.outputs.fingerprint }} > apt-repo/pubkey.gpg
