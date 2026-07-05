@@ -102,6 +102,13 @@ jobs:
           path: bundles
           pattern: flatpak-bundle-*
 
+      - name: Checkout existing gh-pages
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages-branch
+        continue-on-error: true
+
       - name: Setup GPG
         id: gpg
         uses: crazy-max/ghaction-import-gpg@v6
@@ -109,10 +116,21 @@ jobs:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
 
-      - name: Create OSTree Repo and Prepare Release Bundles
+      - name: Update OSTree Repo and Prepare Release Bundles
         run: |
-          mkdir -p pages-repo release-bundles
-          ostree init --mode=archive-z2 --repo=pages-repo
+          mkdir -p release-bundles
+
+          # Inherit existing OSTree repository to preserve previous branches (e.g. stable vs nightly)
+          if [ -f "gh-pages-branch/config" ]; then
+            echo "Found existing OSTree repository. Copying..."
+            cp -r gh-pages-branch pages-repo
+            # Clean up the .git folder so it doesn't interfere
+            rm -rf pages-repo/.git
+          else
+            echo "Initializing new OSTree repository..."
+            mkdir -p pages-repo
+            ostree init --mode=archive-z2 --repo=pages-repo
+          fi
 
           for dir in bundles/flatpak-bundle-*; do
             arch=$(basename "$dir" | sed 's/flatpak-bundle-//')

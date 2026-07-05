@@ -223,6 +223,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y reprepro
 
+          mkdir -p apt-repo
+
+          # Restore existing repository first so we don't lose old packages
+          if [ -d "gh-pages-branch/apt" ]; then
+            cp -r gh-pages-branch/apt/* apt-repo/ || true
+          fi
+
+          # Always rewrite the config and public key to ensure they are up-to-date
           mkdir -p apt-repo/conf
 
           cat <<EOF > apt-repo/conf/distributions
@@ -235,12 +243,7 @@ jobs:
           SignWith: ${{ steps.gpg.outputs.fingerprint }}
           EOF
 
-          # Export public key for users to download
           gpg --armor --export ${{ steps.gpg.outputs.fingerprint }} > apt-repo/pubkey.gpg
-
-          if [ -d "gh-pages-branch/apt" ]; then
-            cp -r gh-pages-branch/apt/* apt-repo/ || true
-          fi
 
           cd apt-repo
 
