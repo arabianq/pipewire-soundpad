@@ -100,7 +100,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: bundles
-          pattern: flatpak-bundle-*
+          pattern: ru.arabianq.pwsp-*
 
       - name: Checkout existing gh-pages
         uses: actions/checkout@v4
@@ -126,14 +126,17 @@ jobs:
             cp -r gh-pages-branch pages-repo
             # Clean up the .git folder so it doesn't interfere
             rm -rf pages-repo/.git
+            # Recreate empty directories that git might have ignored
+            mkdir -p pages-repo/objects pages-repo/refs
           else
             echo "Initializing new OSTree repository..."
             mkdir -p pages-repo
             ostree init --mode=archive-z2 --repo=pages-repo
           fi
 
-          for dir in bundles/flatpak-bundle-*; do
-            arch=$(basename "$dir" | sed 's/flatpak-bundle-//')
+          shopt -s nullglob
+          for dir in bundles/ru.arabianq.pwsp-*; do
+            arch=$(basename "$dir" | sed 's/ru.arabianq.pwsp-//')
 
             # Find the flatpak file inside the dir
             bundle=$(find "$dir" -name "*.flatpak" | head -n 1)
