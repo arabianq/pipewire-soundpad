@@ -1,0 +1,7 @@
+[Flatpak Repo]
+Title=PipeWire Soundpad
+Url=https://arabianq.github.io/pipewire-soundpad/
+Homepage=https://github.com/arabianq/pipewire-soundpad
+Comment=PipeWire Soundpad Flatpak Repository
+Description=Official repository for PWSP
+GPGKey=${GPG_BASE64}
