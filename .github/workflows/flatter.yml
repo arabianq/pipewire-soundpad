@@ -64,6 +64,8 @@ jobs:
 
       - name: Modify Manifest
         run: |
+          sed -i '/^branch:/d' packages/flatpak/ru.arabianq.pwsp.yaml
+          sed -i '/^default-branch:/d' packages/flatpak/ru.arabianq.pwsp.yaml
           echo "branch: ${{ steps.set_branch.outputs.branch }}" >> packages/flatpak/ru.arabianq.pwsp.yaml
           echo "default-branch: ${{ steps.set_branch.outputs.branch }}" >> packages/flatpak/ru.arabianq.pwsp.yaml
 
