@@ -121,13 +121,12 @@ jobs:
           mkdir -p release-bundles
 
           # Inherit existing OSTree repository to preserve previous branches (e.g. stable vs nightly)
-          if [ -f "gh-pages-branch/config" ]; then
+          # Only inherit if objects/ exists, otherwise it's a corrupted/empty repo due to Git ignoring empty folders
+          if [ -d "gh-pages-branch/objects" ]; then
             echo "Found existing OSTree repository. Copying..."
             cp -r gh-pages-branch pages-repo
             # Clean up the .git folder so it doesn't interfere
             rm -rf pages-repo/.git
-            # Recreate empty directories that git might have ignored
-            mkdir -p pages-repo/objects pages-repo/refs
           else
             echo "Initializing new OSTree repository..."
             mkdir -p pages-repo
