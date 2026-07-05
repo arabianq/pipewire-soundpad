@@ -160,14 +160,14 @@ jobs:
 
           # Generate a .flatpakrepo file for easy installation
           GPG_BASE64=$(gpg --export ${{ steps.gpg.outputs.fingerprint }} | base64 -w 0)
-          cat <<EOF > pages-repo/pwsp.flatpakrepo
+          cat <<EOF | sed 's/^ *//' > pages-repo/pwsp.flatpakrepo
           [Flatpak Repo]
           Title=PipeWire Soundpad
           Url=https://arabianq.github.io/pipewire-soundpad/
           Homepage=https://github.com/arabianq/pipewire-soundpad
           Comment=PipeWire Soundpad Flatpak Repository
           Description=Official repository for PWSP
-          GPGKey=\${GPG_BASE64}
+          GPGKey=${GPG_BASE64}
           EOF
 
       - name: Deploy Flatpak Repo to GitHub Pages
