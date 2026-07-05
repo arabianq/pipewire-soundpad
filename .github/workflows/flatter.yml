@@ -88,6 +88,7 @@ jobs:
     name: Prepare OSTree Repo
     needs: build-flatpak
     runs-on: ubuntu-latest
+    concurrency: gh-pages-deploy
     container:
       image: ghcr.io/andyholmes/flatter/freedesktop:25.08
       options: --privileged

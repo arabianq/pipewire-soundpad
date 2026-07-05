@@ -190,6 +190,7 @@ jobs:
   build-apt-repo:
     needs: [prepare, build-release]
     runs-on: ubuntu-latest
+    concurrency: gh-pages-deploy
     permissions:
       contents: write
     steps:
