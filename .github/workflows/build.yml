@@ -97,7 +97,7 @@ jobs:
 
       - name: Cache cargo-deb
         id: cache-cargo-deb
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cargo/bin/cargo-deb
           key: ${{ runner.os }}-${{ runner.arch }}-cargo-deb-v1
