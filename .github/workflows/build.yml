@@ -253,4 +253,4 @@ jobs:
                             --clone-url https://github.com/arabianq/pipewire-soundpad.git \
                             --commit ${{ github.sha }} \
                             --spec packages/rpm/pwsp-git.spec \
-                            arabianq/pwsp-git
+                            arabianq/pwsp
