@@ -1,0 +1,38 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Origin: arabianq
+Label: PipeWire Soundpad
+Codename: stable
+Date: Sun, 05 Jul 2026 18:53:39 UTC
+Architectures: amd64 arm64
+Components: main
+Description: APT Repository for PWSP
+MD5Sum:
+ 1a66bb3fa7022471fcbddb76e805086a 614 main/binary-amd64/Packages
+ 334ed3b3f3cedc6406545417abf9d13b 438 main/binary-amd64/Packages.gz
+ f82d685802fbb32fec3c9ba8e11e55b9 115 main/binary-amd64/Release
+ 8a7bbcc3dd27ac9151a2329731acb54f 614 main/binary-arm64/Packages
+ 0b91db8e02e57c584ffaee7a5cb560d5 437 main/binary-arm64/Packages.gz
+ 113dd4f621500874592b2a2f1eeb45ae 115 main/binary-arm64/Release
+SHA1:
+ 2510f93cca3c207a0e1ce9142fdc35c303d1fea5 614 main/binary-amd64/Packages
+ 99b4d466b68b8a21b9757d2953a3e9c93175c025 438 main/binary-amd64/Packages.gz
+ 1ff55a261c49c41f38e6da56f1f5d7136d38b08f 115 main/binary-amd64/Release
+ 3e86a48a2167361dd41ef54ff464828e26a2bb20 614 main/binary-arm64/Packages
+ b4ed128eaa1f980b97bbb6db6ae9be6b4bbcfe3e 437 main/binary-arm64/Packages.gz
+ be63fa980d70857efdc424c837cd54ab986a40cd 115 main/binary-arm64/Release
+SHA256:
+ 3a49a9daf84bdd622f5812dcb403d419941a2393721a20e746d957399994a3b3 614 main/binary-amd64/Packages
+ 4a0f5dfba6fec89ae6d23499d2a9fe3dc3c3a4c9512c44ba0fc526f580f5e915 438 main/binary-amd64/Packages.gz
+ c670ad086ec5b85d17211cb15e8e4ac1fb49a6398d0c9672992c26a009229d8c 115 main/binary-amd64/Release
+ 19ff13f0f7fc035f7d3b904695f0b05fe1139ee4465a61c09d4acc224e91dade 614 main/binary-arm64/Packages
+ b6f7241e29bd7d18844e3fd9c324f709721dde8d27432804a209c3de9e78ad29 437 main/binary-arm64/Packages.gz
+ 4a90ce2395fbe57635b23de83540564c0917b2f419cd69ab2630fc1520bb5c11 115 main/binary-arm64/Release
+-----BEGIN PGP SIGNATURE-----
+
+iHUEARYKAB0WIQSq48VrHi02dxCM8oCDybDbLI+dFgUCakqoMwAKCRCDybDbLI+d
+Fv+FAQD9xZPM77UZrI/Ze6wCt7tYtpD3btLVJQIcRWuVQhtemQD/fkNVdZ9DBgFw
+mLZH/E2xC5bm9a5626UnQYrizapD9gQ=
+=3Gpf
+-----END PGP SIGNATURE-----
