@@ -48,7 +48,7 @@ jobs:
       - name: Rust Cache
         uses: swatinem/rust-cache@v2
         with:
-          shared-key: "${{ matrix.runner }}"
+          prefix-key: "v3-${{ matrix.runner }}"
 
       - name: Run tests
         run: cargo test --locked
