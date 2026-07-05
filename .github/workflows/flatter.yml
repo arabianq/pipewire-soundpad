@@ -98,7 +98,6 @@ jobs:
         with:
           path: bundles
           pattern: flatpak-bundle-*
-          merge-multiple: true
 
       - name: Setup GPG
         id: gpg
@@ -107,15 +106,24 @@ jobs:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
 
-      - name: Create OSTree Repo
+      - name: Create OSTree Repo and Prepare Release Bundles
         run: |
-          mkdir -p pages-repo
+          mkdir -p pages-repo release-bundles
           ostree init --mode=archive-z2 --repo=pages-repo
           
-          # Import both bundles into the repo
-          for bundle in bundles/*.flatpak; do
-            echo "Importing $bundle..."
-            flatpak build-import-bundle pages-repo "$bundle"
+          for dir in bundles/flatpak-bundle-*; do
+            arch=$(basename "$dir" | sed 's/flatpak-bundle-//')
+            
+            # Find the flatpak file inside the dir
+            bundle=$(find "$dir" -name "*.flatpak" | head -n 1)
+            
+            if [ -n "$bundle" ]; then
+              echo "Importing $bundle for architecture $arch..."
+              flatpak build-import-bundle pages-repo "$bundle"
+              
+              # Copy with a unique name for GitHub Release
+              cp "$bundle" "release-bundles/ru.arabianq.pwsp-${arch}.flatpak"
+            fi
           done
           
           # Update summary and sign the repository
@@ -130,7 +138,7 @@ jobs:
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
-          files: bundles/*.flatpak
+          files: release-bundles/*.flatpak
           tag_name: ${{ github.event.release.tag_name }}
 
   deploy:
