@@ -165,6 +165,10 @@ jobs:
             ./dist/pwsp-*.zip
             ./dist/*.deb
 
+  trigger-copr:
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
       - name: Install copr-cli
         run: pip install copr-cli
 
