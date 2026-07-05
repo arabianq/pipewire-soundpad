@@ -1,6 +1,6 @@
 # PipeWire Soundpad (PWSP) 🎵
 
-![PWSP Screenshot](https://raw.githubusercontent.com/arabianq/pipewire-soundpad/master/assets/screenshot.png)
+![PWSP Screenshot](pwsp-gui/assets/screenshot.png)
 
 [🇷🇺 Читать на русском](README.ru.md) | [🇺🇸 Read in English](README.md)
 
