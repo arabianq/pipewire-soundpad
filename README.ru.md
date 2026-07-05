@@ -59,7 +59,7 @@ echo "deb [signed-by=/etc/apt/keyrings/pwsp.gpg] https://arabianq.github.io/pipe
 
 # 3. Обновите индексы и установите
 sudo apt update
-sudo apt install pwsp-gui
+sudo apt install pwsp
 ```
 
 ### 🐧 Fedora / RHEL (COPR)
