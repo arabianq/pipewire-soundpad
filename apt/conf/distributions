@@ -1,0 +1,15 @@
+Origin: arabianq
+Label: PipeWire Soundpad
+Codename: stable
+Architectures: amd64 arm64
+Components: main
+Description: APT Repository for PWSP
+SignWith: AAE3C56B1E2D3677108CF28083C9B0DB2C8F9D16
+
+Origin: arabianq
+Label: PipeWire Soundpad
+Codename: nightly
+Architectures: amd64 arm64
+Components: main
+Description: Nightly APT Repository for PWSP
+SignWith: AAE3C56B1E2D3677108CF28083C9B0DB2C8F9D16

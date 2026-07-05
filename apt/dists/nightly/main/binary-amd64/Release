@@ -1,0 +1,5 @@
+Component: main
+Origin: arabianq
+Label: PipeWire Soundpad
+Architecture: amd64
+Description: Nightly APT Repository for PWSP

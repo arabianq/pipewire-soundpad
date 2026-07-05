@@ -1,0 +1,28 @@
+Origin: arabianq
+Label: PipeWire Soundpad
+Codename: nightly
+Date: Sun, 05 Jul 2026 18:20:43 UTC
+Architectures: amd64 arm64
+Components: main
+Description: Nightly APT Repository for PWSP
+MD5Sum:
+ 841d44ebf4a7f0670dd17d0582068081 650 main/binary-amd64/Packages
+ f0a3b7e4900340920a4ba621e0b595d1 452 main/binary-amd64/Packages.gz
+ facbb80485897bc6e0d67e37e5dd38e8 123 main/binary-amd64/Release
+ 8529d7914c036f4a05551bbf6c20dc91 677 main/binary-arm64/Packages
+ 61405912ff96db862a5eb91a1029bcd8 461 main/binary-arm64/Packages.gz
+ 7418f9ee7493009aeaa4417f5d11ee62 123 main/binary-arm64/Release
+SHA1:
+ 818fad4b1f960fa93ba70b0bd0d2d4572b8ba5ce 650 main/binary-amd64/Packages
+ 0ca3c95eb91f035997e60f087e105f61dd280d3f 452 main/binary-amd64/Packages.gz
+ 66d8024fbaf66bb3aa03e04c8784ffc2d45d5e92 123 main/binary-amd64/Release
+ be73de8ea87769324f54460e95b3345f3d783148 677 main/binary-arm64/Packages
+ 7b01f30411f4405029e9336b9aec32cffb330048 461 main/binary-arm64/Packages.gz
+ f7984ac62248818b3d8a2c59250042d426414d8c 123 main/binary-arm64/Release
+SHA256:
+ 1bf8c72e44fd2b1e5a7529b1a2133a803af3bc2990957cae7bddffb6d0b33161 650 main/binary-amd64/Packages
+ bca0ce9e867b2b6969f8ae89776f8c70248400b3c2251cd7a334de3d12780aa3 452 main/binary-amd64/Packages.gz
+ b5a22f248703739051a84b584c2b0ea20a9b69b28e823c5a8b0aca5f33f90bba 123 main/binary-amd64/Release
+ fc417a81d9e859530cce94b340ccc222c340429de260ed04e20b23928e9ce32a 677 main/binary-arm64/Packages
+ 11a8536d4a8682cbe8470c6c1a74034735134409ae9bba7cc47082bde5831599 461 main/binary-arm64/Packages.gz
+ a5e6d2298cf4bded7fd380a4bb06d97be39e9ea1a0b42acd5190a44aad619c92 123 main/binary-arm64/Release
