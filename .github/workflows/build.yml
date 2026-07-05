@@ -33,6 +33,7 @@ jobs:
             libclang-dev \
             libasound2-dev \
             libdbus-1-dev \
+            libssl-dev \
             pkg-config
 
       - name: Checkout code

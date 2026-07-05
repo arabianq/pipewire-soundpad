@@ -28,9 +28,11 @@ BuildRequires: pipewire-devel
 %if 0%{?suse_version}
 BuildRequires: alsa-devel
 BuildRequires: dbus-1-devel
+BuildRequires: libopenssl-devel
 %else
 BuildRequires: alsa-lib-devel
 BuildRequires: dbus-devel
+BuildRequires: openssl-devel
 %endif
 BuildRequires: clang-devel
 BuildRequires: cmake
