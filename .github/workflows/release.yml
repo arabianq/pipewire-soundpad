@@ -85,6 +85,8 @@ jobs:
 
       - name: Rust Cache
         uses: swatinem/rust-cache@v2
+        with:
+          shared-key: "${{ matrix.runner }}"
 
       - name: Extract all binary names
         id: cargo-meta
