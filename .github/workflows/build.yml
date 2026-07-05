@@ -235,3 +235,22 @@ jobs:
           branch: master
           build-bundle: true
           arch: ${{ matrix.arch }}
+
+  trigger-copr-nightly:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install copr-cli
+        run: pip install copr-cli
+
+      - name: Trigger Copr Build
+        env:
+          COPR_CONFIG: ${{ secrets.COPR_CONFIG }}
+        run: |
+          mkdir -p ~/.config
+          echo "$COPR_CONFIG" > ~/.config/copr
+          copr-cli buildscm --nowait \
+                            --clone-url https://github.com/arabianq/pipewire-soundpad.git \
+                            --commit ${{ github.sha }} \
+                            --spec packages/rpm/pwsp-git.spec \
+                            arabianq/pwsp-git
