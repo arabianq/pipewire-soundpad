@@ -93,7 +93,7 @@ jobs:
       options: --privileged
     permissions:
       contents: write # Needed to upload files to GitHub Release
-    
+
     steps:
       - name: Download Flatpak Bundles
         uses: actions/download-artifact@v4
@@ -112,22 +112,22 @@ jobs:
         run: |
           mkdir -p pages-repo release-bundles
           ostree init --mode=archive-z2 --repo=pages-repo
-          
+
           for dir in bundles/flatpak-bundle-*; do
             arch=$(basename "$dir" | sed 's/flatpak-bundle-//')
-            
+
             # Find the flatpak file inside the dir
             bundle=$(find "$dir" -name "*.flatpak" | head -n 1)
-            
+
             if [ -n "$bundle" ]; then
               echo "Importing $bundle for architecture $arch..."
               flatpak build-import-bundle pages-repo "$bundle"
-              
+
               # Copy with a unique name for GitHub Release
               cp "$bundle" "release-bundles/ru.arabianq.pwsp-${arch}.flatpak"
             fi
           done
-          
+
           # Update summary and sign the repository
           flatpak build-update-repo --generate-static-deltas --gpg-sign=${{ steps.gpg.outputs.fingerprint }} pages-repo
 
