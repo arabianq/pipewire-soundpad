@@ -35,6 +35,8 @@ reqwest.workspace = true
 percent-encoding.workspace = true
 
 [package.metadata.deb]
+section = "sound"
+priority = "optional"
 assets = [
     [
         "target/release/pwsp-daemon",
