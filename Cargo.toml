@@ -73,7 +73,7 @@ egui_extras = "0.35.0"
 egui_material_icons = "0.7.0"
 egui_dnd = "0.16.0"
 
-reqwest = "0.13.4"
+reqwest = { version = "0.13.4", default-features = false, features = ["native-tls"] }
 percent-encoding = "2.3.2"
 
 [profile.dev]
