@@ -51,7 +51,19 @@ paru -S pwsp-bin # or 'pwsp' to build from source
 ```
 
 **Debian / Ubuntu:** 
-Download pre-built `.deb` packages or standalone binaries from the [Releases page](https://github.com/arabianq/pipewire-soundpad/releases).
+We provide an official APT repository for automatic updates:
+```bash
+# 1. Download the public key
+wget -O- https://arabianq.github.io/pipewire-soundpad/apt/pubkey.gpg | sudo gpg --dearmor -o /etc/apt/keyrings/pwsp.gpg
+
+# 2. Add the repository to your sources
+echo "deb [signed-by=/etc/apt/keyrings/pwsp.gpg] https://arabianq.github.io/pipewire-soundpad/apt/ stable main" | sudo tee /etc/apt/sources.list.d/pwsp.list
+
+# 3. Update and install
+sudo apt update
+sudo apt install pwsp-gui
+```
+*(Alternatively, you can manually download `.deb` packages from the [Releases page](https://github.com/arabianq/pipewire-soundpad/releases)).*
 
 ### 🦀 Cargo / Source Build
 ```bash

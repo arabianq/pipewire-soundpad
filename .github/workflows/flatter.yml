@@ -131,10 +131,13 @@ jobs:
           # Update summary and sign the repository
           flatpak build-update-repo --generate-static-deltas --gpg-sign=${{ steps.gpg.outputs.fingerprint }} pages-repo
 
-      - name: Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Deploy Flatpak Repo to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          path: pages-repo/
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./pages-repo
+          destination_dir: .
+          keep_files: true
 
       - name: Upload bundles to GitHub Release
         if: github.event_name == 'release'
@@ -142,19 +145,3 @@ jobs:
         with:
           files: release-bundles/*.flatpak
           tag_name: ${{ github.event.release.tag_name }}
-
-  deploy:
-    name: Deploy to GitHub Pages
-    runs-on: ubuntu-latest
-    needs: prepare-repo
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - name: GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4

@@ -186,3 +186,74 @@ jobs:
                             --commit ${{ needs.prepare.outputs.tag }} \
                             --spec packages/rpm/pwsp.spec \
                             arabianq/pwsp
+
+  build-apt-repo:
+    needs: [prepare, build-release]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup GPG
+        id: gpg
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Download DEB artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: deb-package-*
+          path: debs
+          merge-multiple: true
+
+      - name: Checkout existing gh-pages
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages-branch
+        continue-on-error: true
+
+      - name: Generate APT Repository
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y reprepro
+
+          mkdir -p apt-repo/conf
+
+          cat <<EOF > apt-repo/conf/distributions
+          Origin: arabianq
+          Label: PipeWire Soundpad
+          Codename: stable
+          Architectures: amd64 arm64
+          Components: main
+          Description: APT Repository for PWSP
+          SignWith: ${{ steps.gpg.outputs.fingerprint }}
+          EOF
+
+          # Export public key for users to download
+          gpg --armor --export ${{ steps.gpg.outputs.fingerprint }} > apt-repo/pubkey.gpg
+
+          if [ -d "gh-pages-branch/apt" ]; then
+            cp -r gh-pages-branch/apt/* apt-repo/ || true
+          fi
+
+          cd apt-repo
+
+          for deb in ../debs/*.deb; do
+            if [ -f "$deb" ]; then
+              echo "Adding $deb to APT repository..."
+              reprepro includedeb stable "$deb"
+            fi
+          done
+
+      - name: Deploy APT Repo to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./apt-repo
+          destination_dir: apt
+          keep_files: true
