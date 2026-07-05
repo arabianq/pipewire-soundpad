@@ -55,13 +55,7 @@ jobs:
         run: cargo test --locked
 
       - name: Build all binaries
-        env:
-          CARGO_PROFILE_RELEASE_OPT_LEVEL: 0
-          CARGO_PROFILE_RELEASE_DEBUG: "true"
-          CARGO_PROFILE_RELEASE_STRIP: "false"
-          CARGO_PROFILE_RELEASE_LTO: "false"
-          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 256
-        run: cargo build --release --locked
+        run: cargo build --locked
 
       - name: Extract all binary names
         id: cargo-meta
@@ -84,7 +78,7 @@ jobs:
           FILES=()
           while IFS= read -r BIN; do
             [ -z "$BIN" ] && continue
-            FILES+=("target/release/$BIN")
+            FILES+=("target/debug/$BIN")
           done <<< "${{ steps.cargo-meta.outputs.bin_names }}"
 
           if [ "${#FILES[@]}" -eq 0 ]; then
@@ -117,7 +111,7 @@ jobs:
         run: |
           set -euo pipefail
           export PATH="$HOME/.cargo/bin:$PATH"
-          cargo-deb -p pwsp-gui --no-build --no-strip
+          cargo-deb -p pwsp-gui --no-build --no-strip --profile dev
 
       - name: Upload .deb artifact
         uses: actions/upload-artifact@v4
