@@ -38,6 +38,7 @@ percent-encoding.workspace = true
 name = "pwsp"
 section = "sound"
 priority = "optional"
+maintainer-scripts = "maintainer-scripts"
 assets = [
     [
         "target/release/pwsp-daemon",

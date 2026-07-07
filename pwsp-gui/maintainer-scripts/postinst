@@ -1,0 +1,21 @@
+#!/bin/sh
+set -e
+
+if [ "$1" = "configure" ]; then
+    if [ -x "/usr/bin/systemctl" ]; then
+        systemctl --global enable pwsp-daemon.service || true
+
+        for uid_dir in /run/user/*; do
+            if [ -d "$uid_dir/systemd" ]; then
+                uid=$(basename "$uid_dir")
+                if [ "$uid" != "0" ]; then
+                    username=$(id -un "$uid" 2>/dev/null) || continue
+                    su -s /bin/sh -c "XDG_RUNTIME_DIR=$uid_dir systemctl --user daemon-reload" "$username" || true
+                    su -s /bin/sh -c "XDG_RUNTIME_DIR=$uid_dir systemctl --user try-restart pwsp-daemon.service" "$username" || true
+                fi
+            fi
+        done
+    fi
+fi
+
+exit 0
