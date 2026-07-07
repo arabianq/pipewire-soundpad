@@ -202,8 +202,7 @@ impl SoundpadGui {
                     let file_name = entry_path
                         .file_name()
                         .unwrap_or_default()
-                        .to_string_lossy()
-                        .to_string();
+                        .to_string_lossy();
 
                     if !file_name.to_lowercase().contains(search_query) {
                         return false;
