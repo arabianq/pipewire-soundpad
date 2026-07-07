@@ -3,7 +3,10 @@ mod gui;
 use anyhow::{Context, Result};
 use pwsp_lib::utils::gui::ensure_pwsp_audio_dir;
 use rust_i18n::i18n;
-use std::{env, path::PathBuf};
+use std::{
+    env,
+    path::{Path, PathBuf},
+};
 
 i18n!("locales", fallback = "en");
 
@@ -44,7 +47,7 @@ async fn download_audio_from_url(uri: &str) -> Result<PathBuf> {
         .into_owned();
 
     let normalized_file_name = file_name.replace('\\', "/");
-    let sanitized_file_name = std::path::Path::new(&normalized_file_name)
+    let sanitized_file_name = Path::new(&normalized_file_name)
         .file_name()
         .and_then(|n| n.to_str())
         .unwrap_or("downloaded_audio.mp3");
