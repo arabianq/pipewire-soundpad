@@ -45,7 +45,81 @@ async fn download_audio_from_url(uri: &str) -> Result<PathBuf> {
 
     let save_path = ensure_pwsp_audio_dir().join(file_name);
 
-    let response = reqwest::get(target_url)
+    let parsed_url = reqwest::Url::parse(target_url).context("Failed to parse target URL")?;
+
+    // Validate host using DNS resolution to catch DNS rebinding/custom domains
+    let host_str = parsed_url
+        .host_str()
+        .ok_or_else(|| anyhow::anyhow!("SSRF validation failed: no host in URL"))?;
+
+    if host_str == "localhost" {
+        return Err(anyhow::anyhow!("SSRF validation failed: host is localhost"));
+    }
+
+    // Try to resolve the host using tokio to avoid blocking the async executor
+    let port = parsed_url.port_or_known_default().unwrap_or(80);
+    let host_with_port = format!("{}:{}", host_str, port);
+
+    if let Ok(addrs) = tokio::net::lookup_host(&host_with_port).await {
+        for addr in addrs {
+            let ip = addr.ip();
+            let is_internal = ip.is_loopback()
+                || ip.is_unspecified()
+                || match ip {
+                    std::net::IpAddr::V4(ipv4) => {
+                        ipv4.is_private()
+                            || ipv4.is_link_local()
+                            || ipv4.is_broadcast()
+                            || ipv4.is_documentation()
+                    }
+                    std::net::IpAddr::V6(ipv6) => ipv6.is_multicast(),
+                };
+            if is_internal {
+                return Err(anyhow::anyhow!(
+                    "SSRF validation failed: resolved to private or internal IP"
+                ));
+            }
+        }
+    } else {
+        // If it doesn't resolve, it could be an invalid host or no internet.
+        // Also fallback to parsing the URL host directly if it's an IP literal like IPv6 with brackets.
+        if let Some(host) = parsed_url.host() {
+            let ip_opt = match host {
+                url::Host::Ipv4(ipv4) => Some(std::net::IpAddr::V4(ipv4)),
+                url::Host::Ipv6(ipv6) => Some(std::net::IpAddr::V6(ipv6)),
+                _ => None,
+            };
+            if let Some(ip) = ip_opt {
+                let is_internal = ip.is_loopback()
+                    || ip.is_unspecified()
+                    || match ip {
+                        std::net::IpAddr::V4(ipv4) => {
+                            ipv4.is_private()
+                                || ipv4.is_link_local()
+                                || ipv4.is_broadcast()
+                                || ipv4.is_documentation()
+                        }
+                        std::net::IpAddr::V6(ipv6) => ipv6.is_multicast(),
+                    };
+                if is_internal {
+                    return Err(anyhow::anyhow!(
+                        "SSRF validation failed: IP literal is private or internal"
+                    ));
+                }
+            }
+        }
+    }
+
+    // Use a custom client that handles redirects by validating them or rejecting them.
+    // We reject redirects entirely to prevent TOCTOU and bypasses via 302 redirects to localhost.
+    let client = reqwest::Client::builder()
+        .redirect(reqwest::redirect::Policy::none())
+        .build()
+        .context("Failed to build HTTP client")?;
+
+    let response = client
+        .get(target_url)
+        .send()
         .await?
         .error_for_status()
         .context("Failed to fetch file")?;

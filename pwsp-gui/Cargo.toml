@@ -33,6 +33,7 @@ sys-locale.workspace = true
 
 reqwest.workspace = true
 percent-encoding.workspace = true
+url = "2.5.8"
 
 [package.metadata.deb]
 name = "pwsp"
