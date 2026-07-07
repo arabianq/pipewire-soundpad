@@ -30,6 +30,7 @@ modules:
   - name: pwsp
     buildsystem: simple
     build-commands:
+      - if [ -w /run/ccache ]; then mkdir -p /run/ccache/cargo-target && rm -rf target && ln -s /run/ccache/cargo-target target; fi
       - export CARGO_HOME=$PWD/cargo && cargo build --release --offline
       - install -Dm755 target/release/pwsp-daemon /app/bin/pwsp-daemon
       - install -Dm755 target/release/pwsp-cli /app/bin/pwsp-cli
