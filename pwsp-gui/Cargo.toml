@@ -38,6 +38,7 @@ percent-encoding.workspace = true
 name = "pwsp"
 section = "sound"
 priority = "optional"
+maintainer-scripts = "maintainer-scripts"
 assets = [
     [
         "target/release/pwsp-daemon",
@@ -65,7 +66,7 @@ assets = [
         "644",
     ],
     [
-        "assets/pwsp-daemon.service",
+        "../pwsp-daemon/assets/pwsp-daemon.service",
         "usr/lib/systemd/user/pwsp-daemon.service",
         "644",
     ],

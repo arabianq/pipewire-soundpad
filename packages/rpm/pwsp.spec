@@ -68,7 +68,16 @@ install -Dm755 target/release/pwsp-gui %{buildroot}%{_bindir}/pwsp-gui
 install -Dm644 pwsp-gui/assets/pwsp-gui.desktop %{buildroot}%{_datadir}/applications/pwsp.desktop
 install -Dm644 pwsp-gui/assets/icon.png %{buildroot}%{_datadir}/icons/hicolor/256x256/apps/pwsp.png
 
-install -Dm644 pwsp-gui/assets/pwsp-daemon.service %{buildroot}/usr/lib/systemd/user/pwsp-daemon.service
+install -Dm644 pwsp-daemon/assets/pwsp-daemon.service %{buildroot}/usr/lib/systemd/user/pwsp-daemon.service
+
+%post
+%systemd_user_post pwsp-daemon.service
+
+%preun
+%systemd_user_preun pwsp-daemon.service
+
+%postun
+%systemd_user_postun_with_restart pwsp-daemon.service
 
 %files
 %license LICENSE
