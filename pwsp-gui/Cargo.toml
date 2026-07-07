@@ -65,7 +65,7 @@ assets = [
         "644",
     ],
     [
-        "assets/pwsp-daemon.service",
+        "../pwsp-daemon/assets/pwsp-daemon.service",
         "usr/lib/systemd/user/pwsp-daemon.service",
         "644",
     ],
