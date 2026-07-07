@@ -3162,7 +3162,7 @@ checksum = "3d595e54a326bc53c1c197b32d295e14b169e3cfeaa8dc82b529f947fba6bcf5"
 
 [[package]]
 name = "pwsp-cli"
-version = "1.12.3"
+version = "1.12.4"
 dependencies = [
  "anyhow",
  "clap",
@@ -3173,7 +3173,7 @@ dependencies = [
 
 [[package]]
 name = "pwsp-daemon"
-version = "1.12.3"
+version = "1.12.4"
 dependencies = [
  "anyhow",
  "clap",
@@ -3185,7 +3185,7 @@ dependencies = [
 
 [[package]]
 name = "pwsp-gui"
-version = "1.12.3"
+version = "1.12.4"
 dependencies = [
  "anyhow",
  "eframe",
@@ -3209,7 +3209,7 @@ dependencies = [
 
 [[package]]
 name = "pwsp-lib"
-version = "1.12.3"
+version = "1.12.4"
 dependencies = [
  "anyhow",
  "async-trait",
