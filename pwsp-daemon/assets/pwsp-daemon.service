@@ -1,0 +1,16 @@
+[Unit]
+Description=Pipewire Soundpad Daemon
+Requires=pipewire.service
+After=pipewire.service
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/pwsp-daemon
+Restart=on-failure
+RestartSec=3
+RuntimeDirectory=pwsp
+SyslogIdentifier=pwsp-daemon
+
+[Install]
+WantedBy=default.target
