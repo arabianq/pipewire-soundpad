@@ -40,7 +40,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.tag_name || github.ref }}
 
@@ -103,7 +103,7 @@ jobs:
           pattern: ru.arabianq.pwsp-*
 
       - name: Checkout existing gh-pages
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: gh-pages
           path: gh-pages-branch
