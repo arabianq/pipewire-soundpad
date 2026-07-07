@@ -43,7 +43,13 @@ async fn download_audio_from_url(uri: &str) -> Result<PathBuf> {
         .unwrap_or_else(|_| file_name_encoded.into())
         .into_owned();
 
-    let save_path = ensure_pwsp_audio_dir().join(file_name);
+    let normalized_file_name = file_name.replace('\\', "/");
+    let sanitized_file_name = std::path::Path::new(&normalized_file_name)
+        .file_name()
+        .and_then(|n| n.to_str())
+        .unwrap_or("downloaded_audio.mp3");
+
+    let save_path = ensure_pwsp_audio_dir().join(sanitized_file_name);
 
     let response = reqwest::get(target_url)
         .await?
