@@ -199,10 +199,7 @@ impl SoundpadGui {
                 }
 
                 if !search_query.is_empty() {
-                    let file_name = entry_path
-                        .file_name()
-                        .unwrap_or_default()
-                        .to_string_lossy();
+                    let file_name = entry_path.file_name().unwrap_or_default().to_string_lossy();
 
                     if !file_name.to_lowercase().contains(search_query) {
                         return false;
