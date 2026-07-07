@@ -4,35 +4,35 @@ Hash: SHA512
 Origin: arabianq
 Label: PipeWire Soundpad
 Codename: nightly
-Date: Tue, 07 Jul 2026 13:01:38 UTC
+Date: Tue, 07 Jul 2026 13:58:19 UTC
 Architectures: amd64 arm64
 Components: main
 Description: Nightly APT Repository for PWSP
 MD5Sum:
- dc3a47d2fbc50ad3c0d8f833dc9d9f44 650 main/binary-amd64/Packages
- 9bf57aac8ddce5ce0db9c065df85bd87 454 main/binary-amd64/Packages.gz
+ 0aaf79bd2fe6f8c963ee7c5764d0ed9c 650 main/binary-amd64/Packages
+ fde1ee6d9d0feb36b5fbecd59cdfcb24 455 main/binary-amd64/Packages.gz
  facbb80485897bc6e0d67e37e5dd38e8 123 main/binary-amd64/Release
- 074aaa4fff0700ed4bdb4d1796bed960 677 main/binary-arm64/Packages
- c697101980e1a5395c22f229332e156d 460 main/binary-arm64/Packages.gz
+ 1924fe0d7cfaa3dc771614c560d7ed3c 677 main/binary-arm64/Packages
+ 8defc854a4360b5b78d0649129ce9b69 461 main/binary-arm64/Packages.gz
  7418f9ee7493009aeaa4417f5d11ee62 123 main/binary-arm64/Release
 SHA1:
- 50b9c4a01332abcfb70cda1080c802887e686e8d 650 main/binary-amd64/Packages
- f2b846648d7d4dfd40c3337345360c4018efa05a 454 main/binary-amd64/Packages.gz
+ fa87541336478dff12f767a522f64555d48a9749 650 main/binary-amd64/Packages
+ 34372c3485f7c756157b68084f29f78a2e17859d 455 main/binary-amd64/Packages.gz
  66d8024fbaf66bb3aa03e04c8784ffc2d45d5e92 123 main/binary-amd64/Release
- 49472f198272628844f15cc22893fea91845c680 677 main/binary-arm64/Packages
- c250f030bd6dcc3c920389f8aaa76eb9f3605158 460 main/binary-arm64/Packages.gz
+ 0e1d424ddc7065c5672771c0d31a1b943b75bd64 677 main/binary-arm64/Packages
+ 0756869e346f1c3483572120f266e5a0a693d762 461 main/binary-arm64/Packages.gz
  f7984ac62248818b3d8a2c59250042d426414d8c 123 main/binary-arm64/Release
 SHA256:
- 780c7ccc1a504232a2cbb9188c04aef914152b5074107b7884ffe4f204134df0 650 main/binary-amd64/Packages
- 640736892f044b0704082cffab7425e7994fbd11b75b346eb5b748258654df49 454 main/binary-amd64/Packages.gz
+ 7975760b770663cf81bbb7e6f86032ccedd193cdc572f1011706d7dc213e5dc6 650 main/binary-amd64/Packages
+ 76f577b8cf27c8c2d1a35d281226fce6ce4ba8cdfdf1ea956eaf3f62ef2a220b 455 main/binary-amd64/Packages.gz
  b5a22f248703739051a84b584c2b0ea20a9b69b28e823c5a8b0aca5f33f90bba 123 main/binary-amd64/Release
- b093773ad71a2b63472ff681122f4616a3f296a3978e9c55952da03c9613ca11 677 main/binary-arm64/Packages
- 2339f7462c1e2bbb46c96bc13dfec89309565878f24a306a27bc02c7e3769fee 460 main/binary-arm64/Packages.gz
+ 39251a4593b6fca07506a5a9ab33dbd40fe9b784775d6328c9ee523f8e224137 677 main/binary-arm64/Packages
+ 66cc28fac1682e234e9a305aacf90d7c236ca83c8dbc9c00f306060a137a9669 461 main/binary-arm64/Packages.gz
  a5e6d2298cf4bded7fd380a4bb06d97be39e9ea1a0b42acd5190a44aad619c92 123 main/binary-arm64/Release
 -----BEGIN PGP SIGNATURE-----
 
-iHUEARYKAB0WIQSq48VrHi02dxCM8oCDybDbLI+dFgUCakz4sgAKCRCDybDbLI+d
-FgolAQDCYQLUx1J30BhJQ/5gA4wNIft3q+xWCTuU+LK2lgf4cQD8Do5yksHO8zUf
-LXHrgeAEigqd8B645uvSt3wuDkfr1w8=
-=pL/d
+iHUEARYKAB0WIQSq48VrHi02dxCM8oCDybDbLI+dFgUCak0F+wAKCRCDybDbLI+d
+FlnHAQChxkePTKJrK5v8buI7Sq7aIXDWp5aqnPFIfZW4hEBxEQD/U2aT9DXicsWg
+LTDu/2tGVxoItaN5m6kZVnrxzyJcrQI=
+=BH3J
 -----END PGP SIGNATURE-----
