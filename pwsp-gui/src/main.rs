@@ -1,11 +1,12 @@
 mod gui;
 
-use anyhow::{Context, Result};
+use anyhow::{Context, Result, anyhow};
 use pwsp_lib::utils::gui::ensure_pwsp_audio_dir;
 use rust_i18n::i18n;
 use std::{
     env,
     path::{Path, PathBuf},
+    time::{SystemTime, UNIX_EPOCH},
 };
 
 i18n!("locales", fallback = "en");
@@ -34,14 +35,20 @@ async fn download_audio_from_url(uri: &str) -> Result<PathBuf> {
 
     let target_url = uri
         .strip_prefix(prefix)
-        .ok_or_else(|| anyhow::anyhow!("URI does not containt an expected prefix: {}", prefix))?;
+        .ok_or_else(|| anyhow!("URI does not containt an expected prefix: {}", prefix))?;
 
-    let file_name_encoded = target_url
-        .split('/')
-        .next_back()
-        .unwrap_or("downloaded_audio.mp3");
+    let file_name_encoded = match target_url.split('/').next_back() {
+        Some(path) => path.to_string(),
+        None => {
+            let id = SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .expect("Time went back")
+                .as_nanos();
+            format!("downloaded_audio_{}.mp3", id)
+        }
+    };
 
-    let file_name = percent_encoding::percent_decode_str(file_name_encoded)
+    let file_name = percent_encoding::percent_decode_str(&file_name_encoded.clone())
         .decode_utf8()
         .unwrap_or_else(|_| file_name_encoded.into())
         .into_owned();
