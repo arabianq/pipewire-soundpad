@@ -90,7 +90,7 @@ jobs:
           zip -j "$ARCHIVE_NAME" "${FILES[@]}"
 
       - name: Upload ZIP artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: archive-${{ matrix.arch }}
           path: pwsp-*.zip
@@ -124,7 +124,7 @@ jobs:
           fi
 
       - name: Upload .deb artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: deb-packages-${{ matrix.arch }}
           path: target/debian/*.deb
