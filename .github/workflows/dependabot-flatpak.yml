@@ -24,7 +24,7 @@ jobs:
           python-version: "3.x"
 
       - name: Install dependencies
-        run: pip install aiohttp toml
+        run: pip install aiohttp tomlkit
 
       - name: Generate cargo-sources.json
         run: bash ./scripts/generate-sources.sh
