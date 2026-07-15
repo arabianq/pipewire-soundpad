@@ -1,28 +1,28 @@
 Origin: arabianq
 Label: PipeWire Soundpad
 Codename: nightly
-Date: Tue, 14 Jul 2026 13:53:30 UTC
+Date: Wed, 15 Jul 2026 13:24:02 UTC
 Architectures: amd64 arm64
 Components: main
 Description: Nightly APT Repository for PWSP
 MD5Sum:
- 2f22182bd5cc5d45252056e3b37af466 650 main/binary-amd64/Packages
- 5cc3f51942832566dd3aacdc92fbfd9e 453 main/binary-amd64/Packages.gz
+ a6f6cf6a029db4c4f86517ffd3f6b66d 650 main/binary-amd64/Packages
+ 5b425a7ecf7971a9364bddca40c1c30a 451 main/binary-amd64/Packages.gz
  facbb80485897bc6e0d67e37e5dd38e8 123 main/binary-amd64/Release
- 039f6619f5d7539c0b25447054810c28 677 main/binary-arm64/Packages
- 81534cd249419201035621c78bd2679f 460 main/binary-arm64/Packages.gz
+ a0abb2bc57a44a9fc3ba5e16090b32be 677 main/binary-arm64/Packages
+ 535b995e4be120d995757fda5878a1f6 461 main/binary-arm64/Packages.gz
  7418f9ee7493009aeaa4417f5d11ee62 123 main/binary-arm64/Release
 SHA1:
- 7363cf7b169f137a7702cae1a44e338d5bc6ca41 650 main/binary-amd64/Packages
- 0c3d290fefe893bd8adeb0eef0226e3da49ebf91 453 main/binary-amd64/Packages.gz
+ 5bfe52edca2467671c3361cd25420be9a8ca15fa 650 main/binary-amd64/Packages
+ 8ceac5e0e768f3ef7bbaae2c4fce8283c19fc2a1 451 main/binary-amd64/Packages.gz
  66d8024fbaf66bb3aa03e04c8784ffc2d45d5e92 123 main/binary-amd64/Release
- f05104bcf8641efe9974e374330fc2b77f6327e6 677 main/binary-arm64/Packages
- a1908461f7612a9324f7dfab89f43d527800265d 460 main/binary-arm64/Packages.gz
+ 963c2b870ede2facc254d112212bafe0a3d008c6 677 main/binary-arm64/Packages
+ f64f3521b990ac6123d9e8228b41ccbd0aa58c1e 461 main/binary-arm64/Packages.gz
  f7984ac62248818b3d8a2c59250042d426414d8c 123 main/binary-arm64/Release
 SHA256:
- 2c74d4cc738b77842c252d0dd9cd2babb51e78228b7f35d6d42f07b2da315757 650 main/binary-amd64/Packages
- 9d37b5307c659ca27df09825687de77a670d3d0d3222ce5adb0f723a8b1d5add 453 main/binary-amd64/Packages.gz
+ bddcf3420fa5f8edf34cdad41e21ef46c9894a67b971dacc74877043d0a6d088 650 main/binary-amd64/Packages
+ 8957c93c41853e3d6315fa603923ec5e3f33132532d9f6ce1e2d88780a3f71ab 451 main/binary-amd64/Packages.gz
  b5a22f248703739051a84b584c2b0ea20a9b69b28e823c5a8b0aca5f33f90bba 123 main/binary-amd64/Release
- 34a2122ae2bad8e5fc8c8f1c2c4e0149d0101bdd5f4b3435f298e1a23847d5d1 677 main/binary-arm64/Packages
- 467bb9937ec1bc2dae26114e1942a47e3b6b72d7ff6dedd7280ce7bd84a7782a 460 main/binary-arm64/Packages.gz
+ fbdcc575b28c9f339a4fe6171164034433e9f33ba1a70dee6dedd66e141bca09 677 main/binary-arm64/Packages
+ 52a71e2b29e113686c8de4f866e1ac89de1ad0423a0f206df51a961d3a289c8c 461 main/binary-arm64/Packages.gz
  a5e6d2298cf4bded7fd380a4bb06d97be39e9ea1a0b42acd5190a44aad619c92 123 main/binary-arm64/Release
