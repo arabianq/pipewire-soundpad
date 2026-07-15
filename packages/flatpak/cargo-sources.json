@@ -4329,40 +4329,40 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/rust-i18n/rust-i18n-4.1.0.crate",
-        "sha256": "55691a65892c33ee2de49c15ea5600c6f4a70e8eeb8e6c3cd96d2a231d230c40",
-        "dest": "cargo/vendor/rust-i18n-4.1.0"
+        "url": "https://static.crates.io/crates/rust-i18n/rust-i18n-4.2.0.crate",
+        "sha256": "752c95174ef2555cd95873d6f12d0bee9f0a1dcbf1b631dde847053a29174996",
+        "dest": "cargo/vendor/rust-i18n-4.2.0"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"55691a65892c33ee2de49c15ea5600c6f4a70e8eeb8e6c3cd96d2a231d230c40\", \"files\": {}}",
-        "dest": "cargo/vendor/rust-i18n-4.1.0",
+        "contents": "{\"package\": \"752c95174ef2555cd95873d6f12d0bee9f0a1dcbf1b631dde847053a29174996\", \"files\": {}}",
+        "dest": "cargo/vendor/rust-i18n-4.2.0",
         "dest-filename": ".cargo-checksum.json"
     },
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/rust-i18n-macro/rust-i18n-macro-4.1.0.crate",
-        "sha256": "30de488acadcf767d97cd48518a8da8ea9777b1c9a5beca4eab78bbf77d07309",
-        "dest": "cargo/vendor/rust-i18n-macro-4.1.0"
+        "url": "https://static.crates.io/crates/rust-i18n-macro/rust-i18n-macro-4.2.0.crate",
+        "sha256": "cc99fd028c912b59841bd745ec11c2dda112549ae6de25a850f384bb59d1a8f8",
+        "dest": "cargo/vendor/rust-i18n-macro-4.2.0"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"30de488acadcf767d97cd48518a8da8ea9777b1c9a5beca4eab78bbf77d07309\", \"files\": {}}",
-        "dest": "cargo/vendor/rust-i18n-macro-4.1.0",
+        "contents": "{\"package\": \"cc99fd028c912b59841bd745ec11c2dda112549ae6de25a850f384bb59d1a8f8\", \"files\": {}}",
+        "dest": "cargo/vendor/rust-i18n-macro-4.2.0",
         "dest-filename": ".cargo-checksum.json"
     },
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/rust-i18n-support/rust-i18n-support-4.1.0.crate",
-        "sha256": "aea0fef8a93c06326b66392c95a115120e609674cb2132d37d276a6b05b545b4",
-        "dest": "cargo/vendor/rust-i18n-support-4.1.0"
+        "url": "https://static.crates.io/crates/rust-i18n-support/rust-i18n-support-4.2.0.crate",
+        "sha256": "3dfb30689b70c7fd955e8e5c709fa055a778ae024ef6a382c4eb425dd2c2fabb",
+        "dest": "cargo/vendor/rust-i18n-support-4.2.0"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"aea0fef8a93c06326b66392c95a115120e609674cb2132d37d276a6b05b545b4\", \"files\": {}}",
-        "dest": "cargo/vendor/rust-i18n-support-4.1.0",
+        "contents": "{\"package\": \"3dfb30689b70c7fd955e8e5c709fa055a778ae024ef6a382c4eb425dd2c2fabb\", \"files\": {}}",
+        "dest": "cargo/vendor/rust-i18n-support-4.2.0",
         "dest-filename": ".cargo-checksum.json"
     },
     {
