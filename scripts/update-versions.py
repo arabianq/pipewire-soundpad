@@ -27,18 +27,18 @@ with open(cargo_toml_path, "r", encoding="utf-8") as f:
 
 # We want to match version in [workspace.package]
 # First, let's find the [workspace.package] section
-workspace_package_match = re.search(
-    r"\[workspace\.package\](.*?)(?=\n\[|$)", cargo_toml_content, re.DOTALL
-)
+workspace_package_match = re.search(r"\[workspace\.package\](.*?)(?=\n\[|$)", cargo_toml_content, re.DOTALL)
 if not workspace_package_match:
     fatal("Could not find [workspace.package] section in Cargo.toml.")
 
-workspace_package_sec = workspace_package_match.group(1)
+if isinstance(workspace_package_match, re.Match):
+    workspace_package_sec = workspace_package_match.group(1)
 version_match = re.search(r'version\s*=\s*"([^"]+)"', workspace_package_sec)
 if not version_match:
     fatal("Could not find version in [workspace.package] in Cargo.toml.")
 
-current_version = version_match.group(1)
+if isinstance(version_match, re.Match):
+    current_version = version_match.group(1)
 print(f"Current version detected: {current_version}")
 
 # Get new version
@@ -62,9 +62,7 @@ print("Updating Cargo.toml...")
 
 def replace_version_in_workspace(match):
     section_content = match.group(1)
-    updated_section_content = re.sub(
-        r'(version\s*=\s*")[^"]+(")', rf"\g<1>{new_version}\g<2>", section_content
-    )
+    updated_section_content = re.sub(r'(version\s*=\s*")[^"]+(")', rf"\g<1>{new_version}\g<2>", section_content)
     return f"[workspace.package]{updated_section_content}"
 
 
@@ -127,9 +125,7 @@ def update_srcinfo(directory, pkgbuild_path, srcinfo_path):
                 f.write(result.stdout)
             return
         except Exception as e:
-            print(
-                f"Warning: makepkg failed in {directory}: {e}. Falling back to text replacement."
-            )
+            print(f"Warning: makepkg failed in {directory}: {e}. Falling back to text replacement.")
 
     # Text replacement fallback
     with open(srcinfo_path, "r", encoding="utf-8") as f:
@@ -142,9 +138,7 @@ def update_srcinfo(directory, pkgbuild_path, srcinfo_path):
 
 
 update_srcinfo("packages/aur/bin", pkgbuild_bin_path, "packages/aur/bin/.SRCINFO")
-update_srcinfo(
-    "packages/aur/standart", pkgbuild_std_path, "packages/aur/standart/.SRCINFO"
-)
+update_srcinfo("packages/aur/standart", pkgbuild_std_path, "packages/aur/standart/.SRCINFO")
 
 # 4. Update packages/flatpak/ru.arabianq.pwsp.metainfo.xml
 flatpak_xml_path = "packages/flatpak/ru.arabianq.pwsp.metainfo.xml"
