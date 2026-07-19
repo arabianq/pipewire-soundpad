@@ -59,7 +59,7 @@ async fn download_audio_from_url(uri: &str) -> Result<PathBuf> {
         .and_then(|n| n.to_str())
         .unwrap_or("downloaded_audio.mp3");
 
-    let save_path = ensure_pwsp_audio_dir().join(sanitized_file_name);
+    let save_path = ensure_pwsp_audio_dir()?.join(sanitized_file_name);
 
     let response = reqwest::get(target_url)
         .await?
