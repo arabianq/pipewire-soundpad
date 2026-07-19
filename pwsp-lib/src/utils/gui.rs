@@ -38,7 +38,11 @@ pub fn make_request_async(request: Request) {
 }
 
 pub fn ensure_pwsp_audio_dir() -> PathBuf {
-    let audio_dir = dirs::audio_dir().unwrap_or("~/Music".into());
+    let audio_dir = dirs::audio_dir().unwrap_or_else(|| {
+        dirs::home_dir()
+            .map(|p| p.join("Music"))
+            .unwrap_or_else(|| "Music".into()) // already relative to $HOME afaik
+    });
     let pwsp_audio_dir = audio_dir.join("PWSP");
 
     if !pwsp_audio_dir.exists() {
