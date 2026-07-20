@@ -1,28 +1,28 @@
 Origin: arabianq
 Label: PipeWire Soundpad
 Codename: nightly
-Date: Sun, 19 Jul 2026 14:32:10 UTC
+Date: Mon, 20 Jul 2026 16:04:12 UTC
 Architectures: amd64 arm64
 Components: main
 Description: Nightly APT Repository for PWSP
 MD5Sum:
- 5b8d95c58175011bede41253a094f735 650 main/binary-amd64/Packages
- 3388137f5dea2306a71d40f8411495ff 455 main/binary-amd64/Packages.gz
+ 934e340c697cf231e2c3d8aff37ae04b 650 main/binary-amd64/Packages
+ a7cd5ce8d0be86ebcf0fe00b608bc62a 454 main/binary-amd64/Packages.gz
  facbb80485897bc6e0d67e37e5dd38e8 123 main/binary-amd64/Release
- de07cc56b3569ff00a857f8069307229 677 main/binary-arm64/Packages
- d9760f315fbc95b2ba923258827ca5eb 458 main/binary-arm64/Packages.gz
+ 6390c3c09035dc40a8bed1780264754c 677 main/binary-arm64/Packages
+ fb4bacf0d8e1ca507cf908cb8a0f239b 461 main/binary-arm64/Packages.gz
  7418f9ee7493009aeaa4417f5d11ee62 123 main/binary-arm64/Release
 SHA1:
- 7bbde2167655513bf00efce26e726ffdc3987134 650 main/binary-amd64/Packages
- 79e27bd10d4d77d21d0e76de3545cdf2fbc22faf 455 main/binary-amd64/Packages.gz
+ 04a6b24853b28ed99e2790f558e51bfc9dfc6d73 650 main/binary-amd64/Packages
+ 370f10e8e0aea1de1fd60c321e72175ac13a8cea 454 main/binary-amd64/Packages.gz
  66d8024fbaf66bb3aa03e04c8784ffc2d45d5e92 123 main/binary-amd64/Release
- f793ab83d22cd3fd65da3438aa8ea4857f07e513 677 main/binary-arm64/Packages
- 849811be7578b205f6d03ffbe3e3e05b4dd08272 458 main/binary-arm64/Packages.gz
+ 255f76e68ca1d6ed7bd51bf08f9b6edb5357f713 677 main/binary-arm64/Packages
+ a2aeb7d1b4e436da4079d53644fab997ebb24a94 461 main/binary-arm64/Packages.gz
  f7984ac62248818b3d8a2c59250042d426414d8c 123 main/binary-arm64/Release
 SHA256:
- 7cbaaf15727bca312ef19f6cbb077da4cdc189f227ce89e789913965736607d2 650 main/binary-amd64/Packages
- 64769e7cd47d356929291eae53f9d040d012bcf37804118ef29a26a1fbf9b5e6 455 main/binary-amd64/Packages.gz
+ c9c6706c0d1a6c399941761cd9c37e25ff0145775c464d03e7242e212e781bef 650 main/binary-amd64/Packages
+ 735c17524794354e48e6651de6632653c488daca15a5b84260cfe920ab0bc218 454 main/binary-amd64/Packages.gz
  b5a22f248703739051a84b584c2b0ea20a9b69b28e823c5a8b0aca5f33f90bba 123 main/binary-amd64/Release
- ec63a6742d660b750793b51aef8ecb0c0afa9925f1757979fbc780abe62a1c74 677 main/binary-arm64/Packages
- af0bf6b25df0c62f22a6cc206610a4982c31ca274f127b13a2930a0bf7ed4bef 458 main/binary-arm64/Packages.gz
+ 037f21882a670486366923c99f974d75580b3c3e20fdb3ab00b3a7c33aedb99b 677 main/binary-arm64/Packages
+ 87453134917502598c2e07f2840bcb1dd985900996553cc8b5c8853235c0d1a2 461 main/binary-arm64/Packages.gz
  a5e6d2298cf4bded7fd380a4bb06d97be39e9ea1a0b42acd5190a44aad619c92 123 main/binary-arm64/Release
