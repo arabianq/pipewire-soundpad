@@ -121,7 +121,7 @@ impl Default for GuiConfig {
             save_scale_factor: false,
             pause_on_exit: false,
 
-            dirs: vec![ensure_pwsp_audio_dir()],
+            dirs: vec![ensure_pwsp_audio_dir().unwrap()],
 
             preferred_theme: PreferredTheme::System,
             dirs_settings: HashMap::new(),

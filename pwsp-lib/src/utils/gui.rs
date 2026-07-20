@@ -9,6 +9,7 @@ use crate::{
 };
 use anyhow::{Result, anyhow};
 use std::{
+    fs,
     path::PathBuf,
     sync::{Arc, Mutex},
     time::Instant,
@@ -37,15 +38,19 @@ pub fn make_request_async(request: Request) {
     });
 }
 
-pub fn ensure_pwsp_audio_dir() -> PathBuf {
-    let audio_dir = dirs::audio_dir().unwrap_or("~/Music".into());
+pub fn ensure_pwsp_audio_dir() -> Result<PathBuf> {
+    let audio_dir = dirs::audio_dir().unwrap_or(
+        dirs::home_dir()
+            .map(|p| p.join("Music"))
+            .ok_or_else(|| anyhow!("Failed to get home directory. Is your system ok?"))?,
+    );
     let pwsp_audio_dir = audio_dir.join("PWSP");
 
     if !pwsp_audio_dir.exists() {
-        std::fs::create_dir_all(&pwsp_audio_dir).ok();
+        fs::create_dir_all(&pwsp_audio_dir)?;
     }
 
-    pwsp_audio_dir
+    Ok(pwsp_audio_dir)
 }
 
 pub fn format_time_pair(position: f32, duration: f32) -> String {
