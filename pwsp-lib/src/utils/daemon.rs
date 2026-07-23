@@ -7,33 +7,41 @@ use crate::types::{
 use anyhow::Result;
 use std::os::unix::fs::{DirBuilderExt, MetadataExt, PermissionsExt};
 use std::path::PathBuf;
-use std::{env, error::Error, fs};
+use std::{
+    env,
+    error::Error,
+    fs,
+    sync::{Arc, OnceLock},
+};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::UnixStream,
-    sync::{Mutex, OnceCell},
+    sync::{Mutex as AsyncMutex, OnceCell},
     time::{Duration, sleep},
 };
 
-static AUDIO_PLAYER: OnceCell<Mutex<AudioPlayer>> = OnceCell::const_new();
+static AUDIO_PLAYER: OnceCell<AsyncMutex<AudioPlayer>> = OnceCell::const_new();
+static DAEMON_CONFIG: OnceLock<Arc<DaemonConfig>> = OnceLock::new();
 
-pub async fn get_audio_player() -> Result<&'static Mutex<AudioPlayer>, String> {
+pub async fn get_audio_player() -> Result<&'static AsyncMutex<AudioPlayer>, String> {
     AUDIO_PLAYER
         .get_or_try_init(|| async {
             println!("Initializing audio player");
             match AudioPlayer::new().await {
-                Ok(player) => Ok(Mutex::new(player)),
+                Ok(player) => Ok(AsyncMutex::new(player)),
                 Err(err) => Err(err.to_string()),
             }
         })
         .await
 }
 
-pub fn get_daemon_config() -> DaemonConfig {
-    DaemonConfig::load_from_file().unwrap_or_else(|_| {
-        let config = DaemonConfig::default();
-        config.save_to_file().ok();
-        config
+pub fn get_daemon_config() -> &'static Arc<DaemonConfig> {
+    DAEMON_CONFIG.get_or_init(|| {
+        Arc::new(DaemonConfig::load_from_file().unwrap_or_else(|_| {
+            let config = DaemonConfig::default();
+            config.save_to_file().ok();
+            config
+        }))
     })
 }
 
