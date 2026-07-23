@@ -1,12 +1,12 @@
 use crate::{
     types::{
         audio_player::{FullState, PlayerState},
-        config::HotkeyConfig,
+        config::{DaemonConfig, HotkeyConfig},
         socket::{Request, Response},
     },
     utils::{
         commands::parse_command,
-        daemon::get_audio_player,
+        daemon::{get_audio_player, get_daemon_config},
         pipewire::{get_all_devices, get_device},
     },
 };
@@ -126,6 +126,10 @@ pub struct ClearHotkeyCommand {
 pub struct ClearHotkeyKeyCommand {
     pub slot: Option<String>,
 }
+
+pub struct GetDaemonConfigCommand {}
+
+pub struct SaveDaemonConfigCommand {}
 
 #[async_trait]
 impl Executable for PingCommand {
@@ -720,6 +724,29 @@ impl Executable for ClearHotkeyKeyCommand {
         match config.save() {
             Ok(_) => Response::new(true, format!("Key chord for slot '{}' cleared", slot)),
             Err(err) => Response::new(false, format!("Failed to save hotkeys: {}", err)),
+        }
+    }
+}
+
+#[async_trait]
+impl Executable for GetDaemonConfigCommand {
+    async fn execute(&self) -> Response {
+        let config = get_daemon_config().clone();
+        if let Ok(serialized) = serde_json::to_string_pretty(&config.as_ref()) {
+            Response::new(true, serialized)
+        } else {
+            Response::new(false, "Failed to serialize daemon config")
+        }
+    }
+}
+
+#[async_trait]
+impl Executable for SaveDaemonConfigCommand {
+    async fn execute(&self) -> Response {
+        let config = get_daemon_config().clone();
+        match config.save_to_file() {
+            Ok(_) => Response::new(true, "Daemon config saved successfully"),
+            Err(err) => Response::new(false, format!("Failed to save daemon config: {}", err)),
         }
     }
 }

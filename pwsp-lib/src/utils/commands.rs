@@ -119,6 +119,8 @@ pub fn parse_command(request: &Request) -> Option<Box<dyn Executable + Send>> {
                 key_chord,
             }))
         }
+        "get_daemon_config" => Some(Box::new(GetDaemonConfigCommand {})),
+        "save_daemon_config" => Some(Box::new(SaveDaemonConfigCommand {})),
         _ => None,
     }
 }
