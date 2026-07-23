@@ -17,6 +17,7 @@ use std::{
 pub struct DaemonConfig {
     pub default_input_name: Option<String>,
     pub default_volume: Option<f32>,
+    pub volume_multiplier: Option<f32>,
 }
 
 impl DaemonConfig {

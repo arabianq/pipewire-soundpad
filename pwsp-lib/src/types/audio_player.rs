@@ -63,12 +63,14 @@ pub struct AudioPlayer {
     pub input_device_name: Option<String>,
 
     pub volume: f32, // Master volume
+    pub volume_multiplier: f32,
 }
 
 impl AudioPlayer {
     pub async fn new() -> Result<Self> {
         let daemon_config = get_daemon_config();
         let default_volume = daemon_config.default_volume.unwrap_or(1.0);
+        let volume_multiplier = daemon_config.volume_multiplier.unwrap_or(1.0);
 
         let mut audio_player = AudioPlayer {
             stream_handle: None,
@@ -80,6 +82,7 @@ impl AudioPlayer {
             input_device_name: daemon_config.default_input_name.clone(),
 
             volume: default_volume,
+            volume_multiplier,
         };
 
         if audio_player.input_device_name.is_some() {
@@ -262,12 +265,16 @@ impl AudioPlayer {
         if let Some(id) = id {
             if let Some(sound) = self.tracks.get_mut(&id) {
                 sound.volume = volume;
-                sound.sink.set_volume(self.volume * volume);
+                sound
+                    .sink
+                    .set_volume(self.volume * sound.volume * self.volume_multiplier);
             }
         } else {
             self.volume = volume;
             for sound in self.tracks.values_mut() {
-                sound.sink.set_volume(self.volume * sound.volume);
+                sound
+                    .sink
+                    .set_volume(self.volume * sound.volume * self.volume_multiplier);
             }
         }
     }
@@ -347,7 +354,7 @@ impl AudioPlayer {
                     .ok_or_else(|| anyhow::anyhow!("stream_handle is unexpectedly missing"))?
                     .mixer();
                 let sink = Player::connect_new(mixer);
-                sink.set_volume(self.volume); // Default volume is 1.0 * master
+                sink.set_volume(self.volume * self.volume_multiplier); // Default volume is 1.0 * master
                 sink.append(source);
                 sink.play();
 

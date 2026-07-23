@@ -86,6 +86,8 @@ enum GetCommands {
         #[clap(short, long)]
         id: Option<u32>,
     },
+    /// Volume multiplier for all tracks
+    VolumeMultiplier,
     /// Playback position (in seconds)
     Position {
         #[clap(short, long)]
@@ -120,6 +122,8 @@ enum SetCommands {
         #[clap(short, long)]
         id: Option<u32>,
     },
+    /// Volume multiplier for all tracks
+    VolumeMultiplier { volume: f32 },
     /// Playback position (in seconds)
     Position {
         position: f32,
@@ -172,6 +176,7 @@ async fn main() -> Result<()> {
         Commands::Get { parameter } => match parameter {
             GetCommands::IsPaused => Request::get_is_paused(),
             GetCommands::Volume { id } => Request::get_volume(id),
+            GetCommands::VolumeMultiplier => Request::get_volume_multiplier(),
             GetCommands::Position { id } => Request::get_position(id),
             GetCommands::Duration { id } => Request::get_duration(id),
             GetCommands::State => Request::get_state(),
@@ -184,6 +189,7 @@ async fn main() -> Result<()> {
         },
         Commands::Set { parameter } => match parameter {
             SetCommands::Volume { volume, id } => Request::set_volume(volume, id),
+            SetCommands::VolumeMultiplier { volume } => Request::set_volume_multiplier(volume),
             SetCommands::Position { position, id } => Request::seek(position, id),
             SetCommands::Input { name } => Request::set_input(&name),
             SetCommands::Loop { enabled, id } => Request::set_loop(&enabled, id),

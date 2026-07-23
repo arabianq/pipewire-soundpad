@@ -46,9 +46,15 @@ pub struct GetVolumeCommand {
     pub id: Option<u32>,
 }
 
+pub struct GetVolumeMultiplierCommand {}
+
 pub struct SetVolumeCommand {
     pub volume: Option<f32>,
     pub id: Option<u32>,
+}
+
+pub struct SetVolumeMultiplierCommand {
+    pub volume_multiplier: Option<f32>,
 }
 
 pub struct GetPositionCommand {
@@ -263,6 +269,18 @@ impl Executable for GetVolumeCommand {
 }
 
 #[async_trait]
+impl Executable for GetVolumeMultiplierCommand {
+    async fn execute(&self) -> Response {
+        let audio_player = match get_audio_player().await {
+            Ok(player) => player.lock().await,
+            Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+        };
+
+        Response::new(true, audio_player.volume_multiplier.to_string())
+    }
+}
+
+#[async_trait]
 impl Executable for SetVolumeCommand {
     async fn execute(&self) -> Response {
         if let Some(volume) = self.volume {
@@ -274,6 +292,26 @@ impl Executable for SetVolumeCommand {
             Response::new(true, format!("Audio volume was set to {}", volume))
         } else {
             Response::new(false, "Invalid volume value")
+        }
+    }
+}
+
+#[async_trait]
+impl Executable for SetVolumeMultiplierCommand {
+    async fn execute(&self) -> Response {
+        if let Some(volume_multiplier) = self.volume_multiplier {
+            let mut audio_player = match get_audio_player().await {
+                Ok(player) => player.lock().await,
+                Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+            };
+            audio_player.volume_multiplier = volume_multiplier;
+            audio_player.set_volume(volume_multiplier, None); // Reset current volume for all tracks to apply multiplier
+            Response::new(
+                true,
+                format!("Audio volume multiplier was set to {}", volume_multiplier),
+            )
+        } else {
+            Response::new(false, "Invalid volume multiplier value")
         }
     }
 }

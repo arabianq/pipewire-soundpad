@@ -94,6 +94,10 @@ impl Request {
         Request::new("get_volume", args)
     }
 
+    pub fn get_volume_multiplier() -> Self {
+        Request::new("get_volume_multiplier", vec![])
+    }
+
     pub fn get_position(id: Option<u32>) -> Self {
         let mut args = vec![];
         let id_str;
@@ -136,6 +140,13 @@ impl Request {
             args.push(("id".to_string(), id.to_string()));
         }
         Request::new("set_volume".to_string(), args)
+    }
+
+    pub fn set_volume_multiplier(volume: f32) -> Self {
+        Request::new(
+            "set_volume_multiplier",
+            vec![("volume_multiplier", &volume.to_string())],
+        )
     }
 
     pub fn seek(position: f32, id: Option<u32>) -> Self {
