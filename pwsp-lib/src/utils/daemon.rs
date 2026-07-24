@@ -11,7 +11,7 @@ use std::{
     env,
     error::Error,
     fs,
-    sync::{Arc, Mutex, MutexGuard, OnceLock},
+    sync::{Arc, Mutex, OnceLock},
 };
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
@@ -50,7 +50,7 @@ pub fn get_daemon_config() -> &'static Arc<Mutex<DaemonConfig>> {
 pub fn with_daemon_config<R>(f: impl FnOnce(&mut DaemonConfig) -> R) -> R {
     let config = get_daemon_config().clone();
     let mut guard = config.lock().unwrap();
-    f(&mut *guard)
+    f(&mut guard)
 }
 
 fn get_current_uid() -> u32 {

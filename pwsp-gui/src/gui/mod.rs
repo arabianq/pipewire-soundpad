@@ -14,7 +14,7 @@ use pwsp_lib::{
         socket::Request,
     },
     utils::{
-        daemon::{get_daemon_config, with_daemon_config},
+        daemon::with_daemon_config,
         gui::{get_gui_config, make_request_async, make_request_sync, start_app_state_thread},
     },
 };

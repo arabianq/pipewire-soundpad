@@ -1,12 +1,12 @@
 use crate::{
     types::{
         audio_player::{FullState, PlayerState},
-        config::{DaemonConfig, HotkeyConfig},
+        config::HotkeyConfig,
         socket::{Request, Response},
     },
     utils::{
         commands::parse_command,
-        daemon::{get_audio_player, get_daemon_config, with_daemon_config},
+        daemon::{get_audio_player, with_daemon_config},
         pipewire::{get_all_devices, get_device},
     },
 };
@@ -743,8 +743,6 @@ impl Executable for GetDaemonConfigCommand {
 #[async_trait]
 impl Executable for SaveDaemonConfigCommand {
     async fn execute(&self) -> Response {
-        // let config = get_daemon_config_lock().clone();
-
         match with_daemon_config(|c| c.save_to_file()) {
             Ok(_) => Response::new(true, "Daemon config saved successfully"),
             Err(err) => Response::new(false, format!("Failed to save daemon config: {}", err)),

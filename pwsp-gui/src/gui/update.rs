@@ -3,10 +3,7 @@ use eframe::{App, Frame as EFrame};
 use egui::{CentralPanel, Context, ThemePreference};
 use pwsp_lib::{
     types::{config::PreferredTheme, socket::Request},
-    utils::{
-        daemon::{get_daemon_config, with_daemon_config},
-        gui::make_request_async,
-    },
+    utils::{daemon::with_daemon_config, gui::make_request_async},
 };
 use std::time::{Duration, Instant};
 

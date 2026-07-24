@@ -1,7 +1,7 @@
 use crate::{
     types::pipewire::DeviceType,
     utils::{
-        daemon::{get_daemon_config, with_daemon_config},
+        daemon::with_daemon_config,
         pipewire::{PwTerminator, create_link, get_device, link_player_to_virtual_mic},
     },
 };
