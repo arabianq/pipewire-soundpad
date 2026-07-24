@@ -731,7 +731,7 @@ impl Executable for ClearHotkeyKeyCommand {
 #[async_trait]
 impl Executable for GetDaemonConfigCommand {
     async fn execute(&self) -> Response {
-        let serialized = with_daemon_config(|c| serde_json::to_string_pretty(&c));
+        let serialized = with_daemon_config(|c| serde_json::to_string(&c));
 
         match serialized {
             Ok(s) => Response::new(true, s),
