@@ -73,7 +73,7 @@ impl AudioPlayer {
                 (
                     c.default_input_name.clone(),
                     c.default_volume.unwrap_or(1.0),
-                    c.volume_multiplier.unwrap_or(1.0),
+                    c.default_volume_multiplier.unwrap_or(1.0),
                 )
             });
 
