@@ -40,6 +40,7 @@ pub struct FullState {
     pub state: PlayerState,
     pub tracks: Vec<TrackInfo>,
     pub volume: f32,
+    pub volume_multiplier: f32,
     pub current_input: String,
     pub all_inputs: HashMap<String, String>,
 }

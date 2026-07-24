@@ -554,6 +554,7 @@ impl Executable for GetFullStateCommand {
             state: audio_player.get_state(),
             tracks: audio_player.get_tracks(),
             volume: audio_player.volume,
+            volume_multiplier: audio_player.volume_multiplier,
             current_input: current_input_nick,
             all_inputs,
         };
