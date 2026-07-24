@@ -31,13 +31,16 @@ pub struct AppState {
 
     pub show_settings: bool,
     pub volume_dragged: bool,
+    pub volume_multiplier_dragged: bool,
     pub force_focus_search: bool,
 
     pub volume_slider_value: f32,
+    pub volume_multiplier_slider_value: f32,
 
     pub search_field_id: Option<Id>,
 
     pub ignore_volume_update_until: Option<Instant>,
+    pub ignore_volume_multiplier_update_until: Option<Instant>,
 
     pub current_dir: Option<PathBuf>,
     pub dirs: Vec<PathBuf>,
@@ -65,6 +68,7 @@ pub struct AudioPlayerState {
     pub tracks: Vec<TrackInfo>,
 
     pub volume: f32, // Master volume
+    pub volume_multiplier: f32,
 
     pub current_input: String,
     pub all_inputs: HashMap<String, String>,
