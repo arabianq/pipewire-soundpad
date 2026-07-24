@@ -17,6 +17,7 @@ use std::{
 pub struct DaemonConfig {
     pub default_input_name: Option<String>,
     pub default_volume: Option<f32>,
+    pub default_volume_multiplier: Option<f32>,
 }
 
 impl DaemonConfig {
@@ -73,6 +74,7 @@ pub struct GuiConfig {
     pub left_panel_width: f32,
 
     pub save_volume: bool,
+    pub save_volume_multiplier: bool,
     pub save_input: bool,
     pub save_scale_factor: bool,
     pub pause_on_exit: bool,
@@ -117,6 +119,7 @@ impl Default for GuiConfig {
             left_panel_width: 280.0,
 
             save_volume: false,
+            save_volume_multiplier: false,
             save_input: false,
             save_scale_factor: false,
             pause_on_exit: false,

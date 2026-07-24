@@ -93,6 +93,24 @@ impl App for SoundpadGui {
             }
         }
 
+        if self.app_state.volume_multiplier_dragged {
+            make_request_async(Request::set_volume_multiplier(
+                self.app_state.volume_multiplier_slider_value,
+            ));
+
+            self.app_state.volume_multiplier_dragged = false;
+            self.app_state.ignore_volume_multiplier_update_until =
+                Some(Instant::now() + Duration::from_millis(300));
+
+            if self.config.save_volume_multiplier
+                && let Ok(mut daemon_config) = get_daemon_config()
+            {
+                daemon_config.default_volume_multiplier =
+                    Some(self.app_state.volume_multiplier_slider_value);
+                update_daemon_config(&daemon_config).ok();
+            }
+        }
+
         // Sync audio player state
         {
             let mut guard = self

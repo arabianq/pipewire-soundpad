@@ -15,6 +15,7 @@ pub fn parse_command(request: &Request) -> Option<Box<dyn Executable + Send>> {
         "is_paused" => Some(Box::new(IsPausedCommand {})),
         "get_state" => Some(Box::new(GetStateCommand {})),
         "get_volume" => Some(Box::new(GetVolumeCommand { id })),
+        "get_volume_multiplier" => Some(Box::new(GetVolumeMultiplierCommand {})),
         "set_volume" => {
             let volume = request
                 .args
@@ -23,6 +24,15 @@ pub fn parse_command(request: &Request) -> Option<Box<dyn Executable + Send>> {
                 .parse::<f32>()
                 .ok();
             Some(Box::new(SetVolumeCommand { volume, id }))
+        }
+        "set_volume_multiplier" => {
+            let volume_multiplier = request
+                .args
+                .get("volume_multiplier")
+                .unwrap_or(&String::new())
+                .parse::<f32>()
+                .ok();
+            Some(Box::new(SetVolumeMultiplierCommand { volume_multiplier }))
         }
         "get_position" => Some(Box::new(GetPositionCommand { id })),
         "seek" => {

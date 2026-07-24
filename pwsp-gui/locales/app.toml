@@ -217,6 +217,28 @@ kz = "Әрқашан дыбыс деңгейін есте сақтау"
 he = "זכור תמיד עוצמת קול"
 pt-BR = "Lembrar volume"
 
+[gui.settings.remember_volume_multiplier]
+en = "Always remember volume multiplier"
+ru = "Всегда запоминать множитель громкости"
+es = "Recordar siempre el multiplicador de volumen"
+fr = "Toujours se souvenir du multiplicateur de volume"
+zh = "始终记住音量乘数"
+ar = "تذكر ضرب الصوت دائمًا"
+kz = "Әрқашан дыбыс деңгейін есте сақтау"
+he = "זכור תמיד עוצמת קול"
+pt-BR = "Lembrar volume"
+
+[gui.settings.volume_multiplier]
+en = "Volume multiplier"
+ru = "Множитель громкости"
+es = "Multiplicador de volumen"
+fr = "Multiplicateur de volume"
+zh = "音量乘数"
+ar = "ضرب الصوت"
+kz = "Дыбыс деңгейі"
+he = "עוצמת קול"
+pt-BR = "Volume"
+
 [gui.settings.remember_mic]
 en = "Always remember microphone"
 ru = "Всегда запоминать микрофон"

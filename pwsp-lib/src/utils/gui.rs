@@ -116,6 +116,7 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
                 };
                 guard.tracks = full_state.tracks;
                 guard.volume = full_state.volume;
+                guard.volume_multiplier = full_state.volume_multiplier;
                 guard.current_input = full_state
                     .current_input
                     .split(" - ")

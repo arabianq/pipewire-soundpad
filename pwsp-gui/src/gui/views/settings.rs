@@ -1,5 +1,5 @@
 use crate::gui::SoundpadGui;
-use egui::{Align, Button, Color32, ComboBox, Layout, RichText, Ui};
+use egui::{Align, Button, Color32, ComboBox, Layout, RichText, Slider, Ui};
 use egui_material_icons::icons::ICON_ARROW_BACK;
 use pwsp_lib::types::config::PreferredTheme;
 use rust_i18n::t;
@@ -34,6 +34,10 @@ impl SoundpadGui {
                 &mut self.config.save_volume,
                 t!("gui.settings.remember_volume"),
             );
+            let save_volume_multiplier_response = ui.checkbox(
+                &mut self.config.save_volume_multiplier,
+                t!("gui.settings.remember_volume_multiplier"),
+            );
             let save_input_response =
                 ui.checkbox(&mut self.config.save_input, t!("gui.settings.remember_mic"));
             let save_scale_response = ui.checkbox(
@@ -46,6 +50,7 @@ impl SoundpadGui {
             );
 
             if save_volume_response.changed()
+                || save_volume_multiplier_response.changed()
                 || save_input_response.changed()
                 || save_scale_response.changed()
                 || pause_on_exit_response.changed()
@@ -86,6 +91,39 @@ impl SoundpadGui {
                 self.config.preferred_theme = selected_theme;
                 self.config.save_to_file().ok();
             }
+            // --------------------------------
+
+            ui.separator();
+
+            // ----------- Sliders ------------
+            // Volume multiplier
+            let should_update_multiplier = !self.app_state.volume_multiplier_dragged
+                && self
+                    .app_state
+                    .ignore_volume_multiplier_update_until
+                    .map(|t| std::time::Instant::now() > t)
+                    .unwrap_or(true);
+
+            if should_update_multiplier {
+                self.app_state.volume_multiplier_slider_value =
+                    self.audio_player_state.volume_multiplier;
+            }
+
+            ui.horizontal(|ui| {
+                let slider = Slider::new(
+                    &mut self.app_state.volume_multiplier_slider_value,
+                    0.01..=3.0,
+                );
+                let response = ui.add(slider);
+                ui.label(t!("gui.settings.volume_multiplier"));
+
+                if response.changed() {
+                    // This condition is required to avoid spamming requests while dragging, but to allow changing the value via TextEdit
+                    if !response.dragged() || (response.dragged() && response.drag_stopped()) {
+                        self.app_state.volume_multiplier_dragged = true;
+                    }
+                }
+            });
             // --------------------------------
 
             ui.with_layout(Layout::bottom_up(Align::Min), |ui| {
