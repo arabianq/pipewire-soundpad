@@ -1,3 +1,4 @@
+use crate::types::config::DaemonConfig;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -178,6 +179,16 @@ impl Request {
 
     pub fn save_daemon_config() -> Self {
         Request::new("save_daemon_config", vec![])
+    }
+
+    pub fn update_daemon_config(new_config: DaemonConfig) -> Self {
+        Request::new(
+            "update_daemon_config",
+            vec![(
+                "new_config",
+                &serde_json::to_string(&new_config).unwrap_or_default(),
+            )],
+        )
     }
 
     pub fn get_full_state() -> Self {

@@ -1,7 +1,7 @@
 use crate::{
     types::{
         audio_player::{FullState, PlayerState},
-        config::HotkeyConfig,
+        config::{DaemonConfig, HotkeyConfig},
         socket::{Request, Response},
     },
     utils::{
@@ -130,6 +130,10 @@ pub struct ClearHotkeyKeyCommand {
 pub struct GetDaemonConfigCommand {}
 
 pub struct SaveDaemonConfigCommand {}
+
+pub struct UpdateDaemonConfigCommand {
+    pub new_config: DaemonConfig,
+}
 
 #[async_trait]
 impl Executable for PingCommand {
@@ -747,5 +751,16 @@ impl Executable for SaveDaemonConfigCommand {
             Ok(_) => Response::new(true, "Daemon config saved successfully"),
             Err(err) => Response::new(false, format!("Failed to save daemon config: {}", err)),
         }
+    }
+}
+
+#[async_trait]
+impl Executable for UpdateDaemonConfigCommand {
+    async fn execute(&self) -> Response {
+        with_daemon_config(|c| {
+            c.clone_from(&self.new_config);
+        });
+
+        Response::new(true, "Daemon config updated successfully")
     }
 }

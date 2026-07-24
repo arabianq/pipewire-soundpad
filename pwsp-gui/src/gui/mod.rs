@@ -9,7 +9,7 @@ use itertools::Itertools;
 use pwsp_lib::{
     types::{
         audio_player::PlayerState,
-        config::{GuiConfig, HotkeyConfig},
+        config::{DaemonConfig, GuiConfig, HotkeyConfig},
         gui::{AppState, AudioPlayerState},
         socket::Request,
     },
@@ -130,10 +130,14 @@ impl SoundpadGui {
         make_request_async(Request::set_input(&name));
 
         if self.config.save_input {
-            with_daemon_config(|c| {
-                c.default_input_name = Some(name);
-                c.save_to_file().ok();
-            });
+            if let Ok(response) = make_request_sync(Request::get_daemon_config())
+                && let Ok(mut daemon_config) =
+                    serde_json::from_str::<DaemonConfig>(&response.message)
+            {
+                daemon_config.default_input_name = Some(name);
+                make_request_sync(Request::update_daemon_config(daemon_config)).ok();
+                make_request_async(Request::save_daemon_config());
+            }
         }
     }
 

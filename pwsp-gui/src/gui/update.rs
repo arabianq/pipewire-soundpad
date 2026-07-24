@@ -2,8 +2,14 @@ use crate::gui::SoundpadGui;
 use eframe::{App, Frame as EFrame};
 use egui::{CentralPanel, Context, ThemePreference};
 use pwsp_lib::{
-    types::{config::PreferredTheme, socket::Request},
-    utils::{daemon::with_daemon_config, gui::make_request_async},
+    types::{
+        config::{DaemonConfig, PreferredTheme},
+        socket::Request,
+    },
+    utils::{
+        daemon::with_daemon_config,
+        gui::{make_request_async, make_request_sync},
+    },
 };
 use std::time::{Duration, Instant};
 
@@ -86,10 +92,15 @@ impl App for SoundpadGui {
                 Some(Instant::now() + Duration::from_millis(300));
 
             if self.config.save_volume {
-                with_daemon_config(|c| {
-                    c.default_volume = Some(self.app_state.volume_slider_value);
-                    c.save_to_file().ok();
-                });
+                if let Ok(response) = make_request_sync(Request::get_daemon_config())
+                    && let Ok(mut daemon_config) =
+                        serde_json::from_str::<DaemonConfig>(&response.message)
+                {
+                    daemon_config.default_volume = Some(self.app_state.volume_slider_value);
+                    make_request_sync(Request::update_daemon_config(daemon_config)).ok();
+                    make_request_async(Request::save_daemon_config());
+                } else {
+                }
             }
         }
 

@@ -1,4 +1,4 @@
-use crate::types::{commands::*, socket::Request};
+use crate::types::{commands::*, config::DaemonConfig, socket::Request};
 
 use std::path::PathBuf;
 
@@ -121,6 +121,15 @@ pub fn parse_command(request: &Request) -> Option<Box<dyn Executable + Send>> {
         }
         "get_daemon_config" => Some(Box::new(GetDaemonConfigCommand {})),
         "save_daemon_config" => Some(Box::new(SaveDaemonConfigCommand {})),
+        "update_daemon_config" => {
+            let new_config = request
+                .args
+                .get("new_config")
+                .and_then(|nc| serde_json::from_str::<DaemonConfig>(&nc).ok())
+                .unwrap_or_default();
+
+            Some(Box::new(UpdateDaemonConfigCommand { new_config }))
+        }
         _ => None,
     }
 }
