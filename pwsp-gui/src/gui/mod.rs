@@ -9,13 +9,13 @@ use itertools::Itertools;
 use pwsp_lib::{
     types::{
         audio_player::PlayerState,
-        config::{DaemonConfig, GuiConfig, HotkeyConfig},
+        config::{GuiConfig, HotkeyConfig},
         gui::{AppState, AudioPlayerState},
         socket::Request,
     },
-    utils::{
-        daemon::with_daemon_config,
-        gui::{get_gui_config, make_request_async, make_request_sync, start_app_state_thread},
+    utils::gui::{
+        get_daemon_config, get_gui_config, make_request_async, make_request_sync,
+        start_app_state_thread, update_daemon_config,
     },
 };
 use rfd::FileDialog;
@@ -129,15 +129,11 @@ impl SoundpadGui {
     pub fn set_input(&mut self, name: String) {
         make_request_async(Request::set_input(&name));
 
-        if self.config.save_input {
-            if let Ok(response) = make_request_sync(Request::get_daemon_config())
-                && let Ok(mut daemon_config) =
-                    serde_json::from_str::<DaemonConfig>(&response.message)
-            {
-                daemon_config.default_input_name = Some(name);
-                make_request_sync(Request::update_daemon_config(daemon_config)).ok();
-                make_request_async(Request::save_daemon_config());
-            }
+        if self.config.save_input
+            && let Ok(mut daemon_config) = get_daemon_config()
+        {
+            daemon_config.default_input_name = Some(name);
+            update_daemon_config(&daemon_config).ok();
         }
     }
 

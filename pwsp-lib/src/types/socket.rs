@@ -181,7 +181,7 @@ impl Request {
         Request::new("save_daemon_config", vec![])
     }
 
-    pub fn update_daemon_config(new_config: DaemonConfig) -> Self {
+    pub fn update_daemon_config(new_config: &DaemonConfig) -> Self {
         Request::new(
             "update_daemon_config",
             vec![(
