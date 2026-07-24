@@ -11,7 +11,7 @@ use std::{
     env,
     error::Error,
     fs,
-    sync::{Arc, OnceLock},
+    sync::{Arc, Mutex, MutexGuard, OnceLock},
 };
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
@@ -21,7 +21,7 @@ use tokio::{
 };
 
 static AUDIO_PLAYER: OnceCell<AsyncMutex<AudioPlayer>> = OnceCell::const_new();
-static DAEMON_CONFIG: OnceLock<Arc<DaemonConfig>> = OnceLock::new();
+static DAEMON_CONFIG: OnceLock<Arc<Mutex<DaemonConfig>>> = OnceLock::new();
 
 pub async fn get_audio_player() -> Result<&'static AsyncMutex<AudioPlayer>, String> {
     AUDIO_PLAYER
@@ -35,14 +35,22 @@ pub async fn get_audio_player() -> Result<&'static AsyncMutex<AudioPlayer>, Stri
         .await
 }
 
-pub fn get_daemon_config() -> &'static Arc<DaemonConfig> {
+pub fn get_daemon_config() -> &'static Arc<Mutex<DaemonConfig>> {
     DAEMON_CONFIG.get_or_init(|| {
-        Arc::new(DaemonConfig::load_from_file().unwrap_or_else(|_| {
-            let config = DaemonConfig::default();
-            config.save_to_file().ok();
-            config
-        }))
+        Arc::new(Mutex::new(DaemonConfig::load_from_file().unwrap_or_else(
+            |_| {
+                let config = DaemonConfig::default();
+                config.save_to_file().ok();
+                config
+            },
+        )))
     })
+}
+
+pub fn with_daemon_config<R>(f: impl FnOnce(&mut DaemonConfig) -> R) -> R {
+    let config = get_daemon_config().clone();
+    let mut guard = config.lock().unwrap();
+    f(&mut *guard)
 }
 
 fn get_current_uid() -> u32 {

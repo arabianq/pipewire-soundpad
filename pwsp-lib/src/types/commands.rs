@@ -6,7 +6,7 @@ use crate::{
     },
     utils::{
         commands::parse_command,
-        daemon::{get_audio_player, get_daemon_config},
+        daemon::{get_audio_player, get_daemon_config, with_daemon_config},
         pipewire::{get_all_devices, get_device},
     },
 };
@@ -731,11 +731,11 @@ impl Executable for ClearHotkeyKeyCommand {
 #[async_trait]
 impl Executable for GetDaemonConfigCommand {
     async fn execute(&self) -> Response {
-        let config = get_daemon_config().clone();
-        if let Ok(serialized) = serde_json::to_string_pretty(&config.as_ref()) {
-            Response::new(true, serialized)
-        } else {
-            Response::new(false, "Failed to serialize daemon config")
+        let serialized = with_daemon_config(|c| serde_json::to_string_pretty(&c));
+
+        match serialized {
+            Ok(s) => Response::new(true, s),
+            Err(err) => Response::new(false, format!("Failed to serialize daemon config: {}", err)),
         }
     }
 }
@@ -743,8 +743,9 @@ impl Executable for GetDaemonConfigCommand {
 #[async_trait]
 impl Executable for SaveDaemonConfigCommand {
     async fn execute(&self) -> Response {
-        let config = get_daemon_config().clone();
-        match config.save_to_file() {
+        // let config = get_daemon_config_lock().clone();
+
+        match with_daemon_config(|c| c.save_to_file()) {
             Ok(_) => Response::new(true, "Daemon config saved successfully"),
             Err(err) => Response::new(false, format!("Failed to save daemon config: {}", err)),
         }

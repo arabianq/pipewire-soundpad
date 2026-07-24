@@ -3,7 +3,10 @@ use eframe::{App, Frame as EFrame};
 use egui::{CentralPanel, Context, ThemePreference};
 use pwsp_lib::{
     types::{config::PreferredTheme, socket::Request},
-    utils::{daemon::get_daemon_config, gui::make_request_async},
+    utils::{
+        daemon::{get_daemon_config, with_daemon_config},
+        gui::make_request_async,
+    },
 };
 use std::time::{Duration, Instant};
 
@@ -86,9 +89,10 @@ impl App for SoundpadGui {
                 Some(Instant::now() + Duration::from_millis(300));
 
             if self.config.save_volume {
-                let mut daemon_config = get_daemon_config();
-                daemon_config.default_volume = Some(self.app_state.volume_slider_value);
-                daemon_config.save_to_file().ok();
+                with_daemon_config(|c| {
+                    c.default_volume = Some(self.app_state.volume_slider_value);
+                    c.save_to_file().ok();
+                });
             }
         }
 
