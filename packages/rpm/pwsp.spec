@@ -13,7 +13,7 @@
 
 
 Name:            pwsp
-Version:         1.12.5
+Version:         1.13.0
 Release:         %autorelease
 Summary:         Lets you play audio files through your microphone
 

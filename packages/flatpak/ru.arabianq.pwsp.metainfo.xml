@@ -25,7 +25,7 @@
         <name>arabian</name>
     </developer>
     <releases>
-        <release version="1.12.5" date="2026-07-20" />
+        <release version="1.13.0" date="2026-07-24" />
     </releases>
     <content_rating type="oars-1.1" />
 </component>
