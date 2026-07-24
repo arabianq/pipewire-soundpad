@@ -92,7 +92,7 @@ impl SoundpadGui {
     }
 
     pub fn handle_input(&mut self, ctx: &Context) {
-        let _modifiers = self.modifiers(ctx);
+        let modifiers = self.modifiers(ctx);
         let search_focused = {
             if let Some(focused_id) = self.get_focused(ctx)
                 && let Some(search_id) = self.app_state.search_field_id
@@ -185,14 +185,15 @@ impl SoundpadGui {
             }
 
             // Focus search field
-            if self.key_pressed(ctx, Key::Slash) {
-                if search_focused {
-                    ctx.memory_mut(|m| {
-                        m.request_focus(Id::NULL);
-                    });
-                } else {
-                    self.app_state.force_focus_search = true;
-                }
+            if modifiers.ctrl && self.key_pressed(ctx, Key::F) {
+                self.app_state.force_focus_search = true;
+            }
+
+            // Unfocus search field
+            if search_focused && self.key_pressed(ctx, Key::Escape) {
+                ctx.memory_mut(|m| {
+                    m.request_focus(Id::NULL);
+                });
             }
 
             // Check for hotkey chord triggers

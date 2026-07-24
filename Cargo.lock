@@ -3242,6 +3242,7 @@ name = "pwsp-gui"
 version = "1.13.0"
 dependencies = [
  "anyhow",
+ "dirs",
  "eframe",
  "egui",
  "egui_dnd",

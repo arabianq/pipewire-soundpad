@@ -353,6 +353,17 @@ kz = "Ыстық пернелерді іздеу..."
 he = "חפש מקשי קיצור..."
 pt-BR = "Buscar atalhos..."
 
+[gui.search_truncated_warning]
+en = "... and %{count} more results"
+ru = "... и ещё %{count} результатов"
+es = "... y %{count} resultados más"
+fr = "... et %{count} résultats de plus"
+zh = "... 还有 %{count} 个结果"
+ar = "... و %{count} نتائج أخرى"
+kz = "... және тағы %{count} нәтиже"
+he = "... ועוד %{count} תוצאות"
+pt-BR = "... e mais %{count} resultados"
+
 [gui.hotkeys.add_command_select]
 en = "Add Command"
 ru = "Добавить команду"

@@ -21,15 +21,28 @@ use pwsp_lib::{
 use rfd::FileDialog;
 use std::{
     cmp::Ordering,
+    collections::{HashMap, HashSet},
     fs,
+    hash::{DefaultHasher, Hash, Hasher},
     path::{Path, PathBuf},
     sync::{Arc, Mutex},
+    thread,
 };
 use system_fonts::{FontStyle, FoundFontSource, find_for_locale};
 
 const SUPPORTED_EXTENSIONS: [&str; 13] = [
     "mp3", "wav", "ogg", "flac", "mp4", "m4a", "aac", "mov", "mkv", "mka", "webm", "avi", "opus",
 ];
+
+fn get_cache_file_for(path: &Path) -> PathBuf {
+    let mut hasher = DefaultHasher::new();
+    path.hash(&mut hasher);
+    let hash = hasher.finish();
+    dirs::cache_dir()
+        .unwrap_or_else(|| PathBuf::from("/tmp"))
+        .join("pwsp")
+        .join(format!("{:x}.json", hash))
+}
 
 struct SoundpadGui {
     pub app_state: AppState,
@@ -106,19 +119,119 @@ impl SoundpadGui {
         }
     }
 
-    pub fn open_dir(&mut self, path: &PathBuf) {
+    pub fn open_dir(&mut self, path: &PathBuf, ctx: Option<Context>, force_rescan: bool) {
         self.app_state.current_dir = Some(path.clone());
-        match path.read_dir() {
-            Ok(read_dir) => {
-                self.app_state.listed_files = read_dir
-                    .filter_map(|res| res.ok())
-                    .map(|entry| entry.path())
-                    .collect();
+
+        if !self.app_state.dir_cache.contains_key(path) || force_rescan {
+            match fs::read_dir(path) {
+                Ok(read_dir) => {
+                    let files = read_dir
+                        .filter_map(|res| res.ok())
+                        .map(|entry| entry.path())
+                        .collect::<Vec<_>>();
+                    self.app_state.listed_files = files.iter().cloned().collect();
+                    self.app_state.dir_cache.insert(path.clone(), files);
+                }
+                Err(e) => {
+                    eprintln!("Failed to read directory {:?}: {}", path, e);
+                    self.app_state.listed_files.clear();
+                }
             }
-            Err(e) => {
-                eprintln!("Failed to read directory {:?}: {}", path, e);
-                self.app_state.listed_files.clear();
-            }
+        } else {
+            self.app_state.listed_files = self
+                .app_state
+                .dir_cache
+                .get(path)
+                .unwrap()
+                .clone()
+                .into_iter()
+                .collect();
+        }
+
+        let is_scanning = self.app_state.scanning_dirs.lock().unwrap().contains(path);
+        let is_cached = self.app_state.recursive_files_cache.contains_key(path);
+        let has_scanned_this_session = self.app_state.scanned_this_session.contains(path);
+
+        let needs_scan = force_rescan || !has_scanned_this_session || !is_cached;
+
+        if !is_scanning && needs_scan {
+            self.app_state
+                .scanning_dirs
+                .lock()
+                .unwrap()
+                .insert(path.clone());
+            self.app_state.scanned_this_session.insert(path.clone());
+
+            let finished_scans = self.app_state.finished_scans.clone();
+            let scanning_dirs = self.app_state.scanning_dirs.clone();
+            let path_clone = path.clone();
+
+            thread::spawn(move || {
+                let cache_file = get_cache_file_for(&path_clone);
+
+                // 1. Try to load from disk cache if we don't have it in memory yet
+                if !is_cached
+                    && let Ok(data) = fs::read_to_string(&cache_file)
+                    && let Ok((all_files, dir_updates)) = serde_json::from_str::<(
+                        Vec<PathBuf>,
+                        HashMap<PathBuf, Vec<PathBuf>>,
+                    )>(&data)
+                {
+                    finished_scans.lock().unwrap().push((
+                        path_clone.clone(),
+                        all_files,
+                        dir_updates,
+                    ));
+                    if let Some(ctx) = ctx.as_ref() {
+                        ctx.request_repaint();
+                    }
+                }
+
+                // 2. Scan recursively
+                let mut all_files = Vec::new();
+                let mut dir_updates = HashMap::new();
+                let mut dirs_to_visit = vec![path_clone.clone()];
+
+                while let Some(dir) = dirs_to_visit.pop() {
+                    if let Ok(entries) = fs::read_dir(&dir) {
+                        let mut children = Vec::new();
+                        for entry in entries.filter_map(|e| e.ok()) {
+                            let p = entry.path();
+                            if p.is_dir() {
+                                dirs_to_visit.push(p.clone());
+                                children.push(p);
+                            } else if crate::gui::SUPPORTED_EXTENSIONS.contains(
+                                &p.extension()
+                                    .unwrap_or_default()
+                                    .to_str()
+                                    .unwrap_or_default(),
+                            ) {
+                                all_files.push(p.clone());
+                                children.push(p);
+                            }
+                        }
+                        dir_updates.insert(dir, children);
+                    }
+                }
+
+                // 3. Save to disk cache
+                if let Some(parent) = cache_file.parent() {
+                    fs::create_dir_all(parent).ok();
+                }
+                if let Ok(json) = serde_json::to_string(&(all_files.clone(), dir_updates.clone())) {
+                    fs::write(&cache_file, json).ok();
+                }
+
+                // 4. Send to UI
+                finished_scans
+                    .lock()
+                    .unwrap()
+                    .push((path_clone.clone(), all_files, dir_updates));
+                scanning_dirs.lock().unwrap().remove(&path_clone);
+                if let Some(ctx) = ctx {
+                    ctx.request_repaint();
+                }
+            });
         }
     }
 
@@ -157,7 +270,14 @@ impl SoundpadGui {
         make_request_async(Request::play_hotkey(slot));
     }
 
-    pub fn get_filtered_files(&self) -> Vec<PathBuf> {
+    pub fn get_filtered_files(
+        &self,
+        matching_dirs: &HashSet<PathBuf>,
+        matching_files: &HashSet<PathBuf>,
+    ) -> Vec<PathBuf> {
+        let search_query = self.app_state.search_query.to_lowercase();
+        let search_query = search_query.trim();
+
         let mut files: Vec<PathBuf> = self.app_state.listed_files.iter().cloned().collect();
         let sort_order = self
             .app_state
@@ -178,37 +298,51 @@ impl SoundpadGui {
             }
         });
 
-        let search_query = self.app_state.search_query.to_lowercase();
-        let search_query = search_query.trim();
+        let is_cached = self
+            .app_state
+            .current_dir
+            .as_ref()
+            .is_some_and(|d| self.app_state.recursive_files_cache.contains_key(d));
 
-        files
-            .into_iter()
-            .filter(|entry_path| {
-                if entry_path.is_dir() {
-                    return true;
-                }
-
-                if !SUPPORTED_EXTENSIONS.contains(
-                    &entry_path
-                        .extension()
-                        .unwrap_or_default()
-                        .to_str()
-                        .unwrap_or_default(),
-                ) {
-                    return false;
-                }
-
-                if !search_query.is_empty() {
-                    let file_name = entry_path.file_name().unwrap_or_default().to_string_lossy();
-
-                    if !file_name.to_lowercase().contains(search_query) {
+        if !search_query.is_empty() && is_cached {
+            files
+                .into_iter()
+                .filter(|p| {
+                    if p.is_dir() {
+                        matching_dirs.contains(p)
+                    } else {
+                        matching_files.contains(p)
+                    }
+                })
+                .collect()
+        } else {
+            files
+                .into_iter()
+                .filter(|entry_path| {
+                    if !entry_path.is_dir()
+                        && !SUPPORTED_EXTENSIONS.contains(
+                            &entry_path
+                                .extension()
+                                .unwrap_or_default()
+                                .to_str()
+                                .unwrap_or_default(),
+                        )
+                    {
                         return false;
                     }
-                }
 
-                true
-            })
-            .collect()
+                    if !search_query.is_empty() {
+                        let file_name =
+                            entry_path.file_name().unwrap_or_default().to_string_lossy();
+                        if !file_name.to_lowercase().contains(search_query) {
+                            return false;
+                        }
+                    }
+
+                    true
+                })
+                .collect()
+        }
     }
 }
 
@@ -325,14 +459,16 @@ mod tests {
         // On the real OS filesystem, these paths don't exist, so they are treated as files.
         // Unsupported extensions (like .txt) will be filtered out.
         // So we expect only file_b and file_c, sorted alphabetically.
-        let filtered = gui.get_filtered_files();
+        let empty_dirs = HashSet::new();
+        let empty_files = HashSet::new();
+        let filtered = gui.get_filtered_files(&empty_dirs, &empty_files);
         assert_eq!(filtered.len(), 2);
         assert_eq!(filtered[0], file_b);
         assert_eq!(filtered[1], file_c);
 
         // Test search query
         gui.app_state.search_query = "c_fi".to_string();
-        let filtered_search = gui.get_filtered_files();
+        let filtered_search = gui.get_filtered_files(&empty_dirs, &empty_files);
         assert_eq!(filtered_search.len(), 1);
         assert_eq!(filtered_search[0], file_c);
 
@@ -345,7 +481,7 @@ mod tests {
             },
         );
         gui.app_state.search_query = String::new();
-        let filtered_desc = gui.get_filtered_files();
+        let filtered_desc = gui.get_filtered_files(&empty_dirs, &empty_files);
         assert_eq!(filtered_desc.len(), 2);
         assert_eq!(filtered_desc[0], file_c);
         assert_eq!(filtered_desc[1], file_b);
