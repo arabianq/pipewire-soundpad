@@ -10,7 +10,7 @@ use pwsp_lib::types::{
     gui::{AppState, AudioPlayerState},
 };
 use rust_i18n::t;
-use std::{cmp::Ordering, path::Path, path::PathBuf};
+use std::{cmp::Ordering, collections::HashSet, path::Path, path::PathBuf};
 
 pub(crate) enum FileAction {
     Play(PathBuf, bool),
@@ -195,7 +195,7 @@ impl SoundpadGui {
                                     .sort_order = order;
                                 self.config.save_to_file().ok();
                                 self.app_state.dir_cache.remove(path);
-                                self.open_dir(path);
+                                self.open_dir(path, Some(ui.ctx().clone()), false);
                             }
                         });
                     });
@@ -203,7 +203,7 @@ impl SoundpadGui {
                 self.app_state.dirs = dirs;
 
                 if let Some(path) = dir_to_open {
-                    self.open_dir(&path);
+                    self.open_dir(&path, Some(ui.ctx().clone()), false);
                 }
 
                 ui.horizontal(|ui| {
@@ -227,11 +227,40 @@ impl SoundpadGui {
 
     fn draw_files_search_field(&mut self, ui: &mut Ui) {
         ui.horizontal(|ui| {
+            let is_scanning = self
+                .app_state
+                .current_dir
+                .as_ref()
+                .is_some_and(|d| self.app_state.scanning_dirs.lock().unwrap().contains(d));
+            let spinner_width = if is_scanning { 20.0 } else { 0.0 };
+
+            let refresh_button = Button::new(ICON_REFRESH).frame(false);
+            let refresh_width = 24.0;
+
             let search_field_response = ui.add_sized(
-                [ui.available_width(), 22.0],
+                [
+                    f32::max(
+                        0.0,
+                        ui.available_width() - spinner_width - refresh_width - 8.0,
+                    ),
+                    22.0,
+                ],
                 TextEdit::singleline(&mut self.app_state.search_query)
                     .hint_text(t!("gui.search_placeholder")),
             );
+
+            if is_scanning {
+                ui.spinner();
+            }
+
+            let refresh_response = ui
+                .add_sized([refresh_width, 22.0], refresh_button)
+                .on_hover_text("Refresh");
+            if refresh_response.clicked()
+                && let Some(dir) = self.app_state.current_dir.clone()
+            {
+                self.open_dir(&dir, Some(ui.ctx().clone()), true);
+            }
 
             if self.app_state.force_focus_search {
                 search_field_response.request_focus();
@@ -247,9 +276,54 @@ impl SoundpadGui {
             ui.set_min_width(area_size.x);
             ui.set_min_height(area_size.y);
 
+            let finished = {
+                let mut scans = self.app_state.finished_scans.lock().unwrap();
+                std::mem::take(&mut *scans)
+            };
+            for (top_dir, all_files, dir_updates) in finished {
+                self.app_state
+                    .recursive_files_cache
+                    .insert(top_dir, all_files);
+                self.app_state.dir_cache.extend(dir_updates);
+            }
+
             ui.vertical(|ui| {
                 let mut actions = Vec::new();
-                let files = self.get_filtered_files();
+
+                let search_query = self.app_state.search_query.to_lowercase();
+                let search_query = search_query.trim();
+
+                let mut matching_dirs = std::collections::HashSet::new();
+                let mut matching_files = std::collections::HashSet::new();
+
+                if !search_query.is_empty()
+                    && let Some(current_dir) = &self.app_state.current_dir
+                    && let Some(all_files) = self.app_state.recursive_files_cache.get(current_dir)
+                {
+                    for file in all_files {
+                        if let Ok(rel_path) = file.strip_prefix(current_dir) {
+                            let rel_path_str =
+                                rel_path.to_string_lossy().to_lowercase().replace("\\", "/");
+                            if rel_path_str.contains(search_query) {
+                                matching_files.insert(file.clone());
+                                let mut p = file.parent();
+                                while let Some(parent) = p {
+                                    if parent == current_dir {
+                                        break;
+                                    }
+                                    matching_dirs.insert(parent.to_path_buf());
+                                    p = parent.parent();
+                                }
+                            }
+                        }
+                    }
+                }
+
+                let max_results = 300;
+                let is_truncated = !search_query.is_empty() && matching_files.len() > max_results;
+
+                let files = self.get_filtered_files(&matching_dirs, &matching_files);
+                let mut rendered_count = 0;
                 for entry_path in files {
                     Self::draw_tree_node(
                         ui,
@@ -258,6 +332,22 @@ impl SoundpadGui {
                         &mut self.app_state,
                         &self.audio_player_state,
                         &mut actions,
+                        &matching_dirs,
+                        &matching_files,
+                        search_query,
+                        &mut rendered_count,
+                        max_results,
+                    );
+                }
+
+                if is_truncated {
+                    ui.add_space(8.0);
+                    let text = t!(
+                        "gui.search_truncated_warning",
+                        count = matching_files.len() - max_results
+                    );
+                    ui.label(
+                        egui::RichText::new(text).color(egui::Color32::from_rgb(200, 150, 50)),
                     );
                 }
 
@@ -286,6 +376,7 @@ impl SoundpadGui {
         });
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn draw_tree_node_dir(
         ui: &mut Ui,
         path: std::path::PathBuf,
@@ -293,69 +384,112 @@ impl SoundpadGui {
         app_state: &mut AppState,
         audio_player_state: &AudioPlayerState,
         actions: &mut Vec<FileAction>,
+        matching_dirs: &std::collections::HashSet<PathBuf>,
+        matching_files: &std::collections::HashSet<PathBuf>,
+        search_query: &str,
+        rendered_count: &mut usize,
+        max_results: usize,
     ) {
+        if *rendered_count >= max_results && !search_query.is_empty() {
+            return;
+        }
+
         let dir_name = path
             .file_name()
             .unwrap_or_default()
             .to_string_lossy()
             .to_string();
-        CollapsingHeader::new(dir_name)
-            .id_salt(&path)
-            .show(ui, |ui| {
-                let children = if let Some(cached) = app_state.dir_cache.get(&path) {
-                    cached.clone()
-                } else {
-                    let mut read = Vec::new();
-                    if let Ok(entries) = std::fs::read_dir(&path) {
-                        for entry in entries.filter_map(|e| e.ok()) {
-                            let child_path = entry.path();
-                            if !child_path.is_dir()
-                                && !crate::gui::SUPPORTED_EXTENSIONS.contains(
-                                    &child_path
-                                        .extension()
-                                        .unwrap_or_default()
-                                        .to_str()
-                                        .unwrap_or_default(),
-                                )
-                            {
-                                continue;
-                            }
-                            read.push(child_path);
-                        }
-                    }
-                    let sort_order = config.get_sort_order(&path);
-                    read.sort_by(|a, b| {
-                        let a_is_dir = a.is_dir();
-                        let b_is_dir = b.is_dir();
-                        if a_is_dir && !b_is_dir {
-                            Ordering::Less
-                        } else if !a_is_dir && b_is_dir {
-                            Ordering::Greater
-                        } else {
-                            sort_order.compare(a, b)
-                        }
-                    });
-                    app_state.dir_cache.insert(path.clone(), read.clone());
-                    read
-                };
 
-                let search_query = app_state.search_query.to_lowercase();
-                let search_query = search_query.trim();
+        let id_salt = if search_query.is_empty() {
+            format!("normal_{:?}", path)
+        } else {
+            format!("search_{:?}", path)
+        };
 
-                for child in children {
-                    if !child.is_dir() && !search_query.is_empty() {
-                        let file_name = child
-                            .file_name()
-                            .unwrap_or_default()
-                            .to_string_lossy()
-                            .to_string();
-                        if !file_name.to_lowercase().contains(search_query) {
+        let mut header = CollapsingHeader::new(dir_name).id_salt(id_salt);
+
+        let is_cached = app_state
+            .current_dir
+            .as_ref()
+            .is_some_and(|d| app_state.recursive_files_cache.contains_key(d));
+        if !search_query.is_empty() && is_cached {
+            header = header.default_open(true);
+        }
+
+        header.show(ui, |ui| {
+            let children = if let Some(cached) = app_state.dir_cache.get(&path) {
+                cached.clone()
+            } else {
+                let mut read = Vec::new();
+                if let Ok(entries) = std::fs::read_dir(&path) {
+                    for entry in entries.filter_map(|e| e.ok()) {
+                        let child_path = entry.path();
+                        if !child_path.is_dir()
+                            && !crate::gui::SUPPORTED_EXTENSIONS.contains(
+                                &child_path
+                                    .extension()
+                                    .unwrap_or_default()
+                                    .to_str()
+                                    .unwrap_or_default(),
+                            )
+                        {
                             continue;
                         }
+                        read.push(child_path);
                     }
-                    Self::draw_tree_node(ui, child, config, app_state, audio_player_state, actions);
                 }
-            });
+                let sort_order = config.get_sort_order(&path);
+                read.sort_by(|a, b| {
+                    let a_is_dir = a.is_dir();
+                    let b_is_dir = b.is_dir();
+                    if a_is_dir && !b_is_dir {
+                        Ordering::Less
+                    } else if !a_is_dir && b_is_dir {
+                        Ordering::Greater
+                    } else {
+                        sort_order.compare(a, b)
+                    }
+                });
+                app_state.dir_cache.insert(path.clone(), read.clone());
+                read
+            };
+
+            for child in children {
+                if *rendered_count >= max_results && !search_query.is_empty() {
+                    break;
+                }
+                if !search_query.is_empty() && is_cached {
+                    if child.is_dir() && !matching_dirs.contains(&child) {
+                        continue;
+                    }
+                    if !child.is_dir() && !matching_files.contains(&child) {
+                        continue;
+                    }
+                } else if !search_query.is_empty() && !child.is_dir() {
+                    let file_name = child
+                        .file_name()
+                        .unwrap_or_default()
+                        .to_string_lossy()
+                        .to_lowercase();
+                    if !file_name.contains(search_query) {
+                        continue;
+                    }
+                }
+                Self::draw_tree_node(
+                    ui,
+                    child,
+                    config,
+                    app_state,
+                    audio_player_state,
+                    actions,
+                    matching_dirs,
+                    matching_files,
+                    search_query,
+                    rendered_count,
+                    max_results,
+                );
+            }
+        });
     }
 
     fn draw_tree_node_file(
@@ -364,7 +498,10 @@ impl SoundpadGui {
         app_state: &mut AppState,
         audio_player_state: &AudioPlayerState,
         actions: &mut Vec<FileAction>,
+        rendered_count: &mut usize,
     ) {
+        *rendered_count += 1;
+
         let file_name = path
             .file_name()
             .unwrap_or_default()
@@ -500,6 +637,7 @@ impl SoundpadGui {
         });
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn draw_tree_node(
         ui: &mut Ui,
         path: std::path::PathBuf,
@@ -507,11 +645,39 @@ impl SoundpadGui {
         app_state: &mut AppState,
         audio_player_state: &AudioPlayerState,
         actions: &mut Vec<FileAction>,
+        matching_dirs: &HashSet<PathBuf>,
+        matching_files: &HashSet<PathBuf>,
+        search_query: &str,
+        rendered_count: &mut usize,
+        max_results: usize,
     ) {
+        if *rendered_count >= max_results && !search_query.is_empty() {
+            return;
+        }
+
         if path.is_dir() {
-            Self::draw_tree_node_dir(ui, path, config, app_state, audio_player_state, actions);
+            Self::draw_tree_node_dir(
+                ui,
+                path,
+                config,
+                app_state,
+                audio_player_state,
+                actions,
+                matching_dirs,
+                matching_files,
+                search_query,
+                rendered_count,
+                max_results,
+            );
         } else {
-            Self::draw_tree_node_file(ui, path, app_state, audio_player_state, actions);
+            Self::draw_tree_node_file(
+                ui,
+                path,
+                app_state,
+                audio_player_state,
+                actions,
+                rendered_count,
+            );
         }
     }
 }

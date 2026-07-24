@@ -20,6 +20,7 @@ anyhow.workspace = true
 
 serde.workspace = true
 serde_json.workspace = true
+dirs.workspace = true
 
 egui.workspace = true
 eframe.workspace = true

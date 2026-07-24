@@ -8,8 +8,11 @@ use egui::Id;
 use std::{
     collections::{HashMap, HashSet},
     path::PathBuf,
+    sync::{Arc, Mutex},
     time::Instant,
 };
+
+pub type ScanResult = (PathBuf, Vec<PathBuf>, HashMap<PathBuf, Vec<PathBuf>>);
 
 #[derive(Default, Debug)]
 pub struct TrackUiState {
@@ -49,6 +52,11 @@ pub struct AppState {
     pub listed_files: HashSet<PathBuf>,
     pub listed_dirs: HashSet<PathBuf>,
     pub dir_cache: HashMap<PathBuf, Vec<PathBuf>>,
+
+    pub scanning_dirs: Arc<Mutex<HashSet<PathBuf>>>,
+    pub scanned_this_session: HashSet<PathBuf>,
+    pub finished_scans: Arc<Mutex<Vec<ScanResult>>>,
+    pub recursive_files_cache: HashMap<PathBuf, Vec<PathBuf>>,
 
     pub show_hotkeys: bool,
     pub hotkey_capture_active: bool,
