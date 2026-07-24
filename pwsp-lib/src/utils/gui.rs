@@ -1,7 +1,7 @@
 use crate::{
     types::{
         audio_player::FullState,
-        config::{GuiConfig, HotkeyConfig},
+        config::{DaemonConfig, GuiConfig, HotkeyConfig},
         gui::AudioPlayerState,
         socket::{Request, Response},
     },
@@ -22,6 +22,19 @@ pub fn get_gui_config() -> GuiConfig {
         config.save_to_file().ok();
         config
     })
+}
+
+pub fn update_daemon_config(new_config: &DaemonConfig) -> Result<()> {
+    make_request_sync(Request::update_daemon_config(new_config))?;
+    make_request_async(Request::save_daemon_config());
+
+    Ok(())
+}
+
+pub fn get_daemon_config() -> Result<DaemonConfig> {
+    let response = make_request_sync(Request::get_daemon_config())?;
+    let config: DaemonConfig = serde_json::from_str(&response.message)?;
+    Ok(config)
 }
 
 pub fn make_request_sync(request: Request) -> Result<Response> {

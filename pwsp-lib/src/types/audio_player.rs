@@ -1,7 +1,7 @@
 use crate::{
     types::pipewire::DeviceType,
     utils::{
-        daemon::get_daemon_config,
+        daemon::with_daemon_config,
         pipewire::{PwTerminator, create_link, get_device, link_player_to_virtual_mic},
     },
 };
@@ -68,9 +68,14 @@ pub struct AudioPlayer {
 
 impl AudioPlayer {
     pub async fn new() -> Result<Self> {
-        let daemon_config = get_daemon_config();
-        let default_volume = daemon_config.default_volume.unwrap_or(1.0);
-        let volume_multiplier = daemon_config.volume_multiplier.unwrap_or(1.0);
+        let (default_input_name, default_volume, default_volume_multiplier) =
+            with_daemon_config(|c| {
+                (
+                    c.default_input_name.clone(),
+                    c.default_volume.unwrap_or(1.0),
+                    c.volume_multiplier.unwrap_or(1.0),
+                )
+            });
 
         let mut audio_player = AudioPlayer {
             stream_handle: None,
@@ -79,10 +84,10 @@ impl AudioPlayer {
 
             input_link_sender: None,
             player_link_sender: None,
-            input_device_name: daemon_config.default_input_name.clone(),
+            input_device_name: default_input_name,
 
             volume: default_volume,
-            volume_multiplier,
+            volume_multiplier: default_volume_multiplier,
         };
 
         if audio_player.input_device_name.is_some() {
