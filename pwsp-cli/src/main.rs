@@ -69,6 +69,8 @@ enum Actions {
         #[clap(short, long)]
         id: Option<u32>,
     },
+    /// Daemon configuration
+    SaveDaemonConfig,
     /// Play a sound by hotkey slot name
     PlayHotkey { slot: String },
     /// Remove the hotkey slot
@@ -106,6 +108,8 @@ enum GetCommands {
     Inputs,
     /// Version of the daemon
     DaemonVersion,
+    /// Daemon configuration
+    DaemonConfig,
     /// Full player state
     FullState,
     /// All hotkey slots
@@ -165,6 +169,7 @@ async fn main() -> Result<()> {
                 concurrent,
             } => Request::play(&file_path.to_string_lossy(), concurrent),
             Actions::ToggleLoop { id } => Request::toggle_loop(id),
+            Actions::SaveDaemonConfig => Request::save_daemon_config(),
             Actions::PlayHotkey { slot } => Request::play_hotkey(&slot),
             Actions::ClearHotkey { slot } => Request::clear_hotkey(&slot),
             Actions::ClearHotkeyKey { slot } => Request::clear_hotkey_key(&slot),
@@ -179,6 +184,7 @@ async fn main() -> Result<()> {
             GetCommands::Input => Request::get_input(),
             GetCommands::Inputs => Request::get_inputs(),
             GetCommands::DaemonVersion => Request::get_daemon_version(),
+            GetCommands::DaemonConfig => Request::get_daemon_config(),
             GetCommands::FullState => Request::get_full_state(),
             GetCommands::Hotkeys => Request::get_hotkeys(),
         },

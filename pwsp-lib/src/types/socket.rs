@@ -172,6 +172,14 @@ impl Request {
         Request::new("get_daemon_version", vec![])
     }
 
+    pub fn get_daemon_config() -> Self {
+        Request::new("get_daemon_config", vec![])
+    }
+
+    pub fn save_daemon_config() -> Self {
+        Request::new("save_daemon_config", vec![])
+    }
+
     pub fn get_full_state() -> Self {
         Request::new("get_full_state", vec![])
     }
