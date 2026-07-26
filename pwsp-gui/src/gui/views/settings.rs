@@ -62,6 +62,9 @@ impl SoundpadGui {
             ui.separator();
 
             // ---------- Selectors -----------
+            self.draw_mic_selection(ui);
+            self.draw_output_selection(ui);
+
             let mut selected_theme = self.config.preferred_theme.clone();
             ComboBox::from_label(t!("gui.settings.theme.label"))
                 .selected_text(match self.config.preferred_theme {
@@ -122,5 +125,58 @@ impl SoundpadGui {
                 ));
             });
         });
+    }
+
+    fn draw_mic_selection(&mut self, ui: &mut Ui) {
+        let mics = &self.audio_player_state.all_inputs_sorted;
+
+        let mut selected_input = self.audio_player_state.current_input.to_owned();
+        let prev_input = selected_input.to_owned();
+        ComboBox::from_label(t!("gui.choose_mic_select"))
+            .height(30.0)
+            .selected_text(
+                self.audio_player_state
+                    .all_inputs
+                    .get(&selected_input)
+                    .unwrap_or(&String::new()),
+            )
+            .show_ui(ui, |ui| {
+                for (name, nick) in mics {
+                    ui.selectable_value(&mut selected_input, name.clone(), nick);
+                }
+            });
+
+        if selected_input != prev_input {
+            self.set_input(selected_input);
+        }
+    }
+
+    fn draw_output_selection(&mut self, ui: &mut Ui) {
+        let outputs = &self.audio_player_state.all_outputs_sorted;
+
+        let mut selected_output = self.audio_player_state.current_output.to_owned();
+        let prev_output = selected_output.to_owned();
+
+        // An empty selection means no device is pinned and playback follows the system
+        // default sink, which is also what a fresh install does.
+        let selected_text = self
+            .audio_player_state
+            .all_outputs
+            .get(&selected_output)
+            .cloned()
+            .unwrap_or_else(|| t!("gui.default_output").to_string());
+
+        ComboBox::from_label(t!("gui.choose_output_select"))
+            .height(30.0)
+            .selected_text(selected_text)
+            .show_ui(ui, |ui| {
+                for (name, nick) in outputs {
+                    ui.selectable_value(&mut selected_output, name.clone(), nick);
+                }
+            });
+
+        if selected_output != prev_output {
+            self.set_output(selected_output);
+        }
     }
 }
