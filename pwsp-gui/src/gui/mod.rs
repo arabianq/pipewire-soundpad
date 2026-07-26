@@ -250,6 +250,18 @@ impl SoundpadGui {
         }
     }
 
+    pub fn set_output(&mut self, name: String) {
+        make_request_async(Request::set_output(&name));
+
+        if self.config.save_input
+            && let Ok(mut daemon_config) = get_daemon_config()
+        {
+            // Empty means "follow the system default", which is stored as no device.
+            daemon_config.default_output_name = Some(name).filter(|n| !n.is_empty());
+            update_daemon_config(&daemon_config).ok();
+        }
+    }
+
     pub fn toggle_loop(&mut self, id: Option<u32>) {
         make_request_async(Request::toggle_loop(id));
     }

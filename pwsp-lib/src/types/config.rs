@@ -16,7 +16,9 @@ use std::{
 #[serde(default)]
 pub struct DaemonConfig {
     pub default_input_name: Option<String>,
-    pub default_volume: Option<f32>,
+    pub default_output_name: Option<String>,
+    pub default_monitoring_volume: Option<f32>,
+    pub default_mic_volume: Option<f32>,
     pub default_volume_multiplier: Option<f32>,
 }
 

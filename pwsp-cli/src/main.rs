@@ -88,6 +88,10 @@ enum GetCommands {
         #[clap(short, long)]
         id: Option<u32>,
     },
+    /// Volume of what you hear locally
+    MonitoringVolume,
+    /// Volume of what is sent to the virtual microphone
+    MicVolume,
     /// Volume multiplier for all tracks
     VolumeMultiplier,
     /// Playback position (in seconds)
@@ -108,6 +112,10 @@ enum GetCommands {
     Input,
     /// All audio inputs
     Inputs,
+    /// Current audio output used for monitoring
+    Output,
+    /// All audio outputs
+    Outputs,
     /// Version of the daemon
     DaemonVersion,
     /// Daemon configuration
@@ -120,12 +128,16 @@ enum GetCommands {
 
 #[derive(Subcommand, Debug)]
 enum SetCommands {
-    /// Playback volume
+    /// Playback volume. Without --id it sets both the monitoring and mic volumes
     Volume {
         volume: f32,
         #[clap(short, long)]
         id: Option<u32>,
     },
+    /// Volume of what you hear locally. Values above 1.0 amplify
+    MonitoringVolume { volume: f32 },
+    /// Volume of what is sent to the virtual microphone. Values above 1.0 amplify
+    MicVolume { volume: f32 },
     /// Volume multiplier for all tracks
     VolumeMultiplier { volume: f32 },
     /// Playback position (in seconds)
@@ -136,6 +148,8 @@ enum SetCommands {
     },
     /// Audio input id (see pwsp-cli get inputs)
     Input { name: String },
+    /// Audio output used for monitoring (see pwsp-cli get outputs)
+    Output { name: String },
     /// Enable or disable loop (true or false)
     Loop {
         enabled: String,
@@ -181,6 +195,8 @@ async fn main() -> Result<()> {
         Commands::Get { parameter } => match parameter {
             GetCommands::IsPaused => Request::get_is_paused(),
             GetCommands::Volume { id } => Request::get_volume(id),
+            GetCommands::MonitoringVolume => Request::get_monitoring_volume(),
+            GetCommands::MicVolume => Request::get_mic_volume(),
             GetCommands::VolumeMultiplier => Request::get_volume_multiplier(),
             GetCommands::Position { id } => Request::get_position(id),
             GetCommands::Duration { id } => Request::get_duration(id),
@@ -188,6 +204,8 @@ async fn main() -> Result<()> {
             GetCommands::Tracks => Request::get_tracks(),
             GetCommands::Input => Request::get_input(),
             GetCommands::Inputs => Request::get_inputs(),
+            GetCommands::Output => Request::get_output(),
+            GetCommands::Outputs => Request::get_outputs(),
             GetCommands::DaemonVersion => Request::get_daemon_version(),
             GetCommands::DaemonConfig => Request::get_daemon_config(),
             GetCommands::FullState => Request::get_full_state(),
@@ -195,9 +213,12 @@ async fn main() -> Result<()> {
         },
         Commands::Set { parameter } => match parameter {
             SetCommands::Volume { volume, id } => Request::set_volume(volume, id),
+            SetCommands::MonitoringVolume { volume } => Request::set_monitoring_volume(volume),
+            SetCommands::MicVolume { volume } => Request::set_mic_volume(volume),
             SetCommands::VolumeMultiplier { volume } => Request::set_volume_multiplier(volume),
             SetCommands::Position { position, id } => Request::seek(position, id),
             SetCommands::Input { name } => Request::set_input(&name),
+            SetCommands::Output { name } => Request::set_output(&name),
             SetCommands::Loop { enabled, id } => Request::set_loop(&enabled, id),
             SetCommands::Hotkey { slot, file_path } => {
                 Request::set_hotkey(&slot, &file_path.to_string_lossy())

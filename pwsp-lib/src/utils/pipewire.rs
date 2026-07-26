@@ -1,4 +1,4 @@
-use crate::types::pipewire::{AudioDevice, DeviceType, Port};
+use crate::types::pipewire::{AudioDevice, DeviceType, LinkInfo, Port};
 use anyhow::{Result, anyhow};
 use pipewire::{
     context::ContextRc, link::Link, main_loop::MainLoopRc, properties::properties,
@@ -7,9 +7,31 @@ use pipewire::{
 use std::{cell::RefCell, collections::HashMap, rc::Rc, sync::OnceLock, thread};
 use tokio::sync::oneshot;
 
+/// Every audio node PWSP knows about, split by role.
+pub struct AllDevices {
+    /// `Audio/Source*` nodes — real and virtual microphones.
+    pub inputs: Vec<AudioDevice>,
+    /// `Stream/Output/Audio` nodes — application playback streams, including our own.
+    pub outputs: Vec<AudioDevice>,
+    /// `Audio/Sink` nodes — speakers and headphones.
+    pub sinks: Vec<AudioDevice>,
+}
+
+impl AllDevices {
+    pub fn iter(&self) -> impl Iterator<Item = &AudioDevice> {
+        self.inputs
+            .iter()
+            .chain(self.outputs.iter())
+            .chain(self.sinks.iter())
+    }
+}
+
 pub enum PwCommand {
     GetDevices {
-        resp: oneshot::Sender<(Vec<AudioDevice>, Vec<AudioDevice>)>,
+        resp: oneshot::Sender<AllDevices>,
+    },
+    GetLinks {
+        resp: oneshot::Sender<Vec<LinkInfo>>,
     },
     CreateVirtualMic {
         resp: oneshot::Sender<Result<u32, String>>,
@@ -21,7 +43,12 @@ pub enum PwCommand {
         input_fr: Port,
         resp: oneshot::Sender<Result<(u32, u32), String>>,
     },
+    /// Drops a proxy we created ourselves, which destroys the underlying object.
     DestroyObject {
+        id: u32,
+    },
+    /// Destroys a global object owned by somebody else, such as an auto-created link.
+    DestroyGlobal {
         id: u32,
     },
 }
@@ -29,6 +56,8 @@ pub enum PwCommand {
 struct AppState {
     input_devices: HashMap<u32, AudioDevice>,
     output_devices: HashMap<u32, AudioDevice>,
+    sink_devices: HashMap<u32, AudioDevice>,
+    links: HashMap<u32, LinkInfo>,
     ports: HashMap<u32, Port>,
     proxies: HashMap<u32, Box<dyn std::any::Any>>,
     proxy_id_counter: u32,
@@ -53,19 +82,23 @@ pub fn get_manager() -> &'static PipewireManager {
             let main_loop = Box::leak(Box::new(main_loop));
             let context = Box::leak(Box::new(context));
 
-            // Leak to fix lifetime issues since this thread lives forever
-            let core = Box::leak(Box::new(
+            // Leak to fix lifetime issues since this thread lives forever. Shared rather
+            // than mutable so both `core` and the `registry` borrowed from it can be
+            // captured by the command closure below.
+            let core: &'static _ = Box::leak(Box::new(
                 context
                     .connect(None)
                     .expect("Failed to connect to pipewire"),
             ));
-            let registry = Box::leak(Box::new(
+            let registry: &'static _ = Box::leak(Box::new(
                 core.get_registry().expect("Failed to get registry"),
             ));
 
             let state = Rc::new(RefCell::new(AppState {
                 input_devices: HashMap::new(),
                 output_devices: HashMap::new(),
+                sink_devices: HashMap::new(),
+                links: HashMap::new(),
                 ports: HashMap::new(),
                 proxies: HashMap::new(),
                 proxy_id_counter: 10000,
@@ -78,31 +111,44 @@ pub fn get_manager() -> &'static PipewireManager {
             let _listener = registry
                 .add_listener_local()
                 .global(move |global| {
-                    let (device, port) = parse_global_object(global);
                     let mut s = state_for_registry_add.borrow_mut();
-                    if let Some(device) = device {
-                        match device.device_type {
+                    match parse_global_object(global) {
+                        ParsedGlobal::Device(device) => match device.device_type {
                             DeviceType::Input => {
                                 s.input_devices.insert(device.id, device);
                             }
                             DeviceType::Output => {
                                 s.output_devices.insert(device.id, device);
                             }
+                            DeviceType::Sink => {
+                                s.sink_devices.insert(device.id, device);
+                            }
+                        },
+                        ParsedGlobal::Port(port) => {
+                            let node_id = port.node_id;
+                            s.ports.insert(port.port_id, port.clone());
+                            if let Some(d) = s.input_devices.get_mut(&node_id) {
+                                d.add_port(port);
+                            } else if let Some(d) = s.output_devices.get_mut(&node_id) {
+                                d.add_port(port);
+                            } else if let Some(d) = s.sink_devices.get_mut(&node_id) {
+                                d.add_port(port);
+                            }
                         }
-                    } else if let Some(port) = port {
-                        let node_id = port.node_id;
-                        s.ports.insert(port.port_id, port.clone());
-                        if let Some(d) = s.input_devices.get_mut(&node_id) {
-                            d.add_port(port.clone());
-                        } else if let Some(d) = s.output_devices.get_mut(&node_id) {
-                            d.add_port(port);
+                        ParsedGlobal::Link(link) => {
+                            s.links.insert(link.id, link);
                         }
+                        ParsedGlobal::Unknown => {}
                     }
                 })
                 .global_remove(move |id| {
                     let mut s = state_for_registry_remove.borrow_mut();
                     s.input_devices.remove(&id);
                     s.output_devices.remove(&id);
+                    s.sink_devices.remove(&id);
+                    s.links.remove(&id);
+                    s.links
+                        .retain(|_, link| link.output_node != id && link.input_node != id);
                     s.ports.retain(|_, port| port.node_id != id);
                     s.ports.remove(&id);
                 })
@@ -133,9 +179,21 @@ pub fn get_manager() -> &'static PipewireManager {
                             s.input_devices.values().cloned().collect();
                         let mut outputs: Vec<AudioDevice> =
                             s.output_devices.values().cloned().collect();
+                        let mut sinks: Vec<AudioDevice> =
+                            s.sink_devices.values().cloned().collect();
                         inputs.sort_by_key(|a| a.id);
                         outputs.sort_by_key(|a| a.id);
-                        let _ = resp.send((inputs, outputs));
+                        sinks.sort_by_key(|a| a.id);
+                        let _ = resp.send(AllDevices {
+                            inputs,
+                            outputs,
+                            sinks,
+                        });
+                    }
+                    PwCommand::GetLinks { resp } => {
+                        let mut links: Vec<LinkInfo> = s.links.values().copied().collect();
+                        links.sort_by_key(|l| l.id);
+                        let _ = resp.send(links);
                     }
                     PwCommand::CreateVirtualMic { resp } => {
                         let props = properties!(
@@ -207,6 +265,10 @@ pub fn get_manager() -> &'static PipewireManager {
                     PwCommand::DestroyObject { id } => {
                         s.proxies.remove(&id);
                     }
+                    PwCommand::DestroyGlobal { id } => {
+                        s.links.remove(&id);
+                        registry.destroy_global(id);
+                    }
                 }
             });
 
@@ -227,12 +289,17 @@ pub fn setup_pipewire_context() -> Result<(MainLoopRc, ContextRc), String> {
     Ok((main_loop, context))
 }
 
-fn parse_global_object(
-    global_object: &GlobalObject<&DictRef>,
-) -> (Option<AudioDevice>, Option<Port>) {
+enum ParsedGlobal {
+    Device(AudioDevice),
+    Port(Port),
+    Link(LinkInfo),
+    Unknown,
+}
+
+fn parse_global_object(global_object: &GlobalObject<&DictRef>) -> ParsedGlobal {
     let props = match global_object.props {
         Some(p) => p,
-        None => return (None, None),
+        None => return ParsedGlobal::Unknown,
     };
 
     if let Some(media_class) = props.get("media.class") {
@@ -241,26 +308,40 @@ fn parse_global_object(
         let node_name = props.get("node.name");
         let node_description = props.get("node.description");
 
-        if media_class.starts_with("Audio/Source") {
-            let input_device = AudioDevice::new(
-                node_id,
-                node_nick,
-                node_description,
-                node_name,
-                DeviceType::Input,
-            );
-            return (Some(input_device), None);
+        // `Audio/Source/Virtual` (our own virtual mic) also matches "Audio/Source",
+        // which is intended — it is a microphone as far as the rest of PWSP cares.
+        let device_type = if media_class.starts_with("Audio/Source") {
+            DeviceType::Input
         } else if media_class.starts_with("Stream/Output/Audio") {
-            let output_device = AudioDevice::new(
-                node_id,
-                node_nick,
-                node_description,
-                node_name,
-                DeviceType::Output,
-            );
-            return (Some(output_device), None);
-        }
-        return (None, None);
+            DeviceType::Output
+        } else if media_class.starts_with("Audio/Sink") {
+            DeviceType::Sink
+        } else {
+            return ParsedGlobal::Unknown;
+        };
+
+        return ParsedGlobal::Device(AudioDevice::new(
+            node_id,
+            node_nick,
+            node_description,
+            node_name,
+            device_type,
+        ));
+    }
+
+    if let (Some(output_node), Some(input_node)) = (
+        props
+            .get("link.output.node")
+            .and_then(|id| id.parse::<u32>().ok()),
+        props
+            .get("link.input.node")
+            .and_then(|id| id.parse::<u32>().ok()),
+    ) {
+        return ParsedGlobal::Link(LinkInfo {
+            id: global_object.id,
+            output_node,
+            input_node,
+        });
     }
 
     if props.get("port.direction").is_some()
@@ -270,18 +351,17 @@ fn parse_global_object(
             props.get("port.name"),
         )
     {
-        let port = Port {
+        return ParsedGlobal::Port(Port {
             node_id,
             port_id,
             name: port_name.to_string(),
-        };
-        return (None, Some(port));
+        });
     }
 
-    (None, None)
+    ParsedGlobal::Unknown
 }
 
-pub async fn get_all_devices() -> Result<(Vec<AudioDevice>, Vec<AudioDevice>)> {
+pub async fn get_all_devices() -> Result<AllDevices> {
     let (tx, rx) = oneshot::channel();
     let manager = get_manager();
     manager
@@ -294,19 +374,52 @@ pub async fn get_all_devices() -> Result<(Vec<AudioDevice>, Vec<AudioDevice>)> {
     Ok(res)
 }
 
-pub async fn get_device(device_name: &str) -> Result<AudioDevice> {
-    let (input_devices, output_devices) = get_all_devices().await?;
+pub async fn get_all_links() -> Result<Vec<LinkInfo>> {
+    let (tx, rx) = oneshot::channel();
+    let manager = get_manager();
+    manager
+        .sender
+        .send(PwCommand::GetLinks { resp: tx })
+        .map_err(|_| anyhow!("Failed to send GetLinks to manager"))?;
+    rx.await
+        .map_err(|e| anyhow!("Failed to receive response: {}", e))
+}
 
-    input_devices
+fn matches_device_name(device: &AudioDevice, device_name: &str) -> bool {
+    device.name == device_name
+        || device.nick == device_name
+        || device.name.contains(device_name)
+        || device.nick.contains(device_name)
+}
+
+pub async fn get_device(device_name: &str) -> Result<AudioDevice> {
+    let devices = get_all_devices().await?;
+
+    devices
+        .iter()
+        .find(|device| matches_device_name(device, device_name))
+        .cloned()
+        .ok_or_else(|| anyhow!("Device not found: {}", device_name))
+}
+
+/// Re-reads a node by its PipeWire id, so callers always link against fresh ports.
+pub async fn get_device_by_id(id: u32) -> Result<AudioDevice> {
+    get_all_devices()
+        .await?
+        .iter()
+        .find(|device| device.id == id)
+        .cloned()
+        .ok_or_else(|| anyhow!("Node {} is gone", id))
+}
+
+/// Looks up an `Audio/Sink` node by name.
+pub async fn get_sink(name: &str) -> Result<AudioDevice> {
+    get_all_devices()
+        .await?
+        .sinks
         .into_iter()
-        .chain(output_devices)
-        .find(|device| {
-            device.name == device_name
-                || device.nick == device_name
-                || device.name.contains(device_name)
-                || device.nick.contains(device_name)
-        })
-        .ok_or_else(|| anyhow!("Device not found"))
+        .find(|d| matches_device_name(d, name))
+        .ok_or_else(|| anyhow!("Output device not found: {}", name))
 }
 
 pub struct PwTerminator {
@@ -338,43 +451,63 @@ pub async fn create_virtual_mic() -> Result<PwTerminator> {
     Ok(PwTerminator { ids: vec![id] })
 }
 
-pub async fn link_player_to_virtual_mic() -> Result<PwTerminator> {
-    let pwsp_daemon_output = match get_device("pwsp-daemon").await {
-        Ok(device) => device,
-        Err(_) => {
-            return Err(anyhow!(
-                "Could not find alsa_playback.pwsp-daemon device, skipping device linking"
-            ));
+/// Makes `source_node` feed `target` and nothing else.
+///
+/// Idempotent: safe to call on every device-check tick. Returns `Some` only when a new link
+/// was created, so an already-correct route is left in place and the caller never tears
+/// down a link it does not own.
+///
+/// The link is created *before* stale ones are pruned. That order matters: the node is
+/// never left unlinked, which is the state that would invite the session manager to
+/// re-attach it somewhere else.
+pub async fn ensure_route(
+    source_node: &AudioDevice,
+    target: &AudioDevice,
+) -> Result<Option<PwTerminator>> {
+    let existing = get_all_links().await?;
+    let already_routed = existing
+        .iter()
+        .any(|link| link.output_node == source_node.id && link.input_node == target.id);
+
+    let terminator = if already_routed {
+        None
+    } else {
+        let output_fl = source_node
+            .output_fl
+            .clone()
+            .ok_or_else(|| anyhow!("Node {} has no output_FL port", source_node.name))?;
+        let output_fr = source_node
+            .output_fr
+            .clone()
+            .ok_or_else(|| anyhow!("Node {} has no output_FR port", source_node.name))?;
+        let input_fl = target
+            .input_fl
+            .clone()
+            .ok_or_else(|| anyhow!("Node {} has no input_FL port", target.name))?;
+        let input_fr = target
+            .input_fr
+            .clone()
+            .ok_or_else(|| anyhow!("Node {} has no input_FR port", target.name))?;
+
+        Some(create_link(output_fl, output_fr, input_fl, input_fr).await?)
+    };
+
+    prune_links_from(source_node.id, target.id).await?;
+
+    Ok(terminator)
+}
+
+/// Destroys every link leaving `source_node` that does not end at `keep_target`.
+async fn prune_links_from(source_node: u32, keep_target: u32) -> Result<()> {
+    let manager = get_manager();
+    for link in get_all_links().await? {
+        if link.output_node == source_node && link.input_node != keep_target {
+            let _ = manager
+                .sender
+                .send(PwCommand::DestroyGlobal { id: link.id });
         }
-    };
-
-    let pwsp_daemon_input = match get_device("pwsp-virtual-mic").await {
-        Ok(device) => device,
-        Err(_) => {
-            return Err(anyhow!(
-                "Could not find pwsp-virtual-mic device, skipping device linking"
-            ));
-        }
-    };
-
-    let output_fl = match pwsp_daemon_output.output_fl {
-        Some(port) => port,
-        None => return Err(anyhow!("Failed to get pwsp-daemon output_fl")),
-    };
-    let output_fr = match pwsp_daemon_output.output_fr {
-        Some(port) => port,
-        None => return Err(anyhow!("Failed to get pwsp-daemon output_fr")),
-    };
-    let input_fl = match pwsp_daemon_input.input_fl {
-        Some(port) => port,
-        None => return Err(anyhow!("Failed to get pwsp-virtual-mic input_fl")),
-    };
-    let input_fr = match pwsp_daemon_input.input_fr {
-        Some(port) => port,
-        None => return Err(anyhow!("Failed to get pwsp-virtual-mic input_fr")),
-    };
-
-    create_link(output_fl, output_fr, input_fl, input_fr).await
+    }
+    Ok(())
 }
 
 pub async fn create_link(

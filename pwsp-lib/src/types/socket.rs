@@ -143,6 +143,25 @@ impl Request {
         Request::new("set_volume".to_string(), args)
     }
 
+    pub fn get_monitoring_volume() -> Self {
+        Request::new("get_monitoring_volume", vec![])
+    }
+
+    pub fn set_monitoring_volume(volume: f32) -> Self {
+        Request::new(
+            "set_monitoring_volume",
+            vec![("volume", &volume.to_string())],
+        )
+    }
+
+    pub fn get_mic_volume() -> Self {
+        Request::new("get_mic_volume", vec![])
+    }
+
+    pub fn set_mic_volume(volume: f32) -> Self {
+        Request::new("set_mic_volume", vec![("volume", &volume.to_string())])
+    }
+
     pub fn set_volume_multiplier(volume: f32) -> Self {
         Request::new(
             "set_volume_multiplier",
@@ -160,6 +179,18 @@ impl Request {
 
     pub fn set_input(name: &str) -> Self {
         Request::new("set_input", vec![("input_name", name)])
+    }
+
+    pub fn get_output() -> Self {
+        Request::new("get_output", vec![])
+    }
+
+    pub fn get_outputs() -> Self {
+        Request::new("get_outputs", vec![])
+    }
+
+    pub fn set_output(name: &str) -> Self {
+        Request::new("set_output", vec![("output_name", name)])
     }
 
     pub fn set_loop(enabled: &str, id: Option<u32>) -> Self {
@@ -278,6 +309,41 @@ mod tests {
         let res = Response::new(true, "success-msg");
         assert!(res.status);
         assert_eq!(res.message, "success-msg");
+    }
+
+    #[test]
+    fn test_volume_path_request_constructors() {
+        let monitoring = Request::set_monitoring_volume(1.5);
+        assert_eq!(monitoring.name, "set_monitoring_volume");
+        assert_eq!(
+            monitoring.args.get("volume").map(|s| s.as_str()),
+            Some("1.5")
+        );
+
+        let mic = Request::set_mic_volume(2.0);
+        assert_eq!(mic.name, "set_mic_volume");
+        assert_eq!(mic.args.get("volume").map(|s| s.as_str()), Some("2"));
+
+        assert_eq!(
+            Request::get_monitoring_volume().name,
+            "get_monitoring_volume"
+        );
+        assert!(Request::get_monitoring_volume().args.is_empty());
+        assert_eq!(Request::get_mic_volume().name, "get_mic_volume");
+    }
+
+    #[test]
+    fn test_output_request_constructors() {
+        let set_output = Request::set_output("some-sink");
+        assert_eq!(set_output.name, "set_output");
+        assert_eq!(
+            set_output.args.get("output_name").map(|s| s.as_str()),
+            Some("some-sink")
+        );
+
+        assert_eq!(Request::get_output().name, "get_output");
+        assert_eq!(Request::get_outputs().name, "get_outputs");
+        assert!(Request::get_outputs().args.is_empty());
     }
 
     #[test]

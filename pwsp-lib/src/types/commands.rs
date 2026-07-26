@@ -1,6 +1,6 @@
 use crate::{
     types::{
-        audio_player::{FullState, PlayerState},
+        audio_player::{FullState, PlayerState, VolumeTarget},
         config::{DaemonConfig, HotkeyConfig},
         socket::{Request, Response},
     },
@@ -57,6 +57,15 @@ pub struct SetVolumeMultiplierCommand {
     pub volume_multiplier: Option<f32>,
 }
 
+pub struct GetMasterVolumeCommand {
+    pub target: VolumeTarget,
+}
+
+pub struct SetMasterVolumeCommand {
+    pub volume: Option<f32>,
+    pub target: VolumeTarget,
+}
+
 pub struct GetPositionCommand {
     pub id: Option<u32>,
 }
@@ -82,6 +91,14 @@ pub struct GetCurrentInputCommand {}
 pub struct GetAllInputsCommand {}
 
 pub struct SetCurrentInputCommand {
+    pub name: Option<String>,
+}
+
+pub struct GetCurrentOutputCommand {}
+
+pub struct GetAllOutputsCommand {}
+
+pub struct SetCurrentOutputCommand {
     pub name: Option<String>,
 }
 
@@ -198,7 +215,7 @@ impl Executable for TogglePauseCommand {
 
         if let Some(id) = self.id {
             if let Some(track) = audio_player.tracks.get(&id) {
-                if track.sink.is_paused() {
+                if track.players.primary().is_paused() {
                     audio_player.resume(Some(id));
                     Response::new(true, "Audio was resumed")
                 } else {
@@ -262,7 +279,7 @@ impl Executable for GetStateCommand {
 #[async_trait]
 impl Executable for GetVolumeCommand {
     async fn execute(&self) -> Response {
-        let mut audio_player = match get_audio_player().await {
+        let audio_player = match get_audio_player().await {
             Ok(player) => player.lock().await,
             Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
         };
@@ -288,10 +305,16 @@ impl Executable for GetVolumeMultiplierCommand {
     }
 }
 
+/// Rejects values that would corrupt the mixer. The daemon is the trust boundary here:
+/// hotkeys store raw `Request` JSON, so a bad value can arrive without passing the CLI.
+fn validate_volume(volume: Option<f32>) -> Option<f32> {
+    volume.filter(|v| v.is_finite() && *v >= 0.0)
+}
+
 #[async_trait]
 impl Executable for SetVolumeCommand {
     async fn execute(&self) -> Response {
-        if let Some(volume) = self.volume {
+        if let Some(volume) = validate_volume(self.volume) {
             let mut audio_player = match get_audio_player().await {
                 Ok(player) => player.lock().await,
                 Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
@@ -305,15 +328,49 @@ impl Executable for SetVolumeCommand {
 }
 
 #[async_trait]
-impl Executable for SetVolumeMultiplierCommand {
+impl Executable for GetMasterVolumeCommand {
     async fn execute(&self) -> Response {
-        if let Some(volume_multiplier) = self.volume_multiplier {
+        let audio_player = match get_audio_player().await {
+            Ok(player) => player.lock().await,
+            Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+        };
+
+        Response::new(
+            true,
+            audio_player.get_master_volume(self.target).to_string(),
+        )
+    }
+}
+
+#[async_trait]
+impl Executable for SetMasterVolumeCommand {
+    async fn execute(&self) -> Response {
+        if let Some(volume) = validate_volume(self.volume) {
             let mut audio_player = match get_audio_player().await {
                 Ok(player) => player.lock().await,
                 Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
             };
-            audio_player.volume_multiplier = volume_multiplier;
-            audio_player.set_volume(volume_multiplier, None); // Reset current volume for all tracks to apply multiplier
+            audio_player.set_master_volume(volume, self.target);
+            let name = match self.target {
+                VolumeTarget::Monitoring => "Monitoring",
+                VolumeTarget::Mic => "Microphone",
+            };
+            Response::new(true, format!("{} volume was set to {}", name, volume))
+        } else {
+            Response::new(false, "Invalid volume value")
+        }
+    }
+}
+
+#[async_trait]
+impl Executable for SetVolumeMultiplierCommand {
+    async fn execute(&self) -> Response {
+        if let Some(volume_multiplier) = validate_volume(self.volume_multiplier) {
+            let mut audio_player = match get_audio_player().await {
+                Ok(player) => player.lock().await,
+                Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+            };
+            audio_player.set_volume_multiplier(volume_multiplier);
             Response::new(
                 true,
                 format!("Audio volume multiplier was set to {}", volume_multiplier),
@@ -429,8 +486,8 @@ impl Executable for GetCurrentInputCommand {
 #[async_trait]
 impl Executable for GetAllInputsCommand {
     async fn execute(&self) -> Response {
-        let (input_devices, _output_devices) = match get_all_devices().await {
-            Ok(devices) => devices,
+        let input_devices = match get_all_devices().await {
+            Ok(devices) => devices.inputs,
             Err(err) => return Response::new(false, format!("Failed to get devices: {}", err)),
         };
         let mut input_devices_strings = vec![];
@@ -462,6 +519,66 @@ impl Executable for SetCurrentInputCommand {
             }
         } else {
             Response::new(false, "Invalid index value")
+        }
+    }
+}
+
+#[async_trait]
+impl Executable for GetCurrentOutputCommand {
+    async fn execute(&self) -> Response {
+        let audio_player = match get_audio_player().await {
+            Ok(player) => player.lock().await,
+            Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+        };
+
+        match &audio_player.output_device_name {
+            Some(name) => Response::new(true, name),
+            // No pinned device means playback follows whatever the system default is.
+            None => Response::new(true, ""),
+        }
+    }
+}
+
+#[async_trait]
+impl Executable for GetAllOutputsCommand {
+    async fn execute(&self) -> Response {
+        let sinks = match get_all_devices().await {
+            Ok(devices) => devices.sinks,
+            Err(err) => return Response::new(false, format!("Failed to get devices: {}", err)),
+        };
+
+        let response_message = sinks
+            .into_iter()
+            .map(|device| format!("{} - {}", device.name, device.nick))
+            .collect::<Vec<_>>()
+            .join("; ");
+
+        Response::new(true, response_message)
+    }
+}
+
+#[async_trait]
+impl Executable for SetCurrentOutputCommand {
+    async fn execute(&self) -> Response {
+        let Some(name) = &self.name else {
+            return Response::new(false, "Invalid device name");
+        };
+
+        let mut audio_player = match get_audio_player().await {
+            Ok(player) => player.lock().await,
+            Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+        };
+
+        // An empty name is how a client asks to stop pinning a device and follow the
+        // system default again.
+        if name.is_empty() {
+            audio_player.clear_current_output_device();
+            return Response::new(true, "Output device follows the system default");
+        }
+
+        match audio_player.set_current_output_device(name).await {
+            Ok(_) => Response::new(true, "Output device was set"),
+            Err(err) => Response::new(false, err.to_string()),
         }
     }
 }
@@ -518,10 +635,11 @@ impl Executable for GetDaemonVersionCommand {
 #[async_trait]
 impl Executable for GetFullStateCommand {
     async fn execute(&self) -> Response {
-        let (input_devices, _output_devices) = match get_all_devices().await {
+        let devices = match get_all_devices().await {
             Ok(devices) => devices,
             Err(err) => return Response::new(false, format!("Failed to get devices: {}", err)),
         };
+        let input_devices = devices.inputs;
         let mut all_inputs = HashMap::new();
         let mut current_input_nick = String::new();
 
@@ -550,13 +668,22 @@ impl Executable for GetFullStateCommand {
             }
         }
 
+        let all_outputs: HashMap<String, String> = devices
+            .sinks
+            .into_iter()
+            .map(|device| (device.name, device.nick))
+            .collect();
+
         let full_state = FullState {
             state: audio_player.get_state(),
             tracks: audio_player.get_tracks(),
-            volume: audio_player.volume,
+            monitoring_volume: audio_player.monitoring_volume,
+            mic_volume: audio_player.mic_volume,
             volume_multiplier: audio_player.volume_multiplier,
             current_input: current_input_nick,
             all_inputs,
+            current_output: audio_player.output_device_name.clone().unwrap_or_default(),
+            all_outputs,
         };
 
         match serde_json::to_string(&full_state) {

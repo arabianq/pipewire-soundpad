@@ -51,5 +51,9 @@ mod tests {
             SoundpadGui::get_volume_icon(0.5),
             ICON_VOLUME_DOWN.codepoint
         );
+
+        // Masters go past 100%, which must not fall off the top of the ladder.
+        assert_eq!(SoundpadGui::get_volume_icon(1.0), ICON_VOLUME_UP.codepoint);
+        assert_eq!(SoundpadGui::get_volume_icon(2.0), ICON_VOLUME_UP.codepoint);
     }
 }

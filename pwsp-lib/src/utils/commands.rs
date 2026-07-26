@@ -1,6 +1,17 @@
-use crate::types::{commands::*, config::DaemonConfig, socket::Request};
+use crate::types::{
+    audio_player::VolumeTarget, commands::*, config::DaemonConfig, socket::Request,
+};
 
 use std::path::PathBuf;
+
+/// Which of the two output paths a `*_monitoring_volume` / `*_mic_volume` command means.
+fn volume_target(command_name: &str) -> Option<VolumeTarget> {
+    match command_name {
+        "get_monitoring_volume" | "set_monitoring_volume" => Some(VolumeTarget::Monitoring),
+        "get_mic_volume" | "set_mic_volume" => Some(VolumeTarget::Mic),
+        _ => None,
+    }
+}
 
 pub fn parse_command(request: &Request) -> Option<Box<dyn Executable + Send>> {
     let id = request.args.get("id").and_then(|s| s.parse::<u32>().ok());
@@ -24,6 +35,21 @@ pub fn parse_command(request: &Request) -> Option<Box<dyn Executable + Send>> {
                 .parse::<f32>()
                 .ok();
             Some(Box::new(SetVolumeCommand { volume, id }))
+        }
+        "get_monitoring_volume" | "get_mic_volume" => Some(Box::new(GetMasterVolumeCommand {
+            target: volume_target(&request.name)?,
+        })),
+        "set_monitoring_volume" | "set_mic_volume" => {
+            let volume = request
+                .args
+                .get("volume")
+                .unwrap_or(&String::new())
+                .parse::<f32>()
+                .ok();
+            Some(Box::new(SetMasterVolumeCommand {
+                volume,
+                target: volume_target(&request.name)?,
+            }))
         }
         "set_volume_multiplier" => {
             let volume_multiplier = request
@@ -69,6 +95,12 @@ pub fn parse_command(request: &Request) -> Option<Box<dyn Executable + Send>> {
         "set_input" => {
             let name = Some(request.args.get("input_name").unwrap_or(&String::new())).cloned();
             Some(Box::new(SetCurrentInputCommand { name }))
+        }
+        "get_output" => Some(Box::new(GetCurrentOutputCommand {})),
+        "get_outputs" => Some(Box::new(GetAllOutputsCommand {})),
+        "set_output" => {
+            let name = Some(request.args.get("output_name").unwrap_or(&String::new())).cloned();
+            Some(Box::new(SetCurrentOutputCommand { name }))
         }
         "set_loop" => {
             let enabled = request
@@ -226,5 +258,58 @@ mod tests {
 
         let cmd = parse_command(&request);
         assert!(cmd.is_some());
+    }
+
+    #[test]
+    fn test_volume_target_mapping() {
+        assert_eq!(
+            volume_target("set_monitoring_volume"),
+            Some(VolumeTarget::Monitoring)
+        );
+        assert_eq!(
+            volume_target("get_monitoring_volume"),
+            Some(VolumeTarget::Monitoring)
+        );
+        assert_eq!(volume_target("set_mic_volume"), Some(VolumeTarget::Mic));
+        assert_eq!(volume_target("get_mic_volume"), Some(VolumeTarget::Mic));
+
+        // The two paths share a dispatch arm, so a name that is neither must not
+        // silently fall through to one of them.
+        assert_eq!(volume_target("set_volume"), None);
+        assert_eq!(volume_target("mic"), None);
+    }
+
+    #[test]
+    fn test_parse_new_commands() {
+        let with_volume = |name: &str| {
+            let mut args = HashMap::new();
+            args.insert("volume".to_string(), "2.0".to_string());
+            Request {
+                name: name.to_string(),
+                args,
+            }
+        };
+
+        assert!(parse_command(&with_volume("set_monitoring_volume")).is_some());
+        assert!(parse_command(&with_volume("set_mic_volume")).is_some());
+
+        for name in [
+            "get_monitoring_volume",
+            "get_mic_volume",
+            "get_output",
+            "get_outputs",
+        ] {
+            let request = Request::new(name, vec![]);
+            assert!(
+                parse_command(&request).is_some(),
+                "{} did not dispatch",
+                name
+            );
+        }
+
+        let set_output = Request::set_output("some-sink");
+        assert!(parse_command(&set_output).is_some());
+
+        assert!(parse_command(&Request::new("set_speaker_volume", vec![])).is_none());
     }
 }
