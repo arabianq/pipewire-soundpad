@@ -4,16 +4,15 @@ use egui_material_icons::icons::*;
 use pwsp_lib::types::gui::SliderLatch;
 use rust_i18n::t;
 
-/// Masters go past 100% on purpose: amplifying the microphone feed without deafening
-/// yourself is the reason the two paths were split in the first place.
+/// Masters go past 100% on purpose: amplifying the mic feed without deafening yourself is
+/// the point of splitting the two paths.
 const MAX_MASTER_VOLUME: f32 = 2.0;
 const VOLUME_SLIDER_WIDTH: f32 = 90.0;
 const ICON_SIZE: f32 = 18.0;
 /// Fixes the row height before anything is placed in it.
 ///
-/// A horizontal layout centres each widget against the row height known so far, so a row
-/// that grows as it is filled leaves everything added early sitting too high — which is
-/// how the speaker icon ended up above the microphone one.
+/// A horizontal layout centres each widget against the row height known at the time, so a
+/// row that grows while being filled leaves whatever was added first sitting too high.
 const FOOTER_ROW_HEIGHT: f32 = 24.0;
 
 impl SoundpadGui {
@@ -25,9 +24,8 @@ impl SoundpadGui {
             self.draw_monitoring_volume(ui);
             self.draw_mic_volume(ui);
 
-            // Pushes the two icon buttons to the right edge. Clamped because a window
-            // narrow enough to make this negative would otherwise shove them out of
-            // view instead of just crowding them.
+            // Right-aligns the icon buttons. Clamped because a negative value pushes them
+            // out of view instead of merely crowding them.
             let spacer = ui.available_width() - ICON_SIZE * 2.0 - ui.spacing().item_spacing.x * 2.0;
             ui.add_space(spacer.max(0.0));
 
@@ -71,9 +69,8 @@ impl SoundpadGui {
     fn draw_volume_slider(ui: &mut Ui, latch: &mut SliderLatch, daemon_value: f32) {
         latch.sync(daemon_value);
 
-        // A Slider draws its rail at spacing().slider_width no matter what add_sized
-        // allocates, so both have to be told the same number or the widget overruns the
-        // space reserved for it.
+        // A Slider draws its rail at spacing().slider_width regardless of what add_sized
+        // allocates, so both need the same number or the widget overruns its space.
         ui.spacing_mut().slider_width = VOLUME_SLIDER_WIDTH;
 
         let slider = Slider::new(&mut latch.value, 0.0..=MAX_MASTER_VOLUME)

@@ -31,7 +31,7 @@ pub struct SliderLatch {
 
 impl SliderLatch {
     /// Whether the daemon's value may overwrite the local one this frame.
-    pub fn should_sync(&self) -> bool {
+    fn should_sync(&self) -> bool {
         !self.dragged
             && self
                 .ignore_update_until
@@ -46,7 +46,7 @@ impl SliderLatch {
     }
 
     /// Called once the pending change has been sent to the daemon.
-    pub fn commit(&mut self) {
+    fn commit(&mut self) {
         self.dragged = false;
         self.ignore_update_until = Some(Instant::now() + SETTLE_TIME);
     }
@@ -165,8 +165,8 @@ mod tests {
         // The change is sent exactly once.
         assert_eq!(latch.take_pending(), None);
 
-        // And the daemon is ignored for a moment, so the slider does not snap back to a
-        // stale value that was already in flight when we sent ours.
+        // The daemon is then ignored briefly, so a stale value already in flight cannot
+        // snap the slider back.
         assert!(!latch.should_sync());
         latch.sync(0.1);
         assert_eq!(latch.value, 1.5);

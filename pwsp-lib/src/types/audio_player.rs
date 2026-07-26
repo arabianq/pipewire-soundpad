@@ -21,11 +21,9 @@ use std::{
 
 const VIRTUAL_MIC_NAME: &str = "pwsp-virtual-mic";
 
-/// How long we wait for a freshly opened rodio stream to show up in the PipeWire graph.
-///
-/// Streams are re-opened on every play that follows an idle period, so this sits directly
-/// in the path between pressing a key and hearing the sound. The node normally appears
-/// within one or two polls; the generous attempt count only bounds the pathological case.
+/// Streams are re-opened on the first play after an idle period, so this poll sits in the
+/// path between pressing a key and hearing the sound. The node normally shows up within a
+/// poll or two; the attempt count only bounds the pathological case.
 const NODE_DISCOVERY_ATTEMPTS: u32 = 200;
 const NODE_DISCOVERY_INTERVAL: Duration = Duration::from_millis(5);
 
@@ -72,10 +70,10 @@ pub enum VolumeTarget {
     Mic,
 }
 
-/// The two rodio players backing a single track — one per output path.
+/// The two rodio players backing a single track, one per output path.
 ///
-/// Every playback control has to reach both, so they are wrapped here instead of being
-/// fanned out by hand at each call site.
+/// Every playback control has to reach both, so they are wrapped rather than fanned out
+/// by hand at each call site.
 pub struct PlayerPair {
     pub monitoring: Player,
     pub mic: Option<Player>,
@@ -111,9 +109,8 @@ pub struct PlayingSound {
 
 /// Final linear gain handed to a rodio `Player`.
 ///
-/// Values above `1.0` are intentionally allowed — amplification is the whole point of the
-/// mic path. Anything non-finite or negative collapses to silence rather than blowing up
-/// the mixer.
+/// Values above `1.0` are allowed on purpose; anything non-finite or negative collapses to
+/// silence rather than reaching the mixer.
 pub fn effective_gain(master: f32, track: f32, multiplier: f32) -> f32 {
     let gain = master * track * multiplier;
     if gain.is_finite() && gain > 0.0 {
@@ -140,8 +137,8 @@ pub struct AudioPlayer {
     pub next_id: u32,
 
     pub input_device_name: Option<String>,
-    /// `None` means we do not pin anything and WirePlumber routes monitoring the same way
-    /// it routes any other application.
+    /// `None` pins nothing, leaving the monitoring stream to be routed like any other
+    /// application's.
     pub output_device_name: Option<String>,
 
     pub monitoring_volume: f32,
@@ -194,8 +191,6 @@ impl AudioPlayer {
         Ok(audio_player)
     }
 
-    // ---------- Streams ----------
-
     /// Opens both output streams and routes them, if that has not happened yet.
     ///
     /// Streams are opened one at a time: node discovery below tells them apart by diffing
@@ -221,8 +216,8 @@ impl AudioPlayer {
     /// Closes both output streams once nothing is playing.
     ///
     /// This is what lets a laptop suspend: an open stream keeps the audio device busy and
-    /// blocks sleep. The routing is rebuilt from scratch on the next `play()`, since
-    /// re-opening mints new PipeWire node ids.
+    /// blocks sleep. Routing is rebuilt on the next `play()`, since re-opening the streams
+    /// mints new node ids.
     fn drop_streams(&mut self) {
         if self.monitoring_stream.is_none() && self.mic_stream.is_none() {
             return;
@@ -237,25 +232,23 @@ impl AudioPlayer {
         self.mic_route = None;
     }
 
-    /// Re-asserts both routes. Idempotent, so it can run on every device-check tick to
-    /// undo any re-linking WirePlumber did behind our back.
+    /// Re-asserts both routes. Idempotent, so it can run on every device-check tick.
     async fn ensure_routes(&mut self) {
         if let Some(node) = self.mic_node.clone() {
-            match self.route(&node, VirtualMicTarget).await {
+            match self.route(&node, get_device(VIRTUAL_MIC_NAME).await).await {
                 Ok(Some(terminator)) => self.mic_route = Some(terminator),
                 Ok(None) => {}
                 Err(err) => eprintln!("Failed to route mic stream to virtual mic: {}", err),
             }
         }
 
-        // With no device pinned the monitoring stream is left to WirePlumber. Picking the
-        // target ourselves would mean re-implementing its policy, and we would get it
-        // wrong: the global default sink is only a fallback, and a per-stream `target.node`
-        // overrides it — which is exactly how EasyEffects and friends intercept playback.
+        // With nothing pinned the monitoring stream is left alone: picking a target
+        // ourselves would mean re-implementing the session manager's policy, where the
+        // default sink is only a fallback that a per-stream target overrides.
         if let Some(name) = self.output_device_name.clone()
             && let Some(node) = self.monitoring_node.clone()
         {
-            match self.route(&node, SinkTarget(&name)).await {
+            match self.route(&node, get_sink(&name).await).await {
                 Ok(Some(terminator)) => self.monitoring_route = Some(terminator),
                 Ok(None) => {}
                 Err(err) => eprintln!(
@@ -266,17 +259,16 @@ impl AudioPlayer {
         }
     }
 
-    async fn route<T: RouteTarget>(
+    /// Re-reads the source node before linking, so a route survives the node's ports
+    /// being rediscovered.
+    async fn route(
         &self,
         source: &AudioDevice,
-        target: T,
+        target: Result<AudioDevice>,
     ) -> Result<Option<PwTerminator>> {
         let source = get_device_by_id(source.id).await?;
-        let target = target.resolve().await?;
-        ensure_route(&source, &target).await
+        ensure_route(&source, &target?).await
     }
-
-    // ---------- PipeWire links ----------
 
     fn abort_link_thread(&mut self) {
         if self.input_link_sender.is_some() {
@@ -333,8 +325,6 @@ impl AudioPlayer {
 
         Ok(())
     }
-
-    // ---------- Transport ----------
 
     pub fn pause(&mut self, id: Option<u32>) {
         self.for_selected(id, |sound| sound.players.for_each(|p| p.pause()));
@@ -395,8 +385,6 @@ impl AudioPlayer {
 
         PlayerState::Stopped
     }
-
-    // ---------- Volume ----------
 
     pub fn get_volume(&self, id: Option<u32>) -> Option<f32> {
         match id {
@@ -459,8 +447,6 @@ impl AudioPlayer {
         self.reapply_volumes();
     }
 
-    // ---------- Position ----------
-
     pub fn get_position(&self, id: Option<u32>) -> f32 {
         if let Some(id) = id {
             if let Some(sound) = self.tracks.get(&id) {
@@ -504,8 +490,6 @@ impl AudioPlayer {
         }
         Err(anyhow!("No track playing"))
     }
-
-    // ---------- Playback ----------
 
     pub async fn play(&mut self, file_path: &Path, concurrent: bool) -> Result<u32> {
         // One decoder per output path: the two streams run on different device clocks,
@@ -658,8 +642,6 @@ impl AudioPlayer {
         }
     }
 
-    // ---------- Device selection ----------
-
     pub async fn set_current_input_device(&mut self, name: &str) -> Result<()> {
         let input_device = get_device(name).await?;
 
@@ -685,36 +667,14 @@ impl AudioPlayer {
         Ok(())
     }
 
-    /// Goes back to letting WirePlumber choose where monitoring plays.
+    /// Stops pinning an output device.
     ///
     /// The existing link is deliberately left in place: tearing it down would strand the
-    /// node with no output at all, because autoconnect only runs when a node first
-    /// appears. Streams are closed as soon as playback stops, so the next sound opens a
-    /// fresh node and WirePlumber routes it as it would any other application.
+    /// node with no output at all, since autoconnect only runs when a node first appears.
+    /// Streams close as soon as playback stops, so the next sound opens a fresh node that
+    /// gets routed normally.
     pub fn clear_current_output_device(&mut self) {
         self.output_device_name = None;
-    }
-}
-
-/// Where a stream should be routed. Resolved late so a device that came back after a
-/// reconnect is picked up on the next tick.
-trait RouteTarget {
-    async fn resolve(&self) -> Result<AudioDevice>;
-}
-
-struct VirtualMicTarget;
-
-impl RouteTarget for VirtualMicTarget {
-    async fn resolve(&self) -> Result<AudioDevice> {
-        get_device(VIRTUAL_MIC_NAME).await
-    }
-}
-
-struct SinkTarget<'a>(&'a str);
-
-impl RouteTarget for SinkTarget<'_> {
-    async fn resolve(&self) -> Result<AudioDevice> {
-        get_sink(self.0).await
     }
 }
 

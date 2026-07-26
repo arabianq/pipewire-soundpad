@@ -47,7 +47,7 @@ pub enum PwCommand {
     DestroyObject {
         id: u32,
     },
-    /// Destroys a global object owned by somebody else (e.g. a link WirePlumber made).
+    /// Destroys a global object owned by somebody else, such as an auto-created link.
     DestroyGlobal {
         id: u32,
     },
@@ -82,8 +82,8 @@ pub fn get_manager() -> &'static PipewireManager {
             let main_loop = Box::leak(Box::new(main_loop));
             let context = Box::leak(Box::new(context));
 
-            // Leak to fix lifetime issues since this thread lives forever.
-            // Reborrow as shared so both `core` and the `registry` borrowed from it can be
+            // Leak to fix lifetime issues since this thread lives forever. Shared rather
+            // than mutable so both `core` and the `registry` borrowed from it can be
             // captured by the command closure below.
             let core: &'static _ = Box::leak(Box::new(
                 context
@@ -453,13 +453,13 @@ pub async fn create_virtual_mic() -> Result<PwTerminator> {
 
 /// Makes `source_node` feed `target` and nothing else.
 ///
-/// Idempotent: safe to call on every device-check tick. Returns `Some` only when a new
-/// link was created — an already-correct route is left in place and reported as `None`,
-/// so the caller does not tear down somebody else's link on drop.
+/// Idempotent: safe to call on every device-check tick. Returns `Some` only when a new link
+/// was created, so an already-correct route is left in place and the caller never tears
+/// down a link it does not own.
 ///
 /// The link is created *before* stale ones are pruned. That order matters: the node is
-/// never left without any link, so WirePlumber's autoconnect policy has no reason to
-/// re-attach it to the default sink behind our back.
+/// never left unlinked, which is the state that would invite the session manager to
+/// re-attach it somewhere else.
 pub async fn ensure_route(
     source_node: &AudioDevice,
     target: &AudioDevice,
@@ -498,7 +498,7 @@ pub async fn ensure_route(
 }
 
 /// Destroys every link leaving `source_node` that does not end at `keep_target`.
-pub async fn prune_links_from(source_node: u32, keep_target: u32) -> Result<()> {
+async fn prune_links_from(source_node: u32, keep_target: u32) -> Result<()> {
     let manager = get_manager();
     for link in get_all_links().await? {
         if link.output_node == source_node && link.input_node != keep_target {

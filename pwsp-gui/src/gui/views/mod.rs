@@ -52,8 +52,7 @@ mod tests {
             ICON_VOLUME_DOWN.codepoint
         );
 
-        // Masters now go past 100%, and amplification must not fall off the top of the
-        // ladder into some other icon.
+        // Masters go past 100%, which must not fall off the top of the ladder.
         assert_eq!(SoundpadGui::get_volume_icon(1.0), ICON_VOLUME_UP.codepoint);
         assert_eq!(SoundpadGui::get_volume_icon(2.0), ICON_VOLUME_UP.codepoint);
     }

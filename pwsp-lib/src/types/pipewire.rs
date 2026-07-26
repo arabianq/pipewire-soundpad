@@ -121,14 +121,13 @@ mod tests {
             name: name.to_string(),
         };
 
-        // An Audio/Sink node takes audio in through playback_*, so those are its inputs.
+        // playback_* carries audio into the sink, so those are its inputs.
         sink.add_port(port(10, "playback_FL"));
         sink.add_port(port(11, "playback_FR"));
         assert_eq!(sink.input_fl, Some(port(10, "playback_FL")));
         assert_eq!(sink.input_fr, Some(port(11, "playback_FR")));
 
-        // monitor_* is what the sink plays back out; linking a stream there would be a
-        // loop, so it must stay unmapped.
+        // monitor_* is what the sink plays out; linking a stream there would be a loop.
         sink.add_port(port(12, "monitor_FL"));
         sink.add_port(port(13, "monitor_FR"));
         assert_eq!(sink.output_fl, None);

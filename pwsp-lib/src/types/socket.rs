@@ -334,11 +334,11 @@ mod tests {
 
     #[test]
     fn test_output_request_constructors() {
-        let set_output = Request::set_output("alsa_output.pci-0000_00_1f.3.analog-stereo");
+        let set_output = Request::set_output("some-sink");
         assert_eq!(set_output.name, "set_output");
         assert_eq!(
             set_output.args.get("output_name").map(|s| s.as_str()),
-            Some("alsa_output.pci-0000_00_1f.3.analog-stereo")
+            Some("some-sink")
         );
 
         assert_eq!(Request::get_output().name, "get_output");

@@ -157,8 +157,7 @@ impl SoundpadGui {
         let mut selected_output = self.audio_player_state.current_output.to_owned();
         let prev_output = selected_output.to_owned();
 
-        // An empty selection means no device is pinned and playback follows the system
-        // default sink, which is also what a fresh install does.
+        // An empty selection means no device is pinned.
         let selected_text = self
             .audio_player_state
             .all_outputs
