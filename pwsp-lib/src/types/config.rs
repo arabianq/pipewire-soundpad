@@ -85,6 +85,8 @@ pub struct GuiConfig {
     pub dirs_settings: HashMap<PathBuf, DirSettings>,
 
     pub preferred_theme: PreferredTheme,
+    /// UI language code, or `None` to follow the system locale.
+    pub forced_lang: Option<String>,
 }
 
 impl SortOrder {
@@ -130,6 +132,7 @@ impl Default for GuiConfig {
 
             preferred_theme: PreferredTheme::System,
             dirs_settings: HashMap::new(),
+            forced_lang: None,
         }
     }
 }
