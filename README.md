@@ -1,6 +1,23 @@
 # PipeWire Soundpad (PWSP) 🎵
 
-![PWSP Screenshot](pwsp-gui/assets/screenshot.png)
+<table border="0">
+  <tr>
+    <td colspan="2" align="center">
+      <h3>Main Screen</h3>
+      <img src="./pwsp-gui/assets/screenshots/main.png" alt="Main UI">
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <h3>Settings</h3>
+      <img src="./pwsp-gui/assets/screenshots/settings.png" alt="Settings">
+    </td>
+    <td width="50%" align="center">
+      <h3>Hotkeys</h3>
+      <img src="./pwsp-gui/assets/screenshots/hotkeys.png" alt="Hotkeys">
+    </td>
+  </tr>
+</table>
 
 [🇷🇺 Читать на русском](README.ru.md) | [🇺🇸 Read in English](README.md)
 

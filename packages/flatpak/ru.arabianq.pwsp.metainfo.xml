@@ -15,7 +15,13 @@
     <launchable type="desktop-id">ru.arabianq.pwsp.desktop</launchable>
     <screenshots>
         <screenshot type="default">
-            <image>https://raw.githubusercontent.com/arabianq/pipewire-soundpad/main/pwsp-gui/assets/screenshot.png</image>
+            <image>https://raw.githubusercontent.com/arabianq/pipewire-soundpad/main/pwsp-gui/assets/screenshots/main.png</image>
+        </screenshot>
+        <screenshot>
+            <image>https://raw.githubusercontent.com/arabianq/pipewire-soundpad/main/pwsp-gui/assets/screenshots/settings.png</image>
+        </screenshot>
+        <screenshot>
+            <image>https://raw.githubusercontent.com/arabianq/pipewire-soundpad/main/pwsp-gui/assets/screenshots/hotkeys.png</image>
         </screenshot>
     </screenshots>
     <url type="homepage">https://pwsp.arabianq.ru</url>
