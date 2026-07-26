@@ -170,6 +170,12 @@ impl SoundpadGui {
             .height(30.0)
             .selected_text(selected_text)
             .show_ui(ui, |ui| {
+                // Listed first so pinning a device stays undoable.
+                ui.selectable_value(
+                    &mut selected_output,
+                    String::new(),
+                    t!("gui.default_output"),
+                );
                 for (name, nick) in outputs {
                     ui.selectable_value(&mut selected_output, name.clone(), nick);
                 }

@@ -140,8 +140,8 @@ pub struct AudioPlayer {
     pub next_id: u32,
 
     pub input_device_name: Option<String>,
-    /// `None` means "follow the system default sink" — we then leave routing of the
-    /// monitoring stream to WirePlumber instead of pinning it ourselves.
+    /// `None` means we do not pin anything and WirePlumber routes monitoring the same way
+    /// it routes any other application.
     pub output_device_name: Option<String>,
 
     pub monitoring_volume: f32,
@@ -248,8 +248,10 @@ impl AudioPlayer {
             }
         }
 
-        // With no explicit output device the monitoring stream is left to WirePlumber,
-        // which keeps PWSP following whatever the system default sink is.
+        // With no device pinned the monitoring stream is left to WirePlumber. Picking the
+        // target ourselves would mean re-implementing its policy, and we would get it
+        // wrong: the global default sink is only a fallback, and a per-stream `target.node`
+        // overrides it — which is exactly how EasyEffects and friends intercept playback.
         if let Some(name) = self.output_device_name.clone()
             && let Some(node) = self.monitoring_node.clone()
         {
@@ -681,6 +683,16 @@ impl AudioPlayer {
         self.ensure_routes().await;
 
         Ok(())
+    }
+
+    /// Goes back to letting WirePlumber choose where monitoring plays.
+    ///
+    /// The existing link is deliberately left in place: tearing it down would strand the
+    /// node with no output at all, because autoconnect only runs when a node first
+    /// appears. Streams are closed as soon as playback stops, so the next sound opens a
+    /// fresh node and WirePlumber routes it as it would any other application.
+    pub fn clear_current_output_device(&mut self) {
+        self.output_device_name = None;
     }
 }
 

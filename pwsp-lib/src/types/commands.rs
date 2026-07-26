@@ -560,17 +560,25 @@ impl Executable for GetAllOutputsCommand {
 #[async_trait]
 impl Executable for SetCurrentOutputCommand {
     async fn execute(&self) -> Response {
-        if let Some(name) = &self.name {
-            let mut audio_player = match get_audio_player().await {
-                Ok(player) => player.lock().await,
-                Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
-            };
-            match audio_player.set_current_output_device(name).await {
-                Ok(_) => Response::new(true, "Output device was set"),
-                Err(err) => Response::new(false, err.to_string()),
-            }
-        } else {
-            Response::new(false, "Invalid device name")
+        let Some(name) = &self.name else {
+            return Response::new(false, "Invalid device name");
+        };
+
+        let mut audio_player = match get_audio_player().await {
+            Ok(player) => player.lock().await,
+            Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
+        };
+
+        // An empty name is how a client asks to stop pinning a device and follow the
+        // system default again.
+        if name.is_empty() {
+            audio_player.clear_current_output_device();
+            return Response::new(true, "Output device follows the system default");
+        }
+
+        match audio_player.set_current_output_device(name).await {
+            Ok(_) => Response::new(true, "Output device was set"),
+            Err(err) => Response::new(false, err.to_string()),
         }
     }
 }

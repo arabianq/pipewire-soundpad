@@ -256,7 +256,8 @@ impl SoundpadGui {
         if self.config.save_input
             && let Ok(mut daemon_config) = get_daemon_config()
         {
-            daemon_config.default_output_name = Some(name);
+            // Empty means "follow the system default", which is stored as no device.
+            daemon_config.default_output_name = Some(name).filter(|n| !n.is_empty());
             update_daemon_config(&daemon_config).ok();
         }
     }
