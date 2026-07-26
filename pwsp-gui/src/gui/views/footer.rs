@@ -9,11 +9,19 @@ use rust_i18n::t;
 const MAX_MASTER_VOLUME: f32 = 2.0;
 const VOLUME_SLIDER_WIDTH: f32 = 90.0;
 const ICON_SIZE: f32 = 18.0;
+/// Fixes the row height before anything is placed in it.
+///
+/// A horizontal layout centres each widget against the row height known so far, so a row
+/// that grows as it is filled leaves everything added early sitting too high — which is
+/// how the speaker icon ended up above the microphone one.
+const FOOTER_ROW_HEIGHT: f32 = 24.0;
 
 impl SoundpadGui {
     pub fn draw_footer(&mut self, ui: &mut Ui) {
         ui.add_space(5.0);
         ui.horizontal(|ui| {
+            ui.set_min_height(FOOTER_ROW_HEIGHT);
+
             self.draw_monitoring_volume(ui);
             self.draw_mic_volume(ui);
 
@@ -31,12 +39,15 @@ impl SoundpadGui {
     fn draw_monitoring_volume(&mut self, ui: &mut Ui) {
         let volume = self.audio_player_state.monitoring_volume;
         let icon = Self::get_volume_icon(volume);
-        ui.add_sized([18.0, 18.0], Label::new(RichText::new(icon).size(18.0)))
-            .on_hover_text(format!(
-                "{}: {:.0}%",
-                t!("gui.monitoring_volume"),
-                volume * 100.0
-            ));
+        ui.add_sized(
+            [ICON_SIZE, FOOTER_ROW_HEIGHT],
+            Label::new(RichText::new(icon).size(ICON_SIZE)),
+        )
+        .on_hover_text(format!(
+            "{}: {:.0}%",
+            t!("gui.monitoring_volume"),
+            volume * 100.0
+        ));
 
         Self::draw_volume_slider(ui, &mut self.app_state.monitoring_volume, volume);
     }
@@ -48,8 +59,11 @@ impl SoundpadGui {
         } else {
             ICON_MIC.codepoint
         };
-        ui.add_sized([18.0, 18.0], Label::new(RichText::new(icon).size(18.0)))
-            .on_hover_text(format!("{}: {:.0}%", t!("gui.mic_volume"), volume * 100.0));
+        ui.add_sized(
+            [ICON_SIZE, FOOTER_ROW_HEIGHT],
+            Label::new(RichText::new(icon).size(ICON_SIZE)),
+        )
+        .on_hover_text(format!("{}: {:.0}%", t!("gui.mic_volume"), volume * 100.0));
 
         Self::draw_volume_slider(ui, &mut self.app_state.mic_volume, volume);
     }
@@ -66,7 +80,7 @@ impl SoundpadGui {
             .show_value(false)
             .step_by(0.01);
         if ui
-            .add_sized([VOLUME_SLIDER_WIDTH, ICON_SIZE], slider)
+            .add_sized([VOLUME_SLIDER_WIDTH, FOOTER_ROW_HEIGHT], slider)
             .drag_stopped()
         {
             latch.dragged = true;
@@ -76,7 +90,7 @@ impl SoundpadGui {
     fn draw_hotkeys_button(&mut self, ui: &mut Ui) {
         let hotkeys_button =
             Button::new(ICON_KEYBOARD.atom_size(Vec2::new(18.0, 18.0))).frame(false);
-        let hotkeys_button_response = ui.add_sized([18.0, 18.0], hotkeys_button);
+        let hotkeys_button_response = ui.add_sized([ICON_SIZE, FOOTER_ROW_HEIGHT], hotkeys_button);
         if hotkeys_button_response.clicked() {
             self.app_state.show_hotkeys = true;
         }
@@ -86,7 +100,8 @@ impl SoundpadGui {
     fn draw_settings_button(&mut self, ui: &mut Ui) {
         let settings_button =
             Button::new(ICON_SETTINGS.atom_size(Vec2::new(18.0, 18.0))).frame(false);
-        let settings_button_response = ui.add_sized([18.0, 18.0], settings_button);
+        let settings_button_response =
+            ui.add_sized([ICON_SIZE, FOOTER_ROW_HEIGHT], settings_button);
         if settings_button_response.clicked() {
             self.app_state.show_settings = true;
         }
