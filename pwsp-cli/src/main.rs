@@ -15,17 +15,17 @@ struct Cli {
 
 #[derive(Subcommand, Debug)]
 enum Commands {
-    /// Perform an action (ping, pause, resume, toggle-pause, stop, play)
+    /// Tell the player to do something: play, stop, pause, manage hotkeys
     Action {
         #[clap(subcommand)]
         action: Actions,
     },
-    /// Get information from the player (is paused, volume, position, duration, state, current-file-path, input, inputs)
+    /// Read player state: volumes, position, tracks, devices, hotkeys
     Get {
         #[clap(subcommand)]
         parameter: GetCommands,
     },
-    /// Set information in the player (volume, position, input)
+    /// Change player settings: volumes, position, devices, loop, hotkeys
     Set {
         #[clap(subcommand)]
         parameter: SetCommands,
@@ -69,7 +69,7 @@ enum Actions {
         #[clap(short, long)]
         id: Option<u32>,
     },
-    /// Daemon configuration
+    /// Write the daemon's current settings to disk
     SaveDaemonConfig,
     /// Play a sound by hotkey slot name
     PlayHotkey { slot: String },
