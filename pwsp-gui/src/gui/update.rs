@@ -2,10 +2,25 @@ use crate::gui::SoundpadGui;
 use eframe::{App, Frame as EFrame};
 use egui::{CentralPanel, Context, ThemePreference};
 use pwsp_lib::{
-    types::{config::PreferredTheme, socket::Request},
+    types::{
+        config::{DaemonConfig, PreferredTheme},
+        socket::Request,
+    },
     utils::gui::{get_daemon_config, make_request_async, update_daemon_config},
 };
-use std::time::{Duration, Instant};
+
+impl SoundpadGui {
+    /// Persists a master volume to the daemon config when the user asked us to remember it.
+    fn remember_volume(&self, apply: impl FnOnce(&mut DaemonConfig)) {
+        if !self.config.save_volume {
+            return;
+        }
+        if let Ok(mut daemon_config) = get_daemon_config() {
+            apply(&mut daemon_config);
+            update_daemon_config(&daemon_config).ok();
+        }
+    }
+}
 
 impl App for SoundpadGui {
     fn logic(&mut self, ctx: &Context, _frame: &mut EFrame) {
@@ -43,70 +58,34 @@ impl App for SoundpadGui {
             self.config.save_to_file().ok();
         }
 
-        // Seek and volume requests
-        let mut seek_requests = vec![];
-        let mut volume_requests = vec![];
-
+        // Per-track seek and volume requests
         for (id, ui_state) in &mut self.app_state.track_ui_states {
-            if ui_state.position_dragged {
-                seek_requests.push((*id, ui_state.position_slider_value));
+            if let Some(position) = ui_state.position.take_pending() {
+                make_request_async(Request::seek(position, Some(*id)));
             }
-            if ui_state.volume_dragged {
-                volume_requests.push((*id, ui_state.volume_slider_value));
-                ui_state.volume_dragged = false;
-            }
-        }
-
-        for (id, pos) in seek_requests {
-            make_request_async(Request::seek(pos, Some(id)));
-            if let Some(ui_state) = self.app_state.track_ui_states.get_mut(&id) {
-                ui_state.position_dragged = false;
-                ui_state.ignore_position_update_until =
-                    Some(Instant::now() + Duration::from_millis(300));
+            if let Some(volume) = ui_state.volume.take_pending() {
+                make_request_async(Request::set_volume(volume, Some(*id)));
             }
         }
 
-        for (id, vol) in volume_requests {
-            make_request_async(Request::set_volume(vol, Some(id)));
-            if let Some(ui_state) = self.app_state.track_ui_states.get_mut(&id) {
-                ui_state.volume_dragged = false;
-                ui_state.ignore_volume_update_until =
-                    Some(Instant::now() + Duration::from_millis(300));
-            }
+        // Master volumes
+        if let Some(volume) = self.app_state.monitoring_volume.take_pending() {
+            make_request_async(Request::set_monitoring_volume(volume));
+            self.remember_volume(|config| config.default_monitoring_volume = Some(volume));
         }
 
-        if self.app_state.volume_dragged {
-            make_request_async(Request::set_volume(
-                self.app_state.volume_slider_value,
-                None,
-            ));
-
-            self.app_state.volume_dragged = false;
-            self.app_state.ignore_volume_update_until =
-                Some(Instant::now() + Duration::from_millis(300));
-
-            if self.config.save_volume
-                && let Ok(mut daemon_config) = get_daemon_config()
-            {
-                daemon_config.default_volume = Some(self.app_state.volume_slider_value);
-                update_daemon_config(&daemon_config).ok();
-            }
+        if let Some(volume) = self.app_state.mic_volume.take_pending() {
+            make_request_async(Request::set_mic_volume(volume));
+            self.remember_volume(|config| config.default_mic_volume = Some(volume));
         }
 
-        if self.app_state.volume_multiplier_dragged {
-            make_request_async(Request::set_volume_multiplier(
-                self.app_state.volume_multiplier_slider_value,
-            ));
-
-            self.app_state.volume_multiplier_dragged = false;
-            self.app_state.ignore_volume_multiplier_update_until =
-                Some(Instant::now() + Duration::from_millis(300));
+        if let Some(multiplier) = self.app_state.volume_multiplier.take_pending() {
+            make_request_async(Request::set_volume_multiplier(multiplier));
 
             if self.config.save_volume_multiplier
                 && let Ok(mut daemon_config) = get_daemon_config()
             {
-                daemon_config.default_volume_multiplier =
-                    Some(self.app_state.volume_multiplier_slider_value);
+                daemon_config.default_volume_multiplier = Some(multiplier);
                 update_daemon_config(&daemon_config).ok();
             }
         }

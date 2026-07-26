@@ -13,6 +13,15 @@ pub struct Port {
 pub enum DeviceType {
     Input,
     Output,
+    Sink,
+}
+
+/// A link between two nodes in the PipeWire graph.
+#[derive(Debug, Clone, Copy, Ord, PartialOrd, Eq, PartialEq)]
+pub struct LinkInfo {
+    pub id: u32,
+    pub output_node: u32,
+    pub input_node: u32,
 }
 
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq)]
@@ -55,12 +64,14 @@ impl AudioDevice {
     }
 
     pub fn add_port(&mut self, port: Port) {
+        // `playback_*` are the input ports of an `Audio/Sink` node. `monitor_*` are its
+        // output ports and are deliberately left unmapped — we never record from a sink.
         match port.name.as_str() {
-            "input_FL" => self.input_fl = Some(port),
-            "input_FR" => self.input_fr = Some(port),
+            "input_FL" | "playback_FL" => self.input_fl = Some(port),
+            "input_FR" | "playback_FR" => self.input_fr = Some(port),
             "output_FL" | "capture_FL" => self.output_fl = Some(port),
             "output_FR" | "capture_FR" => self.output_fr = Some(port),
-            "input_MONO" => {
+            "input_MONO" | "playback_MONO" => {
                 self.input_fl = Some(port.clone());
                 self.input_fr = Some(port);
             }
@@ -98,6 +109,30 @@ mod tests {
 
         let device_no_desc = AudioDevice::new(3, None, None, Some("Name"), DeviceType::Output);
         assert_eq!(device_no_desc.nick, "Name");
+    }
+
+    #[test]
+    fn test_audio_device_sink_ports() {
+        let mut sink = AudioDevice::new(1, None, None, Some("speakers"), DeviceType::Sink);
+
+        let port = |id: u32, name: &str| Port {
+            node_id: 1,
+            port_id: id,
+            name: name.to_string(),
+        };
+
+        // An Audio/Sink node takes audio in through playback_*, so those are its inputs.
+        sink.add_port(port(10, "playback_FL"));
+        sink.add_port(port(11, "playback_FR"));
+        assert_eq!(sink.input_fl, Some(port(10, "playback_FL")));
+        assert_eq!(sink.input_fr, Some(port(11, "playback_FR")));
+
+        // monitor_* is what the sink plays back out; linking a stream there would be a
+        // loop, so it must stay unmapped.
+        sink.add_port(port(12, "monitor_FL"));
+        sink.add_port(port(13, "monitor_FR"));
+        assert_eq!(sink.output_fl, None);
+        assert_eq!(sink.output_fr, None);
     }
 
     #[test]

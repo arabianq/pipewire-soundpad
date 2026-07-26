@@ -3,7 +3,6 @@ use egui::{Button, CollapsingHeader, FontFamily, Label, RichText, Slider, Ui};
 use egui_material_icons::icons::*;
 use pwsp_lib::types::{audio_player::TrackInfo, gui::AppState};
 use pwsp_lib::utils::gui::format_time_pair;
-use std::time::Instant;
 
 pub(crate) enum TrackAction {
     Pause(u32),
@@ -96,7 +95,7 @@ impl SoundpadGui {
         default_slider_width: f32,
     ) {
         let duration = track.duration.unwrap_or(1.0);
-        let position_slider = Slider::new(&mut ui_state.position_slider_value, 0.0..=duration)
+        let position_slider = Slider::new(&mut ui_state.position.value, 0.0..=duration)
             .show_value(false)
             .step_by(0.01);
 
@@ -107,7 +106,7 @@ impl SoundpadGui {
 
         ui.spacing_mut().slider_width = position_slider_width;
         if ui.add_sized([30.0, 30.0], position_slider).drag_stopped() {
-            ui_state.position_dragged = true;
+            ui_state.position.dragged = true;
         }
 
         let time_label =
@@ -126,7 +125,7 @@ impl SoundpadGui {
         ui.add_sized([30.0, 30.0], volume_label)
             .on_hover_text(format!("Volume: {:.0}%", track.volume * 100.0));
 
-        let volume_slider = Slider::new(&mut ui_state.volume_slider_value, 0.0..=1.0)
+        let volume_slider = Slider::new(&mut ui_state.volume.value, 0.0..=1.0)
             .show_value(false)
             .step_by(0.01);
 
@@ -134,7 +133,7 @@ impl SoundpadGui {
         ui.spacing_mut().item_spacing.x = 0.0;
 
         if ui.add_sized([30.0, 30.0], volume_slider).drag_stopped() {
-            ui_state.volume_dragged = true;
+            ui_state.volume.dragged = true;
         }
     }
 
@@ -154,25 +153,8 @@ impl SoundpadGui {
     ) -> Option<TrackAction> {
         let ui_state = app_state.track_ui_states.entry(track.id).or_default();
 
-        let should_update_position = !ui_state.position_dragged
-            && ui_state
-                .ignore_position_update_until
-                .map(|t| Instant::now() > t)
-                .unwrap_or(true);
-
-        if should_update_position {
-            ui_state.position_slider_value = track.position;
-        }
-
-        let should_update_volume = !ui_state.volume_dragged
-            && ui_state
-                .ignore_volume_update_until
-                .map(|t| Instant::now() > t)
-                .unwrap_or(true);
-
-        if should_update_volume {
-            ui_state.volume_slider_value = track.volume;
-        }
+        ui_state.position.sync(track.position);
+        ui_state.volume.sync(track.volume);
 
         let mut action = None;
 

@@ -9,6 +9,7 @@ use crate::{
 };
 use anyhow::{Result, anyhow};
 use std::{
+    collections::HashMap,
     fs,
     path::PathBuf,
     sync::{Arc, Mutex},
@@ -77,6 +78,16 @@ pub fn format_time_pair(position: f32, duration: f32) -> String {
     format!("{}/{}", format_time(position), format_time(duration))
 }
 
+/// Turns a name→nickname map into the stable order the combo boxes render in.
+fn sorted_devices(devices: &HashMap<String, String>) -> Vec<(String, String)> {
+    let mut sorted: Vec<(String, String)> = devices
+        .iter()
+        .map(|(name, nick)| (name.clone(), nick.clone()))
+        .collect();
+    sorted.sort_by(|a, b| a.0.cmp(&b.0));
+    sorted
+}
+
 pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerState>>) {
     tokio::spawn(async move {
         let sleep_duration = Duration::from_secs_f32(1.0 / 60.0);
@@ -115,7 +126,8 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
                     None => full_state.state,
                 };
                 guard.tracks = full_state.tracks;
-                guard.volume = full_state.volume;
+                guard.monitoring_volume = full_state.monitoring_volume;
+                guard.mic_volume = full_state.mic_volume;
                 guard.volume_multiplier = full_state.volume_multiplier;
                 guard.current_input = full_state
                     .current_input
@@ -123,16 +135,16 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
                     .next()
                     .unwrap_or_default()
                     .to_string();
+                guard.current_output = full_state.current_output;
 
                 if guard.all_inputs != full_state.all_inputs {
                     guard.all_inputs = full_state.all_inputs;
-                    let mut sorted: Vec<(String, String)> = guard
-                        .all_inputs
-                        .iter()
-                        .map(|(k, v)| (k.clone(), v.clone()))
-                        .collect();
-                    sorted.sort_by(|a, b| a.0.cmp(&b.0));
-                    guard.all_inputs_sorted = sorted;
+                    guard.all_inputs_sorted = sorted_devices(&guard.all_inputs);
+                }
+
+                if guard.all_outputs != full_state.all_outputs {
+                    guard.all_outputs = full_state.all_outputs;
+                    guard.all_outputs_sorted = sorted_devices(&guard.all_outputs);
                 }
 
                 guard.is_daemon_running = true;

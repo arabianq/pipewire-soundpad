@@ -97,30 +97,19 @@ impl SoundpadGui {
 
             // ----------- Sliders ------------
             // Volume multiplier
-            let should_update_multiplier = !self.app_state.volume_multiplier_dragged
-                && self
-                    .app_state
-                    .ignore_volume_multiplier_update_until
-                    .map(|t| std::time::Instant::now() > t)
-                    .unwrap_or(true);
-
-            if should_update_multiplier {
-                self.app_state.volume_multiplier_slider_value =
-                    self.audio_player_state.volume_multiplier;
-            }
+            self.app_state
+                .volume_multiplier
+                .sync(self.audio_player_state.volume_multiplier);
 
             ui.horizontal(|ui| {
-                let slider = Slider::new(
-                    &mut self.app_state.volume_multiplier_slider_value,
-                    0.01..=3.0,
-                );
+                let slider = Slider::new(&mut self.app_state.volume_multiplier.value, 0.01..=3.0);
                 let response = ui.add(slider);
                 ui.label(t!("gui.settings.volume_multiplier"));
 
                 if response.changed() {
                     // This condition is required to avoid spamming requests while dragging, but to allow changing the value via TextEdit
                     if !response.dragged() || (response.dragged() && response.drag_stopped()) {
-                        self.app_state.volume_multiplier_dragged = true;
+                        self.app_state.volume_multiplier.dragged = true;
                     }
                 }
             });
