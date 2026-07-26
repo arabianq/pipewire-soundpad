@@ -1,4 +1,4 @@
-use crate::gui::SoundpadGui;
+use crate::{gui::SoundpadGui, locale};
 use egui::{Align, Button, Color32, ComboBox, Layout, RichText, Slider, Ui};
 use egui_material_icons::icons::ICON_ARROW_BACK;
 use pwsp_lib::types::config::PreferredTheme;
@@ -64,6 +64,7 @@ impl SoundpadGui {
             // ---------- Selectors -----------
             self.draw_mic_selection(ui);
             self.draw_output_selection(ui);
+            self.draw_language_selection(ui);
 
             let mut selected_theme = self.config.preferred_theme.clone();
             ComboBox::from_label(t!("gui.settings.theme.label"))
@@ -182,6 +183,34 @@ impl SoundpadGui {
 
         if selected_output != prev_output {
             self.set_output(selected_output);
+        }
+    }
+
+    fn draw_language_selection(&mut self, ui: &mut Ui) {
+        let mut selected = self.config.forced_lang.clone();
+        let previous = selected.clone();
+
+        let selected_text = match &selected {
+            Some(code) => locale::display_name(code).to_string(),
+            None => t!("gui.settings.language.system").to_string(),
+        };
+
+        ComboBox::from_label(t!("gui.settings.language.label"))
+            .height(30.0)
+            .selected_text(selected_text)
+            .show_ui(ui, |ui| {
+                // Listed first so picking a language stays undoable.
+                ui.selectable_value(&mut selected, None, t!("gui.settings.language.system"));
+                for code in locale::available() {
+                    let name = locale::display_name(&code);
+                    ui.selectable_value(&mut selected, Some(code.clone()), name);
+                }
+            });
+
+        if selected != previous {
+            self.config.forced_lang = selected;
+            self.config.save_to_file().ok();
+            locale::apply(&self.config);
         }
     }
 }

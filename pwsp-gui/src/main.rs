@@ -1,7 +1,8 @@
 mod gui;
+mod locale;
 
 use anyhow::{Context, Result, anyhow};
-use pwsp_lib::utils::gui::ensure_pwsp_audio_dir;
+use pwsp_lib::utils::gui::{ensure_pwsp_audio_dir, get_gui_config};
 use rust_i18n::i18n;
 use std::{
     env,
@@ -13,8 +14,7 @@ i18n!("locales", fallback = "en");
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let locale = sys_locale::get_locale().unwrap_or(String::from("en-US"));
-    rust_i18n::set_locale(&locale);
+    locale::apply(&get_gui_config());
 
     let args = env::args().skip(1).collect::<Vec<String>>();
 
