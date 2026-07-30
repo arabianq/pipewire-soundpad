@@ -120,10 +120,16 @@ impl SoundpadGui {
             // --------------------------------
 
             ui.with_layout(Layout::bottom_up(Align::Min), |ui| {
-                ui.label(t!(
-                    "gui.settings.version",
-                    version = env!("CARGO_PKG_VERSION")
-                ));
+                ui.horizontal(|ui| {
+                    ui.label(t!(
+                        "gui.settings.version",
+                        version = env!("CARGO_PKG_VERSION")
+                    ));
+                    ui.label(t!(
+                        "gui.settings.daemon_version",
+                        version = self.audio_player_state.daemon_version
+                    ))
+                });
             });
         });
     }
