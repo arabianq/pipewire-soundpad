@@ -4,6 +4,17 @@ _version = 2
 # Main page
 # ----------------
 
+[gui.no_tracks_playing]
+en = "No tracks playing"
+ru = "Не запущено ни одного трека"
+es = "No hay pistas en reproducción"
+fr = "Aucune piste en cours de lecture"
+zh = "没有正在播放的曲目"
+ar = "لا يوجد مسارات قيد التشغيل"
+kz = "Ешқандай трек ойнатылып жатқан жоқ"
+he = "אין רצועות שמנוגנות"
+pt-BR = "Nenhuma faixa reproduzindo"
+
 [gui.play_file_button]
 en = "Play file"
 ru = "Выбрать файл"

@@ -3,6 +3,7 @@ use egui::{Button, CollapsingHeader, FontFamily, Label, RichText, Slider, Ui};
 use egui_material_icons::icons::*;
 use pwsp_lib::types::{audio_player::TrackInfo, gui::AppState};
 use pwsp_lib::utils::gui::format_time_pair;
+use rust_i18n::t;
 
 pub(crate) enum TrackAction {
     Pause(u32),
@@ -15,7 +16,7 @@ impl SoundpadGui {
     pub fn draw_header(&mut self, ui: &mut Ui) {
         ui.vertical_centered_justified(|ui| {
             if self.audio_player_state.tracks.is_empty() {
-                ui.label("No tracks playing");
+                ui.label(t!("gui.no_tracks_playing"));
                 return;
             }
 
