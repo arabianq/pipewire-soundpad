@@ -59,6 +59,7 @@ pub struct FullState {
     pub all_inputs: HashMap<String, String>,
     pub current_output: String,
     pub all_outputs: HashMap<String, String>,
+    pub daemon_version: String,
 }
 
 /// Which of the two independent output paths a volume applies to.

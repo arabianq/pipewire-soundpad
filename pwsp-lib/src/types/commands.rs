@@ -684,6 +684,7 @@ impl Executable for GetFullStateCommand {
             all_inputs,
             current_output: audio_player.output_device_name.clone().unwrap_or_default(),
             all_outputs,
+            daemon_version: env!("CARGO_PKG_VERSION").into(),
         };
 
         match serde_json::to_string(&full_state) {

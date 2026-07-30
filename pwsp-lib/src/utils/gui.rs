@@ -148,6 +148,7 @@ pub fn start_app_state_thread(audio_player_state_shared: Arc<Mutex<AudioPlayerSt
                 }
 
                 guard.is_daemon_running = true;
+                guard.daemon_version = full_state.daemon_version;
             }
 
             // Poll hotkey config at a lower frequency (~every 2 seconds)

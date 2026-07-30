@@ -130,6 +130,7 @@ pub struct AudioPlayerState {
     pub all_outputs_sorted: Vec<(String, String)>,
 
     pub is_daemon_running: bool,
+    pub daemon_version: String,
 
     pub hotkey_config: Option<HotkeyConfig>,
 }

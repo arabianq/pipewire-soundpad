@@ -283,6 +283,17 @@ kz = "GUI нұсқасы: %{version}"
 he = "גרסת ממשק משתמש: %{version}"
 pt-BR = "Versão da GUI: %{version}"
 
+[gui.settings.daemon_version]
+en = "Daemon version: %{version}"
+ru = "Версия демона: %{version}"
+es = "Versión del demonio: %{version}"
+fr = "Version du démon: %{version}"
+zh = "守护进程版本: %{version}"
+ar = "إصدار démon: %{version}"
+kz = "Демон нұсқасы: %{version}"
+he = "גרסת השרת: %{version}"
+pt-BR = "Versão do daemon: %{version}"
+
 [gui.settings.theme.label]
 en = "Color Scheme"
 ru = "Цветовая схема"
