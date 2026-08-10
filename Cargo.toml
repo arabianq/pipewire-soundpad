@@ -59,19 +59,19 @@ rodio = { git = "https://github.com/RustAudio/rodio.git", rev = "c5f1e94290922fe
 ] }
 pipewire = "0.10.0"
 
-egui = { version = "0.35.0", default-features = false, features = [
+egui = { version = "0.36.0", default-features = false, features = [
     "default_fonts",
     "rayon",
 ] }
-eframe = { version = "0.35.0", default-features = false, features = [
+eframe = { version = "0.36.0", default-features = false, features = [
     "default_fonts",
     "glow",
     "x11",
     "wayland",
 ] }
-egui_extras = "0.35.0"
-egui_material_icons = "0.7.0"
-egui_dnd = "0.16.0"
+egui_extras = "0.36.0"
+egui_material_icons = "0.8.0"
+egui_dnd = "0.17.0"
 
 reqwest = { version = "0.13.4", default-features = false, features = ["native-tls"] }
 percent-encoding = "2.3.2"
