@@ -1,3 +1,5 @@
+
+
 # PipeWire Soundpad (PWSP) 🎵
 
 <table border="0">
@@ -106,7 +108,7 @@ You can manually download `.deb` packages or standalone `.zip` binaries from the
 
 ### 🦀 Build from Source
 
-Make sure you have Rust and Cargo installed, along with the build dependencies. On Debian/Ubuntu:
+Make sure you have **Rust 1.85+** and Cargo installed, along with the build dependencies. On Debian/Ubuntu:
 
 ```bash
 sudo apt install libpipewire-0.3-dev libclang-dev libasound2-dev libdbus-1-dev libssl-dev pkg-config
