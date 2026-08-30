@@ -2,8 +2,8 @@
     {
         "type": "git",
         "url": "https://github.com/rustaudio/rodio",
-        "commit": "c5f1e94290922fe4ee963ce6f85754ea6ba36243",
-        "dest": "flatpak-cargo/git/rodio-c5f1e94"
+        "commit": "880aaba54b00aead53651ed1ccbdb672d1375a95",
+        "dest": "flatpak-cargo/git/rodio-880aaba"
     },
     {
         "type": "archive",
@@ -4363,7 +4363,7 @@
     {
         "type": "shell",
         "commands": [
-            "cp -r --reflink=auto \"flatpak-cargo/git/rodio-c5f1e94/.\" \"cargo/vendor/rodio\""
+            "cp -r --reflink=auto \"flatpak-cargo/git/rodio-880aaba/.\" \"cargo/vendor/rodio\""
         ]
     },
     {
@@ -7227,7 +7227,7 @@
     },
     {
         "type": "inline",
-        "contents": "[source.vendored-sources]\ndirectory = \"cargo/vendor\"\n\n[source.crates-io]\nreplace-with = \"vendored-sources\"\n\n[source.\"https://github.com/rustaudio/rodio\"]\ngit = \"https://github.com/rustaudio/rodio\"\nreplace-with = \"vendored-sources\"\nrev = \"c5f1e94290922fe4ee963ce6f85754ea6ba36243\"\n",
+        "contents": "[source.vendored-sources]\ndirectory = \"cargo/vendor\"\n\n[source.crates-io]\nreplace-with = \"vendored-sources\"\n\n[source.\"https://github.com/rustaudio/rodio\"]\ngit = \"https://github.com/rustaudio/rodio\"\nreplace-with = \"vendored-sources\"\nrev = \"880aaba54b00aead53651ed1ccbdb672d1375a95\"\n",
         "dest": "cargo",
         "dest-filename": "config"
     }
