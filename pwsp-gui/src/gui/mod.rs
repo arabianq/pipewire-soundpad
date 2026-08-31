@@ -389,9 +389,13 @@ fn load_system_fonts(fonts: &mut FontDefinitions) -> Result<()> {
     let (_, ja_sans) = find_for_locale("ja", FontStyle::Sans);
     let (_, ar_sans) = find_for_locale("ar", FontStyle::Sans);
 
-    let system_fonts = [en_sans, en_serif, ja_sans, ar_sans].concat();
+    let system_fonts = en_sans
+        .into_iter()
+        .chain(en_serif)
+        .chain(ja_sans)
+        .chain(ar_sans);
 
-    for font in system_fonts.iter().rev() {
+    for font in system_fonts.rev() {
         let font_bytes = match &font.source {
             FoundFontSource::Path(path) => fs::read(path)?,
             FoundFontSource::Bytes(bytes) => bytes.to_vec(),
