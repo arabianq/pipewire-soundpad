@@ -171,11 +171,9 @@ impl SoundpadGui {
 
                 // 1. Try to load from disk cache if we don't have it in memory yet
                 if !is_cached
-                    && let Ok(data) = fs::read_to_string(&cache_file)
-                    && let Ok((all_files, dir_updates)) = serde_json::from_str::<(
-                        Vec<PathBuf>,
-                        HashMap<PathBuf, Vec<PathBuf>>,
-                    )>(&data)
+                    && let Ok(file) = std::fs::File::open(&cache_file)
+                    && let Ok((all_files, dir_updates)) =
+                        serde_json::from_reader(std::io::BufReader::new(file))
                 {
                     finished_scans.lock().unwrap().push((
                         path_clone.clone(),
