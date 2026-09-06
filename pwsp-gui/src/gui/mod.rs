@@ -5,7 +5,6 @@ mod views;
 use anyhow::{Result, anyhow};
 use eframe::{NativeOptions, icon_data::from_png_bytes, run_native};
 use egui::{Context, FontData, FontDefinitions, FontFamily, FontTweak, Vec2, ViewportBuilder};
-use itertools::Itertools;
 use pwsp_lib::{
     types::{
         audio_player::PlayerState,
@@ -110,12 +109,17 @@ impl SoundpadGui {
     pub fn add_dirs(&mut self) {
         let file_dialog = FileDialog::new();
         if let Some(paths) = file_dialog.pick_folders() {
+            let mut changed = false;
             for path in paths {
-                self.app_state.dirs.push(path);
+                if !self.app_state.dirs.contains(&path) {
+                    self.app_state.dirs.push(path);
+                    changed = true;
+                }
             }
-            self.app_state.dirs = self.app_state.dirs.iter().unique().cloned().collect();
-            self.config.dirs = self.app_state.dirs.clone();
-            self.config.save_to_file().ok();
+            if changed {
+                self.config.dirs = self.app_state.dirs.clone();
+                self.config.save_to_file().ok();
+            }
         }
     }
 
