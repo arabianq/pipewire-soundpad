@@ -196,18 +196,27 @@ impl SoundpadGui {
                     if let Ok(entries) = fs::read_dir(&dir) {
                         let mut children = Vec::new();
                         for entry in entries.filter_map(|e| e.ok()) {
-                            let p = entry.path();
-                            if p.is_dir() {
-                                dirs_to_visit.push(p.clone());
-                                children.push(p);
-                            } else if crate::gui::SUPPORTED_EXTENSIONS.contains(
-                                &p.extension()
-                                    .unwrap_or_default()
-                                    .to_str()
-                                    .unwrap_or_default(),
-                            ) {
-                                all_files.push(p.clone());
-                                children.push(p);
+                            if let Ok(file_type) = entry.file_type() {
+                                if file_type.is_dir() {
+                                    let p = entry.path();
+                                    dirs_to_visit.push(p.clone());
+                                    children.push(p);
+                                } else {
+                                    let file_name = entry.file_name();
+                                    let is_supported = Path::new(&file_name)
+                                        .extension()
+                                        .map(|e| {
+                                            crate::gui::SUPPORTED_EXTENSIONS
+                                                .contains(&e.to_str().unwrap_or_default())
+                                        })
+                                        .unwrap_or(false);
+
+                                    if is_supported {
+                                        let p = entry.path();
+                                        all_files.push(p.clone());
+                                        children.push(p);
+                                    }
+                                }
                             }
                         }
                         dir_updates.insert(dir, children);
