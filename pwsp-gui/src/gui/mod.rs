@@ -24,6 +24,7 @@ use std::{
     collections::{HashMap, HashSet},
     fs,
     hash::{DefaultHasher, Hash, Hasher},
+    io::BufReader,
     path::{Path, PathBuf},
     sync::{Arc, Mutex},
     thread,
@@ -171,9 +172,9 @@ impl SoundpadGui {
 
                 // 1. Try to load from disk cache if we don't have it in memory yet
                 if !is_cached
-                    && let Ok(file) = std::fs::File::open(&cache_file)
+                    && let Ok(file) = fs::File::open(&cache_file)
                     && let Ok((all_files, dir_updates)) =
-                        serde_json::from_reader(std::io::BufReader::new(file))
+                        serde_json::from_reader(BufReader::new(file))
                 {
                     finished_scans.lock().unwrap().push((
                         path_clone.clone(),
