@@ -52,7 +52,7 @@ rustix = { version = "1.1.4", features = ["process"] }
 rust-i18n = "4.0.0"
 sys-locale = "0.3.2"
 
-rodio = { git = "https://github.com/RustAudio/rodio.git", rev = "880aaba54b00aead53651ed1ccbdb672d1375a95", default-features = false, features = [
+rodio = { git = "https://github.com/RustAudio/rodio.git", rev = "685e05765c2aff8fbb51e32cda5b18428d09ffbe", default-features = false, features = [
     "symphonia-all",
     "symphonia-libopus",
     "playback",

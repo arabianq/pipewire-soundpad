@@ -3554,7 +3554,7 @@ dependencies = [
 [[package]]
 name = "rodio"
 version = "0.22.2"
-source = "git+https://github.com/RustAudio/rodio.git?rev=880aaba54b00aead53651ed1ccbdb672d1375a95#880aaba54b00aead53651ed1ccbdb672d1375a95"
+source = "git+https://github.com/RustAudio/rodio.git?rev=685e05765c2aff8fbb51e32cda5b18428d09ffbe#685e05765c2aff8fbb51e32cda5b18428d09ffbe"
 dependencies = [
  "cpal",
  "dasp_sample",
