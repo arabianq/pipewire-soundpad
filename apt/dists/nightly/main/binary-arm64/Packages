@@ -1,17 +1,17 @@
 Package: pwsp
-Version: 1.16.2+git20260922.21b8d98
+Version: 1.16.3+git20260922.0331114
 Architecture: arm64
 Homepage: https://pwsp.arabianq.ru
 Maintainer: arabian
-Installed-Size: 37709
+Installed-Size: 37779
 Depends: libasound2t64 (>= 1.0.16), libasound2t64 (>= 1.1.0), libc6 (>= 2.34), libc6 (>= 2.39), libpipewire-0.3-0t64 (>= 0.3.1), libssl3t64 (>= 3.0.0)
 Priority: optional
 Section: sound
-Filename: pool/main/p/pwsp/pwsp_1.16.2+git20260922.21b8d98_arm64.deb
-Size: 7858720
-SHA256: c3dbcd430c08c174e7603630f47be2a4f7c9ec64229bbf5a8c4f64bdf16f4231
-SHA1: 7c360985f282ffa3ce5eac5e21ce2148f8e9f56e
-MD5sum: 7d0e054058255621372d7745b0356d27
+Filename: pool/main/p/pwsp/pwsp_1.16.3+git20260922.0331114_arm64.deb
+Size: 7867856
+SHA256: 2b3942f5db2c5e67f0b0d7a8798a1f6029f41272de7601d0a7884d0001165050
+SHA1: 12ec3c5a357f8f844a746ac757af4dd6c91416cd
+MD5sum: b26f9f30a53b11b504203745a2079a2d
 Description: PWSP lets you play audio files through your microphone. Has both CLI and GUI
  clients.
 
