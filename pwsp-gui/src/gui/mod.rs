@@ -230,7 +230,7 @@ impl SoundpadGui {
                 if let Some(parent) = cache_file.parent() {
                     fs::create_dir_all(parent).ok();
                 }
-                if let Ok(json) = serde_json::to_string(&(all_files.clone(), dir_updates.clone())) {
+                if let Ok(json) = serde_json::to_string(&(&all_files, &dir_updates)) {
                     fs::write(&cache_file, json).ok();
                 }
 
