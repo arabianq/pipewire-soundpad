@@ -3648,14 +3648,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/opener/opener-0.8.5.crate",
-        "sha256": "b2b03ff07a220d0d0ec9a1f0f238951b7967a5a2e96aefcd21a117b1083415e9",
-        "dest": "cargo/vendor/opener-0.8.5"
+        "url": "https://static.crates.io/crates/opener/opener-0.9.0.crate",
+        "sha256": "c826edd923022c3907477383fc77708fa68807170754fe7be1fd3496c57a1f1c",
+        "dest": "cargo/vendor/opener-0.9.0"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"b2b03ff07a220d0d0ec9a1f0f238951b7967a5a2e96aefcd21a117b1083415e9\", \"files\": {}}",
-        "dest": "cargo/vendor/opener-0.8.5",
+        "contents": "{\"package\": \"c826edd923022c3907477383fc77708fa68807170754fe7be1fd3496c57a1f1c\", \"files\": {}}",
+        "dest": "cargo/vendor/opener-0.9.0",
         "dest-filename": ".cargo-checksum.json"
     },
     {
