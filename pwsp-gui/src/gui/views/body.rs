@@ -1,7 +1,7 @@
 use crate::gui::SoundpadGui;
 use egui::{
-    Align, AtomExt, Button, CollapsingHeader, Color32, CursorIcon, Layout, RichText, ScrollArea,
-    Sense, TextEdit, Ui, Vec2, Id
+    Align, AtomExt, Button, CollapsingHeader, Color32, CursorIcon, Id, Layout, RichText,
+    ScrollArea, Sense, TextEdit, Ui, Vec2,
 };
 use egui_dnd::dnd;
 use egui_material_icons::icons::*;
@@ -68,138 +68,142 @@ impl SoundpadGui {
                 let mut dirs = std::mem::take(&mut self.app_state.dirs);
                 let mut dir_to_open = None;
 
-                dnd(ui, Id::unique("dnd_directories")).show_vec(&mut dirs, |ui, item, handle, _state| {
-                    let path = item;
-                    ui.horizontal(|ui| {
-                        handle.ui(ui, |ui| {
-                            ui.label(ICON_DRAG_INDICATOR.codepoint);
-                        });
-                        let name = path
-                            .file_name()
-                            .map(|s| s.to_string_lossy().to_string())
-                            .unwrap_or_else(|| path.to_string_lossy().to_string());
+                dnd(ui, Id::unique("dnd_directories")).show_vec(
+                    &mut dirs,
+                    |ui, item, handle, _state| {
+                        let path = item;
+                        ui.horizontal(|ui| {
+                            handle.ui(ui, |ui| {
+                                ui.label(ICON_DRAG_INDICATOR.codepoint);
+                            });
+                            let name = path
+                                .file_name()
+                                .map(|s| s.to_string_lossy().to_string())
+                                .unwrap_or_else(|| path.to_string_lossy().to_string());
 
-                        let mut dir_button =
-                            Button::new(RichText::new(name.clone()).atom_max_width(area_size.x))
-                                .frame(false);
+                            let mut dir_button = Button::new(
+                                RichText::new(name.clone()).atom_max_width(area_size.x),
+                            )
+                            .frame(false);
 
-                        if let Some(current_dir) = &self.app_state.current_dir
-                            && current_dir.eq(&*path)
-                        {
-                            dir_button = dir_button.selected(true);
-                        }
-
-                        let dir_button_response = ui.add(dir_button);
-                        if dir_button_response.clicked() {
-                            dir_to_open = Some(path.clone());
-                        }
-
-                        let delete_dir_button = Button::new(ICON_DELETE).frame(false);
-                        let delete_dir_button_response =
-                            ui.add_sized([18.0, 18.0], delete_dir_button);
-                        if delete_dir_button_response.clicked() {
-                            self.app_state.dirs_to_remove.insert(path.clone());
-                        }
-
-                        // Context menu
-                        dir_button_response.context_menu(|ui| {
-                            if ui
-                                .button(format!(
-                                    "{} {}",
-                                    ICON_OPEN_IN_NEW.codepoint,
-                                    t!("gui.context.dirs.open")
-                                ))
-                                .clicked()
+                            if let Some(current_dir) = &self.app_state.current_dir
+                                && current_dir.eq(&*path)
                             {
+                                dir_button = dir_button.selected(true);
+                            }
+
+                            let dir_button_response = ui.add(dir_button);
+                            if dir_button_response.clicked() {
                                 dir_to_open = Some(path.clone());
                             }
 
-                            if ui
-                                .button(format!(
-                                    "{} {}",
-                                    ICON_OPEN_IN_BROWSER.codepoint,
-                                    t!("gui.context.dirs.open_in_fm")
-                                ))
-                                .clicked()
-                                && let Err(e) = opener::open(&path)
-                            {
-                                eprintln!("Failed to open file manager: {}", e);
-                            }
-
-                            ui.separator();
-
-                            if ui
-                                .button(format!(
-                                    "{} {}",
-                                    ICON_DELETE.codepoint,
-                                    t!("gui.context.dirs.remove")
-                                ))
-                                .clicked()
-                            {
+                            let delete_dir_button = Button::new(ICON_DELETE).frame(false);
+                            let delete_dir_button_response =
+                                ui.add_sized([18.0, 18.0], delete_dir_button);
+                            if delete_dir_button_response.clicked() {
                                 self.app_state.dirs_to_remove.insert(path.clone());
                             }
 
-                            ui.separator();
-                            ui.label(t!("gui.context.dirs.sort_by"));
+                            // Context menu
+                            dir_button_response.context_menu(|ui| {
+                                if ui
+                                    .button(format!(
+                                        "{} {}",
+                                        ICON_OPEN_IN_NEW.codepoint,
+                                        t!("gui.context.dirs.open")
+                                    ))
+                                    .clicked()
+                                {
+                                    dir_to_open = Some(path.clone());
+                                }
 
-                            let current_order = self
-                                .config
-                                .dirs_settings
-                                .get(path)
-                                .map(|s| s.sort_order)
-                                .unwrap_or_default();
-                            let mut new_order = None;
+                                if ui
+                                    .button(format!(
+                                        "{} {}",
+                                        ICON_OPEN_IN_BROWSER.codepoint,
+                                        t!("gui.context.dirs.open_in_fm")
+                                    ))
+                                    .clicked()
+                                    && let Err(e) = opener::open(&path)
+                                {
+                                    eprintln!("Failed to open file manager: {}", e);
+                                }
 
-                            if ui
-                                .radio(
-                                    current_order == SortOrder::AlphabeticalAsc,
-                                    t!("gui.sort.alpha_asc"),
-                                )
-                                .clicked()
-                            {
-                                new_order = Some(SortOrder::AlphabeticalAsc);
-                            }
-                            if ui
-                                .radio(
-                                    current_order == SortOrder::AlphabeticalDesc,
-                                    t!("gui.sort.alpha_desc"),
-                                )
-                                .clicked()
-                            {
-                                new_order = Some(SortOrder::AlphabeticalDesc);
-                            }
-                            if ui
-                                .radio(
-                                    current_order == SortOrder::DateModifiedNewest,
-                                    t!("gui.sort.date_newest"),
-                                )
-                                .clicked()
-                            {
-                                new_order = Some(SortOrder::DateModifiedNewest);
-                            }
-                            if ui
-                                .radio(
-                                    current_order == SortOrder::DateModifiedOldest,
-                                    t!("gui.sort.date_oldest"),
-                                )
-                                .clicked()
-                            {
-                                new_order = Some(SortOrder::DateModifiedOldest);
-                            }
+                                ui.separator();
 
-                            if let Some(order) = new_order {
-                                self.config
+                                if ui
+                                    .button(format!(
+                                        "{} {}",
+                                        ICON_DELETE.codepoint,
+                                        t!("gui.context.dirs.remove")
+                                    ))
+                                    .clicked()
+                                {
+                                    self.app_state.dirs_to_remove.insert(path.clone());
+                                }
+
+                                ui.separator();
+                                ui.label(t!("gui.context.dirs.sort_by"));
+
+                                let current_order = self
+                                    .config
                                     .dirs_settings
-                                    .entry(path.clone())
-                                    .or_default()
-                                    .sort_order = order;
-                                self.config.save_to_file().ok();
-                                self.app_state.dir_cache.remove(path);
-                                self.open_dir(path, Some(ui.ctx().clone()), false);
-                            }
+                                    .get(path)
+                                    .map(|s| s.sort_order)
+                                    .unwrap_or_default();
+                                let mut new_order = None;
+
+                                if ui
+                                    .radio(
+                                        current_order == SortOrder::AlphabeticalAsc,
+                                        t!("gui.sort.alpha_asc"),
+                                    )
+                                    .clicked()
+                                {
+                                    new_order = Some(SortOrder::AlphabeticalAsc);
+                                }
+                                if ui
+                                    .radio(
+                                        current_order == SortOrder::AlphabeticalDesc,
+                                        t!("gui.sort.alpha_desc"),
+                                    )
+                                    .clicked()
+                                {
+                                    new_order = Some(SortOrder::AlphabeticalDesc);
+                                }
+                                if ui
+                                    .radio(
+                                        current_order == SortOrder::DateModifiedNewest,
+                                        t!("gui.sort.date_newest"),
+                                    )
+                                    .clicked()
+                                {
+                                    new_order = Some(SortOrder::DateModifiedNewest);
+                                }
+                                if ui
+                                    .radio(
+                                        current_order == SortOrder::DateModifiedOldest,
+                                        t!("gui.sort.date_oldest"),
+                                    )
+                                    .clicked()
+                                {
+                                    new_order = Some(SortOrder::DateModifiedOldest);
+                                }
+
+                                if let Some(order) = new_order {
+                                    self.config
+                                        .dirs_settings
+                                        .entry(path.clone())
+                                        .or_default()
+                                        .sort_order = order;
+                                    self.config.save_to_file().ok();
+                                    self.app_state.dir_cache.remove(path);
+                                    self.open_dir(path, Some(ui.ctx().clone()), false);
+                                }
+                            });
                         });
-                    });
-                });
+                    },
+                );
                 self.app_state.dirs = dirs;
 
                 if let Some(path) = dir_to_open {
