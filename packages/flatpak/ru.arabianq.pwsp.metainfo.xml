@@ -31,7 +31,7 @@
         <name>arabian</name>
     </developer>
     <releases>
-        <release version="1.16.4" date="2026-10-08" />
+        <release version="1.16.5" date="2026-10-20" />
     </releases>
     <content_rating type="oars-1.1" />
 </component>
