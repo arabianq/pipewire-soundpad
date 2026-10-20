@@ -6,7 +6,8 @@ import sys
 
 if __name__ == "__main__":
     if len(sys.argv) == 2 and sys.argv[1].startswith("soundpad://"):
-        subprocess.Popen(["pwsp-gui", sys.argv[1]])
+        url = sys.argv[1]
+        subprocess.Popen(["pwsp-gui", "--", url])
         sys.exit(0)
 
     parser = argparse.ArgumentParser(
