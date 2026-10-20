@@ -59,17 +59,17 @@ rodio = { git = "https://github.com/RustAudio/rodio.git", rev = "49a3fa0b71d3182
 ] }
 pipewire = "0.10.0"
 
-egui = { version = "0.36.0", default-features = false, features = [
+egui = { version = "0.37.0", default-features = false, features = [
     "default_fonts",
     "rayon",
 ] }
-eframe = { version = "0.36.0", default-features = false, features = [
+eframe = { version = "0.37.0", default-features = false, features = [
     "default_fonts",
     "glow",
     "x11",
     "wayland",
 ] }
-egui_extras = "0.36.0"
+egui_extras = "0.37.0"
 egui_material_icons = "0.8.0"
 egui_dnd = "0.17.0"
 
