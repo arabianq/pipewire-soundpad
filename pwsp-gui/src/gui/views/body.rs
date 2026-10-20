@@ -1,7 +1,7 @@
 use crate::gui::SoundpadGui;
 use egui::{
     Align, AtomExt, Button, CollapsingHeader, Color32, CursorIcon, Layout, RichText, ScrollArea,
-    Sense, TextEdit, Ui, Vec2,
+    Sense, TextEdit, Ui, Vec2, Id
 };
 use egui_dnd::dnd;
 use egui_material_icons::icons::*;
@@ -68,7 +68,7 @@ impl SoundpadGui {
                 let mut dirs = std::mem::take(&mut self.app_state.dirs);
                 let mut dir_to_open = None;
 
-                dnd(ui, "dnd_directories").show_vec(&mut dirs, |ui, item, handle, _state| {
+                dnd(ui, Id::unique("dnd_directories")).show_vec(&mut dirs, |ui, item, handle, _state| {
                     let path = item;
                     ui.horizontal(|ui| {
                         handle.ui(ui, |ui| {
