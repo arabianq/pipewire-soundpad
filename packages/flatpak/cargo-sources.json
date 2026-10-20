@@ -8,19 +8,6 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/accesskit/accesskit-0.24.1.crate",
-        "sha256": "d3b7f7f85a7e5f68090000ed7622545829afd484d210358702ae4cb97dd0c320",
-        "dest": "cargo/vendor/accesskit-0.24.1"
-    },
-    {
-        "type": "inline",
-        "contents": "{\"package\": \"d3b7f7f85a7e5f68090000ed7622545829afd484d210358702ae4cb97dd0c320\", \"files\": {}}",
-        "dest": "cargo/vendor/accesskit-0.24.1",
-        "dest-filename": ".cargo-checksum.json"
-    },
-    {
-        "type": "archive",
-        "archive-type": "tar-gzip",
         "url": "https://static.crates.io/crates/accesskit/accesskit-0.25.1.crate",
         "sha256": "ad442f58ee04714aaa0ba0a2768c1ea1935b29507bb22ddece8cbbc76db02932",
         "dest": "cargo/vendor/accesskit-0.25.1"
@@ -1269,19 +1256,6 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/ecolor/ecolor-0.36.2.crate",
-        "sha256": "0656a7530b9e2841ee7a5f983965bdd9840c32f4012f759cfd44b912cced6b34",
-        "dest": "cargo/vendor/ecolor-0.36.2"
-    },
-    {
-        "type": "inline",
-        "contents": "{\"package\": \"0656a7530b9e2841ee7a5f983965bdd9840c32f4012f759cfd44b912cced6b34\", \"files\": {}}",
-        "dest": "cargo/vendor/ecolor-0.36.2",
-        "dest-filename": ".cargo-checksum.json"
-    },
-    {
-        "type": "archive",
-        "archive-type": "tar-gzip",
         "url": "https://static.crates.io/crates/ecolor/ecolor-0.37.0.crate",
         "sha256": "31bcbef0d4263a63eb32c4834e5d711613035ce1333468e107d928923e21e6e2",
         "dest": "cargo/vendor/ecolor-0.37.0"
@@ -1303,19 +1277,6 @@
         "type": "inline",
         "contents": "{\"package\": \"9c5642501a65ca657d05f00c643a5c14ff2346cb3818032bfe23d58e1f8e5f84\", \"files\": {}}",
         "dest": "cargo/vendor/eframe-0.37.0",
-        "dest-filename": ".cargo-checksum.json"
-    },
-    {
-        "type": "archive",
-        "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/egui/egui-0.36.2.crate",
-        "sha256": "dc938cc27cd911415e1e4d151bc56ff9df063d8db081374e87aeb805ea74b2ba",
-        "dest": "cargo/vendor/egui-0.36.2"
-    },
-    {
-        "type": "inline",
-        "contents": "{\"package\": \"dc938cc27cd911415e1e4d151bc56ff9df063d8db081374e87aeb805ea74b2ba\", \"files\": {}}",
-        "dest": "cargo/vendor/egui-0.36.2",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -1360,27 +1321,27 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/egui_animation/egui_animation-0.13.0.crate",
-        "sha256": "79145d8ffdabf3f75d662969cbe264171027b26c50e07ad05bcde8a119c8229c",
-        "dest": "cargo/vendor/egui_animation-0.13.0"
+        "url": "https://static.crates.io/crates/egui_animation/egui_animation-0.14.0.crate",
+        "sha256": "9d49c21f8e290bf74daa1aa7b427b59867dfb99a3163c54a8b3cdf11cd23d666",
+        "dest": "cargo/vendor/egui_animation-0.14.0"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"79145d8ffdabf3f75d662969cbe264171027b26c50e07ad05bcde8a119c8229c\", \"files\": {}}",
-        "dest": "cargo/vendor/egui_animation-0.13.0",
+        "contents": "{\"package\": \"9d49c21f8e290bf74daa1aa7b427b59867dfb99a3163c54a8b3cdf11cd23d666\", \"files\": {}}",
+        "dest": "cargo/vendor/egui_animation-0.14.0",
         "dest-filename": ".cargo-checksum.json"
     },
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/egui_dnd/egui_dnd-0.17.0.crate",
-        "sha256": "dac264b017f2e4466cd7c1e11b757fe3dd7cffff17607f6da2a7817ef25c97d8",
-        "dest": "cargo/vendor/egui_dnd-0.17.0"
+        "url": "https://static.crates.io/crates/egui_dnd/egui_dnd-0.18.0.crate",
+        "sha256": "a5a25d3fcfaad1b1c1d014417833be9c696b8e5cc7f72d7d596e844792defa6b",
+        "dest": "cargo/vendor/egui_dnd-0.18.0"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"dac264b017f2e4466cd7c1e11b757fe3dd7cffff17607f6da2a7817ef25c97d8\", \"files\": {}}",
-        "dest": "cargo/vendor/egui_dnd-0.17.0",
+        "contents": "{\"package\": \"a5a25d3fcfaad1b1c1d014417833be9c696b8e5cc7f72d7d596e844792defa6b\", \"files\": {}}",
+        "dest": "cargo/vendor/egui_dnd-0.18.0",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -1412,14 +1373,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/egui_material_icons/egui_material_icons-0.8.0.crate",
-        "sha256": "cee0067630964844d829cc80f9b9744fdf0443b2eea1e66a0934ccc1af14eb82",
-        "dest": "cargo/vendor/egui_material_icons-0.8.0"
+        "url": "https://static.crates.io/crates/egui_material_icons/egui_material_icons-0.9.0.crate",
+        "sha256": "a49b8d9217d02f0344160bff2f04fdc598f3244f65dc04ea7bf6ab74196d419c",
+        "dest": "cargo/vendor/egui_material_icons-0.9.0"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"cee0067630964844d829cc80f9b9744fdf0443b2eea1e66a0934ccc1af14eb82\", \"files\": {}}",
-        "dest": "cargo/vendor/egui_material_icons-0.8.0",
+        "contents": "{\"package\": \"a49b8d9217d02f0344160bff2f04fdc598f3244f65dc04ea7bf6ab74196d419c\", \"files\": {}}",
+        "dest": "cargo/vendor/egui_material_icons-0.9.0",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -1433,19 +1394,6 @@
         "type": "inline",
         "contents": "{\"package\": \"0e9c71c2167ca323c882b99918929403426e2373ea17242ff5653e0d5e1058be\", \"files\": {}}",
         "dest": "cargo/vendor/either-1.19.0",
-        "dest-filename": ".cargo-checksum.json"
-    },
-    {
-        "type": "archive",
-        "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/emath/emath-0.36.2.crate",
-        "sha256": "52c8d4141cf0f60fb2f7aefaf352d3ffa5171ef0ab09731c64391801e95e48f1",
-        "dest": "cargo/vendor/emath-0.36.2"
-    },
-    {
-        "type": "inline",
-        "contents": "{\"package\": \"52c8d4141cf0f60fb2f7aefaf352d3ffa5171ef0ab09731c64391801e95e48f1\", \"files\": {}}",
-        "dest": "cargo/vendor/emath-0.36.2",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -1550,19 +1498,6 @@
         "type": "inline",
         "contents": "{\"package\": \"67c78a4d8fdf9953a5c9d458f9efe940fd97a0cab0941c075a813ac594733827\", \"files\": {}}",
         "dest": "cargo/vendor/enumflags2_derive-0.7.12",
-        "dest-filename": ".cargo-checksum.json"
-    },
-    {
-        "type": "archive",
-        "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/epaint/epaint-0.36.2.crate",
-        "sha256": "a0ec0308dc23130fc1a7d4623a8534c2ed069c6dc84e258ee4f3de99615aa1a3",
-        "dest": "cargo/vendor/epaint-0.36.2"
-    },
-    {
-        "type": "inline",
-        "contents": "{\"package\": \"a0ec0308dc23130fc1a7d4623a8534c2ed069c6dc84e258ee4f3de99615aa1a3\", \"files\": {}}",
-        "dest": "cargo/vendor/epaint-0.36.2",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -2075,19 +2010,6 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/glifo/glifo-0.2.0.crate",
-        "sha256": "ed4a1bb24121291d27230c1b1b44e07d6a9b28cefdb32fe1581dfb84e14f940a",
-        "dest": "cargo/vendor/glifo-0.2.0"
-    },
-    {
-        "type": "inline",
-        "contents": "{\"package\": \"ed4a1bb24121291d27230c1b1b44e07d6a9b28cefdb32fe1581dfb84e14f940a\", \"files\": {}}",
-        "dest": "cargo/vendor/glifo-0.2.0",
-        "dest-filename": ".cargo-checksum.json"
-    },
-    {
-        "type": "archive",
-        "archive-type": "tar-gzip",
         "url": "https://static.crates.io/crates/glifo/glifo-0.3.0.crate",
         "sha256": "282a26c1e23de04bdab3e34a21b6f877a479b96737792516b9b8b8f69b6661be",
         "dest": "cargo/vendor/glifo-0.3.0"
@@ -2309,14 +2231,14 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/hello_egui_utils/hello_egui_utils-0.13.0.crate",
-        "sha256": "0d0485a9204e5b0ac282b381e041e97333ebbd1fb3ec374c0a1e67be2221d171",
-        "dest": "cargo/vendor/hello_egui_utils-0.13.0"
+        "url": "https://static.crates.io/crates/hello_egui_utils/hello_egui_utils-0.14.0.crate",
+        "sha256": "b7603a9aae296e0626c31a715651adc82dcdf85fb3b97ebe3c460606ae427f6d",
+        "dest": "cargo/vendor/hello_egui_utils-0.14.0"
     },
     {
         "type": "inline",
-        "contents": "{\"package\": \"0d0485a9204e5b0ac282b381e041e97333ebbd1fb3ec374c0a1e67be2221d171\", \"files\": {}}",
-        "dest": "cargo/vendor/hello_egui_utils-0.13.0",
+        "contents": "{\"package\": \"b7603a9aae296e0626c31a715651adc82dcdf85fb3b97ebe3c460606ae427f6d\", \"files\": {}}",
+        "dest": "cargo/vendor/hello_egui_utils-0.14.0",
         "dest-filename": ".cargo-checksum.json"
     },
     {
@@ -4498,7 +4420,7 @@
     },
     {
         "type": "inline",
-        "contents": "[package]\nname = \"rodio\"\nversion = \"0.22.2\"\nlicense = \"MIT OR Apache-2.0\"\ndescription = \"Audio playback and recording library\"\nkeywords = [\"audio\", \"playback\", \"recording\", \"gamedev\"]\nrepository = \"https://github.com/RustAudio/rodio\"\ndocumentation = \"https://docs.rs/rodio\"\nexclude = [\"assets/**\", \"tests/**\"]\nedition = \"2021\"\nrust-version = \"1.95\"\n\n[package.metadata.docs.rs]\nall-features = true\nrustdoc-args = [\"--cfg\", \"docsrs\"]\ncargo-args = [\"-Zunstable-options\"]\n\n[features]\ndefault = [\"playback\", \"recording\", \"flac\", \"mp3\", \"mp4\", \"vorbis\", \"wav\", \"pulseaudio\", \"simd\"]\nplayback = [\"dep:cpal\"]\nrecording = [\"dep:cpal\", \"dep:rtrb\"]\nwav_output = [\"dep:hound\"]\ntracing = [\"dep:tracing\"]\nexperimental = [\"dep:atomic_float\"]\ndither = [\"noise\"]\nnoise = [\"rand\", \"rand_distr\"]\n64bit = []\nrealtime = [\"cpal/realtime\"]\nrealtime-dbus = [\"cpal/realtime-dbus\"]\nsimd = [\"symphonia/opt-simd\"]\nasio = [\"cpal/asio\"]\naudio-worklet = [\"cpal/audioworklet\"]\njack = [\"cpal/jack\"]\npipewire = [\"cpal/pipewire\"]\npulseaudio = [\"cpal/pulseaudio\"]\nwasm-bindgen = [\"cpal/wasm-bindgen\"]\nsymphonia = [\"dep:symphonia\"]\nflac = [\"symphonia-flac\"]\nmp3 = [\"symphonia-mp3\"]\nmp4 = [\"symphonia-isomp4\", \"symphonia-aac\"]\nvorbis = [\"symphonia-ogg\", \"symphonia-vorbis\"]\nwav = [\"symphonia-wav\", \"symphonia-pcm\"]\naac = [\"mp4\"]\nogg = [\"vorbis\"]\nsymphonia-all = [\"symphonia/all-formats\", \"symphonia/all-codecs\"]\nsymphonia-flac = [\"symphonia/flac\"]\nsymphonia-mp1 = [\"symphonia/mp1\"]\nsymphonia-mp2 = [\"symphonia/mp2\"]\nsymphonia-mp3 = [\"symphonia/mp3\"]\nsymphonia-mpa = [\"symphonia/mpa\"]\nsymphonia-aiff = [\"symphonia/aiff\"]\nsymphonia-caf = [\"symphonia/caf\"]\nsymphonia-isomp4 = [\"symphonia/isomp4\"]\nsymphonia-mkv = [\"symphonia/mkv\"]\nsymphonia-ogg = [\"symphonia/ogg\"]\nsymphonia-aac = [\"symphonia/aac\"]\nsymphonia-adpcm = [\"symphonia/adpcm\"]\nsymphonia-alac = [\"symphonia/alac\"]\nsymphonia-pcm = [\"symphonia/pcm\"]\nsymphonia-vorbis = [\"symphonia/vorbis\"]\nsymphonia-wav = [\"symphonia/wav\"]\nsymphonia-libopus = [\"symphonia\", \"dep:symphonia-adapter-libopus\"]\nrubato-fft = [\"rubato/fft_resampler\"]\nclaxon = [\"dep:claxon\"]\nhound = [\"dep:hound\"]\nlewton = [\"dep:lewton\"]\nminimp3 = [\"dep:minimp3_fixed\"]\n\n[dependencies]\ndasp_sample = \"0.11\"\nthiserror = \"2\"\n\n[dependencies.cpal]\nversion = \"0.18\"\noptional = true\n\n[dependencies.claxon]\nversion = \"0.4\"\noptional = true\n\n[dependencies.hound]\nversion = \"3.5\"\noptional = true\n\n[dependencies.lewton]\nversion = \"0.10\"\noptional = true\n\n[dependencies.minimp3_fixed]\nversion = \"0.5.4\"\noptional = true\n\n[dependencies.symphonia]\nversion = \"0.5.5\"\noptional = true\ndefault-features = false\n\n[dependencies.crossbeam-channel]\nversion = \"0.5.15\"\noptional = true\n\n[dependencies.rand]\nversion = \"0.10\"\noptional = true\n\n[dependencies.rand_distr]\nversion = \"0.6\"\noptional = true\n\n[dependencies.tracing]\nversion = \"0.1.40\"\noptional = true\n\n[dependencies.atomic_float]\nversion = \"1.1.0\"\noptional = true\n\n[dependencies.rtrb]\nversion = \"0.3.2\"\noptional = true\n\n[dependencies.rubato]\nversion = \"3.0\"\ndefault-features = false\n\n[dependencies.symphonia-adapter-libopus]\nversion = \"0.2\"\noptional = true\n\n[dev-dependencies]\nquickcheck = \"1\"\nrstest = \"0.26\"\nrstest_reuse = \"0.7\"\napprox = \"0.5.1\"\ndivan = \"0.1.14\"\ninquire = \"0.9.3\"\nsymphonia-adapter-fdk-aac = \"0.1\"\n\n[dev-dependencies.clap]\nversion = \"4\"\nfeatures = [\"derive\"]\n\n[[bench]]\nname = \"effects\"\nharness = false\nrequired-features = [\"wav\"]\n\n[[bench]]\nname = \"conversions\"\nharness = false\nrequired-features = [\"wav\"]\n\n[[bench]]\nname = \"resampler\"\nharness = false\nrequired-features = [\"wav\"]\n\n[[bench]]\nname = \"pipeline\"\nharness = false\nrequired-features = [\"wav\"]\n\n[[example]]\nname = \"automatic_gain_control\"\nrequired-features = [\"playback\", \"flac\"]\n\n[[example]]\nname = \"basic\"\nrequired-features = [\"playback\", \"vorbis\"]\n\n[[example]]\nname = \"callback_on_end\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"custom_config\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"distortion\"\nrequired-features = [\"playback\"]\n\n[[example]]\nname = \"distortion_mp3\"\nrequired-features = [\"playback\", \"mp3\"]\n\n[[example]]\nname = \"distortion_wav\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"distortion_wav_alternate\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"error_callback\"\nrequired-features = [\"playback\"]\n\n[[example]]\nname = \"into_file\"\nrequired-features = [\"mp3\", \"wav_output\"]\n\n[[example]]\nname = \"limit_wav\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"low_pass\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"microphone\"\nrequired-features = [\"playback\", \"recording\", \"wav_output\"]\n\n[[example]]\nname = \"mix_multiple_sources\"\nrequired-features = [\"playback\"]\n\n[[example]]\nname = \"music_flac\"\nrequired-features = [\"playback\", \"flac\"]\n\n[[example]]\nname = \"music_m4a\"\nrequired-features = [\"playback\", \"mp4\"]\n\n[[example]]\nname = \"music_mp3\"\nrequired-features = [\"playback\", \"mp3\"]\n\n[[example]]\nname = \"music_ogg\"\nrequired-features = [\"playback\", \"vorbis\"]\n\n[[example]]\nname = \"music_wav\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"music_opus\"\nrequired-features = [\"playback\", \"symphonia-libopus\"]\n\n[[example]]\nname = \"noise_generator\"\nrequired-features = [\"playback\", \"noise\"]\n\n[[example]]\nname = \"resample\"\nrequired-features = [\"playback\"]\n\n[[example]]\nname = \"reverb\"\nrequired-features = [\"playback\", \"vorbis\"]\n\n[[example]]\nname = \"seek_mp3\"\nrequired-features = [\"playback\", \"mp3\"]\n\n[[example]]\nname = \"signal_generator\"\nrequired-features = [\"playback\"]\n\n[[example]]\nname = \"spatial\"\nrequired-features = [\"playback\", \"vorbis\"]\n\n[[example]]\nname = \"stereo\"\nrequired-features = [\"playback\", \"vorbis\"]\n\n[[example]]\nname = \"third_party_codec\"\nrequired-features = [\"playback\", \"symphonia\", \"symphonia-isomp4\"]\n",
+        "contents": "[package]\nname = \"rodio\"\nversion = \"0.22.2\"\nlicense = \"MIT OR Apache-2.0\"\ndescription = \"Audio playback and recording library\"\nkeywords = [\"audio\", \"playback\", \"recording\", \"gamedev\"]\nrepository = \"https://github.com/RustAudio/rodio\"\ndocumentation = \"https://docs.rs/rodio\"\nexclude = [\"assets/**\", \"tests/**\"]\nedition = \"2021\"\nrust-version = \"1.95\"\n\n[package.metadata.docs.rs]\nall-features = true\nrustdoc-args = [\"--cfg\", \"docsrs\"]\ncargo-args = [\"-Zunstable-options\"]\n\n[features]\ndefault = [\"playback\", \"recording\", \"flac\", \"mp3\", \"mp4\", \"vorbis\", \"wav\", \"pulseaudio\", \"simd\"]\nplayback = [\"dep:cpal\"]\nrecording = [\"dep:cpal\", \"dep:rtrb\"]\nwav_output = [\"dep:hound\"]\ntracing = [\"dep:tracing\"]\nexperimental = [\"dep:atomic_float\"]\ndither = [\"noise\"]\nnoise = [\"rand\", \"rand_distr\"]\n64bit = []\nrealtime = [\"cpal/realtime\"]\nrealtime-dbus = [\"cpal/realtime-dbus\"]\nsimd = [\"symphonia/opt-simd\"]\nasio = [\"cpal/asio\"]\naudio-worklet = [\"cpal/audioworklet\"]\njack = [\"cpal/jack\"]\npipewire = [\"cpal/pipewire\"]\npulseaudio = [\"cpal/pulseaudio\"]\nwasm-bindgen = [\"cpal/wasm-bindgen\"]\nsymphonia = [\"dep:symphonia\"]\nflac = [\"symphonia-flac\"]\nmp3 = [\"symphonia-mp3\"]\nmp4 = [\"symphonia-isomp4\", \"symphonia-aac\"]\nvorbis = [\"symphonia-ogg\", \"symphonia-vorbis\"]\nwav = [\"symphonia-wav\", \"symphonia-pcm\"]\naac = [\"mp4\"]\nogg = [\"vorbis\"]\nsymphonia-all = [\"symphonia/all-formats\", \"symphonia/all-codecs\"]\nsymphonia-flac = [\"symphonia/flac\"]\nsymphonia-mp1 = [\"symphonia/mp1\"]\nsymphonia-mp2 = [\"symphonia/mp2\"]\nsymphonia-mp3 = [\"symphonia/mp3\"]\nsymphonia-mpa = [\"symphonia/mpa\"]\nsymphonia-aiff = [\"symphonia/aiff\"]\nsymphonia-caf = [\"symphonia/caf\"]\nsymphonia-isomp4 = [\"symphonia/isomp4\"]\nsymphonia-mkv = [\"symphonia/mkv\"]\nsymphonia-ogg = [\"symphonia/ogg\"]\nsymphonia-aac = [\"symphonia/aac\"]\nsymphonia-adpcm = [\"symphonia/adpcm\"]\nsymphonia-alac = [\"symphonia/alac\"]\nsymphonia-pcm = [\"symphonia/pcm\"]\nsymphonia-vorbis = [\"symphonia/vorbis\"]\nsymphonia-wav = [\"symphonia/wav\"]\nsymphonia-libopus = [\"symphonia\", \"dep:symphonia-adapter-libopus\"]\nrubato-fft = [\"rubato/fft_resampler\"]\nclaxon = [\"dep:claxon\"]\nhound = [\"dep:hound\"]\nlewton = [\"dep:lewton\"]\nminimp3 = [\"dep:minimp3_fixed\"]\n\n[dependencies]\ndasp_sample = \"0.11\"\nthiserror = \"2\"\n[dependencies.cpal]\nversion = \"0.18\"\noptional = true\n\n[dependencies.claxon]\nversion = \"0.4\"\noptional = true\n\n[dependencies.hound]\nversion = \"3.5\"\noptional = true\n\n[dependencies.lewton]\nversion = \"0.10\"\noptional = true\n\n[dependencies.minimp3_fixed]\nversion = \"0.5.4\"\noptional = true\n\n[dependencies.symphonia]\nversion = \"0.5.5\"\noptional = true\ndefault-features = false\n\n[dependencies.crossbeam-channel]\nversion = \"0.5.15\"\noptional = true\n\n[dependencies.rand]\nversion = \"0.10\"\noptional = true\n\n[dependencies.rand_distr]\nversion = \"0.6\"\noptional = true\n\n[dependencies.tracing]\nversion = \"0.1.40\"\noptional = true\n\n[dependencies.atomic_float]\nversion = \"1.1.0\"\noptional = true\n\n[dependencies.rtrb]\nversion = \"0.3.2\"\noptional = true\n\n[dependencies.rubato]\nversion = \"3.0\"\ndefault-features = false\n\n[dependencies.symphonia-adapter-libopus]\nversion = \"0.2\"\noptional = true\n\n[dev-dependencies]\nquickcheck = \"1\"\nrstest = \"0.26\"\nrstest_reuse = \"0.7\"\napprox = \"0.5.1\"\ndivan = \"0.1.14\"\ninquire = \"0.9.3\"\nsymphonia-adapter-fdk-aac = \"0.1\"\n\n[dev-dependencies.clap]\nversion = \"4\"\nfeatures = [\"derive\"]\n\n[[bench]]\nname = \"effects\"\nharness = false\nrequired-features = [\"wav\"]\n\n[[bench]]\nname = \"conversions\"\nharness = false\nrequired-features = [\"wav\"]\n\n[[bench]]\nname = \"resampler\"\nharness = false\nrequired-features = [\"wav\"]\n\n[[bench]]\nname = \"pipeline\"\nharness = false\nrequired-features = [\"wav\"]\n\n[[example]]\nname = \"automatic_gain_control\"\nrequired-features = [\"playback\", \"flac\"]\n\n[[example]]\nname = \"basic\"\nrequired-features = [\"playback\", \"vorbis\"]\n\n[[example]]\nname = \"callback_on_end\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"custom_config\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"distortion\"\nrequired-features = [\"playback\"]\n\n[[example]]\nname = \"distortion_mp3\"\nrequired-features = [\"playback\", \"mp3\"]\n\n[[example]]\nname = \"distortion_wav\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"distortion_wav_alternate\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"error_callback\"\nrequired-features = [\"playback\"]\n\n[[example]]\nname = \"into_file\"\nrequired-features = [\"mp3\", \"wav_output\"]\n\n[[example]]\nname = \"limit_wav\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"low_pass\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"microphone\"\nrequired-features = [\"playback\", \"recording\", \"wav_output\"]\n\n[[example]]\nname = \"mix_multiple_sources\"\nrequired-features = [\"playback\"]\n\n[[example]]\nname = \"music_flac\"\nrequired-features = [\"playback\", \"flac\"]\n\n[[example]]\nname = \"music_m4a\"\nrequired-features = [\"playback\", \"mp4\"]\n\n[[example]]\nname = \"music_mp3\"\nrequired-features = [\"playback\", \"mp3\"]\n\n[[example]]\nname = \"music_ogg\"\nrequired-features = [\"playback\", \"vorbis\"]\n\n[[example]]\nname = \"music_wav\"\nrequired-features = [\"playback\", \"wav\"]\n\n[[example]]\nname = \"music_opus\"\nrequired-features = [\"playback\", \"symphonia-libopus\"]\n\n[[example]]\nname = \"noise_generator\"\nrequired-features = [\"playback\", \"noise\"]\n\n[[example]]\nname = \"resample\"\nrequired-features = [\"playback\"]\n\n[[example]]\nname = \"reverb\"\nrequired-features = [\"playback\", \"vorbis\"]\n\n[[example]]\nname = \"seek_mp3\"\nrequired-features = [\"playback\", \"mp3\"]\n\n[[example]]\nname = \"signal_generator\"\nrequired-features = [\"playback\"]\n\n[[example]]\nname = \"spatial\"\nrequired-features = [\"playback\", \"vorbis\"]\n\n[[example]]\nname = \"stereo\"\nrequired-features = [\"playback\", \"vorbis\"]\n\n[[example]]\nname = \"third_party_codec\"\nrequired-features = [\"playback\", \"symphonia\", \"symphonia-isomp4\"]\n",
         "dest": "cargo/vendor/rodio",
         "dest-filename": "Cargo.toml"
     },
@@ -6019,19 +5941,6 @@
     {
         "type": "archive",
         "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/vello_common/vello_common-0.1.0.crate",
-        "sha256": "b2e9aed918117e8152c9eddfd8362d73c465c23f26c44786aa331707b8a64fa2",
-        "dest": "cargo/vendor/vello_common-0.1.0"
-    },
-    {
-        "type": "inline",
-        "contents": "{\"package\": \"b2e9aed918117e8152c9eddfd8362d73c465c23f26c44786aa331707b8a64fa2\", \"files\": {}}",
-        "dest": "cargo/vendor/vello_common-0.1.0",
-        "dest-filename": ".cargo-checksum.json"
-    },
-    {
-        "type": "archive",
-        "archive-type": "tar-gzip",
         "url": "https://static.crates.io/crates/vello_common/vello_common-0.2.0.crate",
         "sha256": "bbb2141a2bca6e6d598e471fd4d1d7eed8e020aad6a28187edda07f091a325dd",
         "dest": "cargo/vendor/vello_common-0.2.0"
@@ -6040,19 +5949,6 @@
         "type": "inline",
         "contents": "{\"package\": \"bbb2141a2bca6e6d598e471fd4d1d7eed8e020aad6a28187edda07f091a325dd\", \"files\": {}}",
         "dest": "cargo/vendor/vello_common-0.2.0",
-        "dest-filename": ".cargo-checksum.json"
-    },
-    {
-        "type": "archive",
-        "archive-type": "tar-gzip",
-        "url": "https://static.crates.io/crates/vello_cpu/vello_cpu-0.1.0.crate",
-        "sha256": "ac7349e1f55f6b801c7c277958df4ea53e7f20f21e8014910ad888b2ecda93ea",
-        "dest": "cargo/vendor/vello_cpu-0.1.0"
-    },
-    {
-        "type": "inline",
-        "contents": "{\"package\": \"ac7349e1f55f6b801c7c277958df4ea53e7f20f21e8014910ad888b2ecda93ea\", \"files\": {}}",
-        "dest": "cargo/vendor/vello_cpu-0.1.0",
         "dest-filename": ".cargo-checksum.json"
     },
     {
