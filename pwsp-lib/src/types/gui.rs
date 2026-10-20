@@ -122,12 +122,12 @@ pub struct AudioPlayerState {
 
     pub current_input: String,
     pub all_inputs: HashMap<String, String>,
-    pub all_inputs_sorted: Vec<(String, String)>,
+    pub all_inputs_sorted: Vec<String>,
 
     /// Empty means "follow the system default sink".
     pub current_output: String,
     pub all_outputs: HashMap<String, String>,
-    pub all_outputs_sorted: Vec<(String, String)>,
+    pub all_outputs_sorted: Vec<String>,
 
     pub is_daemon_running: bool,
     pub daemon_version: String,

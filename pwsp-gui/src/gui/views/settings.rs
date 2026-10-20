@@ -148,8 +148,10 @@ impl SoundpadGui {
                     .unwrap_or(&String::new()),
             )
             .show_ui(ui, |ui| {
-                for (name, nick) in mics {
-                    ui.selectable_value(&mut selected_input, name.clone(), nick);
+                for name in mics {
+                    if let Some(nick) = self.audio_player_state.all_inputs.get(name) {
+                        ui.selectable_value(&mut selected_input, name.clone(), nick);
+                    }
                 }
             });
 
@@ -182,8 +184,10 @@ impl SoundpadGui {
                     String::new(),
                     t!("gui.default_output"),
                 );
-                for (name, nick) in outputs {
-                    ui.selectable_value(&mut selected_output, name.clone(), nick);
+                for name in outputs {
+                    if let Some(nick) = self.audio_player_state.all_outputs.get(name) {
+                        ui.selectable_value(&mut selected_output, name.clone(), nick);
+                    }
                 }
             });
 
