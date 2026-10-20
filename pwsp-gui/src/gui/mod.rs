@@ -127,7 +127,15 @@ impl SoundpadGui {
     pub fn open_dir(&mut self, path: &PathBuf, ctx: Option<Context>, force_rescan: bool) {
         self.app_state.current_dir = Some(path.clone());
 
-        if !self.app_state.dir_cache.contains_key(path) || force_rescan {
+        let cached_files = if force_rescan {
+            None
+        } else {
+            self.app_state.dir_cache.get(path).cloned()
+        };
+
+        if let Some(files) = cached_files {
+            self.app_state.listed_files = files.into_iter().collect();
+        } else {
             match fs::read_dir(path) {
                 Ok(read_dir) => {
                     let files = read_dir
@@ -142,15 +150,6 @@ impl SoundpadGui {
                     self.app_state.listed_files.clear();
                 }
             }
-        } else {
-            self.app_state.listed_files = self
-                .app_state
-                .dir_cache
-                .get(path)
-                .unwrap()
-                .clone()
-                .into_iter()
-                .collect();
         }
 
         let is_scanning = self.app_state.scanning_dirs.lock().unwrap().contains(path);
