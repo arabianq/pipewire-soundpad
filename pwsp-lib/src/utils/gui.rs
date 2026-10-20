@@ -79,12 +79,9 @@ pub fn format_time_pair(position: f32, duration: f32) -> String {
 }
 
 /// Turns a name→nickname map into the stable order the combo boxes render in.
-fn sorted_devices(devices: &HashMap<String, String>) -> Vec<(String, String)> {
-    let mut sorted: Vec<(String, String)> = devices
-        .iter()
-        .map(|(name, nick)| (name.clone(), nick.clone()))
-        .collect();
-    sorted.sort_by(|a, b| a.0.cmp(&b.0));
+fn sorted_devices(devices: &HashMap<String, String>) -> Vec<String> {
+    let mut sorted: Vec<String> = devices.keys().cloned().collect();
+    sorted.sort();
     sorted
 }
 
