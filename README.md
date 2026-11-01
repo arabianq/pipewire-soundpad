@@ -149,6 +149,7 @@ You can also interact with the daemon directly via the command line. Every comma
 
 ```bash
 pwsp-cli action play /path/to/sound.mp3
+pwsp-cli action play --volume 2 /path/to/sound.mp3
 pwsp-cli action stop
 pwsp-cli get state
 

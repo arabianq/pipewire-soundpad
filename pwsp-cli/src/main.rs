@@ -63,6 +63,8 @@ enum Actions {
         file_path: PathBuf,
         #[clap(short, long)]
         concurrent: bool,
+        #[clap(short, long)]
+        volume: Option<f32>,
     },
     /// Toggle loop
     ToggleLoop {
@@ -185,7 +187,8 @@ async fn main() -> Result<()> {
             Actions::Play {
                 file_path,
                 concurrent,
-            } => Request::play(&file_path.to_string_lossy(), concurrent, None),
+                volume,
+            } => Request::play(&file_path.to_string_lossy(), concurrent, volume),
             Actions::ToggleLoop { id } => Request::toggle_loop(id),
             Actions::SaveDaemonConfig => Request::save_daemon_config(),
             Actions::PlayHotkey { slot } => Request::play_hotkey(&slot),
