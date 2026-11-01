@@ -128,7 +128,15 @@ pub fn parse_command(request: &Request) -> Option<Box<dyn Executable + Send>> {
                 .args
                 .get("file_path")
                 .and_then(|s| s.parse::<PathBuf>().ok());
-            Some(Box::new(SetHotkeyCommand { slot, file_path }))
+            let volume = request
+                .args
+                .get("volume")
+                .and_then(|s| s.parse::<f32>().ok());
+            Some(Box::new(SetHotkeyCommand {
+                slot,
+                file_path,
+                volume,
+            }))
         }
         "set_hotkey_key" => {
             let slot = request.args.get("slot").cloned();

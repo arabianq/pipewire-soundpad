@@ -159,7 +159,12 @@ enum SetCommands {
         id: Option<u32>,
     },
     /// Assign a sound file to a hotkey slot
-    Hotkey { slot: String, file_path: PathBuf },
+    Hotkey {
+        slot: String,
+        file_path: PathBuf,
+        #[clap(short, long)]
+        volume: Option<f32>,
+    },
     /// Set the key chord for a hotkey slot (e.g. "Ctrl+Alt+1")
     HotkeyKey { slot: String, key_chord: String },
     /// Atomically set the action and key chord for a hotkey slot
@@ -223,9 +228,11 @@ async fn main() -> Result<()> {
             SetCommands::Input { name } => Request::set_input(&name),
             SetCommands::Output { name } => Request::set_output(&name),
             SetCommands::Loop { enabled, id } => Request::set_loop(&enabled, id),
-            SetCommands::Hotkey { slot, file_path } => {
-                Request::set_hotkey(&slot, &file_path.to_string_lossy())
-            }
+            SetCommands::Hotkey {
+                slot,
+                file_path,
+                volume,
+            } => Request::set_hotkey(&slot, &file_path.to_string_lossy(), volume),
             SetCommands::HotkeyKey { slot, key_chord } => {
                 Request::set_hotkey_key(&slot, &key_chord)
             }

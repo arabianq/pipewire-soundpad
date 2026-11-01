@@ -242,8 +242,15 @@ impl Request {
         Request::new("get_hotkeys", vec![])
     }
 
-    pub fn set_hotkey(slot: &str, file_path: &str) -> Self {
-        Request::new("set_hotkey", vec![("slot", slot), ("file_path", file_path)])
+    pub fn set_hotkey(slot: &str, file_path: &str, volume: Option<f32>) -> Self {
+        let mut args = vec![
+            ("slot".to_string(), slot.to_string()),
+            ("file_path".to_string(), file_path.to_string()),
+        ];
+        if let Some(volume) = volume {
+            args.push(("volume".to_string(), volume.to_string()));
+        }
+        Request::new("set_hotkey".to_string(), args)
     }
 
     pub fn set_hotkey_key(slot: &str, key_chord: &str) -> Self {
@@ -398,6 +405,21 @@ mod tests {
             Some("0.8")
         );
         assert_eq!(req_volume.args.get("id").map(|s| s.as_str()), Some("10"));
+
+        // test set_hotkey (with and without volume)
+        let req_hotkey = Request::set_hotkey("slot1", "/path/to/sound.mp3", None);
+        assert_eq!(req_hotkey.name, "set_hotkey");
+        assert_eq!(
+            req_hotkey.args.get("file_path").map(|s| s.as_str()),
+            Some("/path/to/sound.mp3")
+        );
+        assert!(!req_hotkey.args.contains_key("volume"));
+
+        let req_hotkey_volume = Request::set_hotkey("slot1", "/path/to/sound.mp3", Some(2.5));
+        assert_eq!(
+            req_hotkey_volume.args.get("volume").map(|s| s.as_str()),
+            Some("2.5")
+        );
 
         // test set_hotkey_action_and_key
         let action = Request::ping();

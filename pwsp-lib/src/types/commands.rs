@@ -121,6 +121,7 @@ pub struct GetHotkeysCommand {}
 pub struct SetHotkeyCommand {
     pub slot: Option<String>,
     pub file_path: Option<PathBuf>,
+    pub volume: Option<f32>,
 }
 
 pub struct SetHotkeyActionCommand {
@@ -720,6 +721,9 @@ impl Executable for SetHotkeyCommand {
         let Some(file_path) = &self.file_path else {
             return Response::new(false, "Missing file path");
         };
+        if self.volume.is_some() && validate_volume(self.volume).is_none() {
+            return Response::new(false, "Invalid volume value");
+        }
 
         let mut config = match HotkeyConfig::load() {
             Ok(c) => c,
@@ -728,7 +732,7 @@ impl Executable for SetHotkeyCommand {
 
         config.set_slot(
             slot.clone(),
-            Request::play(&file_path.to_string_lossy(), false, None),
+            Request::play(&file_path.to_string_lossy(), false, self.volume),
         );
 
         match config.save() {
