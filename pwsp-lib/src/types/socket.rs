@@ -71,14 +71,15 @@ impl Request {
         Request::new("stop", args)
     }
 
-    pub fn play(file_path: &str, concurrent: bool) -> Self {
-        Request::new(
-            "play",
-            vec![
-                ("file_path", file_path),
-                ("concurrent", &concurrent.to_string()),
-            ],
-        )
+    pub fn play(file_path: &str, concurrent: bool, volume: Option<f32>) -> Self {
+        let mut args = vec![
+            ("file_path".to_string(), file_path.to_string()),
+            ("concurrent".to_string(), concurrent.to_string()),
+        ];
+        if let Some(volume) = volume {
+            args.push(("volume".to_string(), volume.to_string()));
+        }
+        Request::new("play".to_string(), args)
     }
 
     pub fn get_is_paused() -> Self {
@@ -370,7 +371,7 @@ mod tests {
         );
 
         // test play
-        let req_play = Request::play("/path/to/sound.mp3", true);
+        let req_play = Request::play("/path/to/sound.mp3", true, None);
         assert_eq!(req_play.name, "play");
         assert_eq!(
             req_play.args.get("file_path").map(|s| s.as_str()),
@@ -379,6 +380,14 @@ mod tests {
         assert_eq!(
             req_play.args.get("concurrent").map(|s| s.as_str()),
             Some("true")
+        );
+        assert!(!req_play.args.contains_key("volume"));
+
+        // test play with volume
+        let req_play_volume = Request::play("/path/to/sound.mp3", false, Some(2.5));
+        assert_eq!(
+            req_play_volume.args.get("volume").map(|s| s.as_str()),
+            Some("2.5")
         );
 
         // test set_volume

@@ -492,7 +492,7 @@ impl AudioPlayer {
         Err(anyhow!("No track playing"))
     }
 
-    pub async fn play(&mut self, file_path: &Path, concurrent: bool) -> Result<u32> {
+    pub async fn play(&mut self, file_path: &Path, concurrent: bool, volume: f32) -> Result<u32> {
         // One decoder per output path: the two streams run on different device clocks,
         // so they cannot share a source anyway, and rodio's `Buffered` (the only shareable
         // source) does not support seeking.
@@ -517,7 +517,7 @@ impl AudioPlayer {
         let monitoring = Player::connect_new(monitoring_mixer);
         monitoring.set_volume(effective_gain(
             self.monitoring_volume,
-            1.0,
+            volume,
             self.volume_multiplier,
         ));
         monitoring.append(monitoring_source);
@@ -526,7 +526,11 @@ impl AudioPlayer {
         // A missing mic stream degrades to monitoring-only playback rather than failing.
         let mic = self.mic_stream.as_ref().map(|stream| {
             let player = Player::connect_new(stream.mixer());
-            player.set_volume(effective_gain(self.mic_volume, 1.0, self.volume_multiplier));
+            player.set_volume(effective_gain(
+                self.mic_volume,
+                volume,
+                self.volume_multiplier,
+            ));
             player.append(mic_source);
             player.play();
             player
@@ -543,7 +547,7 @@ impl AudioPlayer {
                 path: file_path.to_path_buf(),
                 duration,
                 looped: false,
-                volume: 1.0,
+                volume,
             },
         );
 
