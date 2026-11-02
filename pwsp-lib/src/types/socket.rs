@@ -71,14 +71,15 @@ impl Request {
         Request::new("stop", args)
     }
 
-    pub fn play(file_path: &str, concurrent: bool) -> Self {
-        Request::new(
-            "play",
-            vec![
-                ("file_path", file_path),
-                ("concurrent", &concurrent.to_string()),
-            ],
-        )
+    pub fn play(file_path: &str, concurrent: bool, volume: Option<f32>) -> Self {
+        let mut args = vec![
+            ("file_path".to_string(), file_path.to_string()),
+            ("concurrent".to_string(), concurrent.to_string()),
+        ];
+        if let Some(volume) = volume {
+            args.push(("volume".to_string(), volume.to_string()));
+        }
+        Request::new("play".to_string(), args)
     }
 
     pub fn get_is_paused() -> Self {
@@ -241,8 +242,15 @@ impl Request {
         Request::new("get_hotkeys", vec![])
     }
 
-    pub fn set_hotkey(slot: &str, file_path: &str) -> Self {
-        Request::new("set_hotkey", vec![("slot", slot), ("file_path", file_path)])
+    pub fn set_hotkey(slot: &str, file_path: &str, volume: Option<f32>) -> Self {
+        let mut args = vec![
+            ("slot".to_string(), slot.to_string()),
+            ("file_path".to_string(), file_path.to_string()),
+        ];
+        if let Some(volume) = volume {
+            args.push(("volume".to_string(), volume.to_string()));
+        }
+        Request::new("set_hotkey".to_string(), args)
     }
 
     pub fn set_hotkey_key(slot: &str, key_chord: &str) -> Self {
@@ -370,7 +378,7 @@ mod tests {
         );
 
         // test play
-        let req_play = Request::play("/path/to/sound.mp3", true);
+        let req_play = Request::play("/path/to/sound.mp3", true, None);
         assert_eq!(req_play.name, "play");
         assert_eq!(
             req_play.args.get("file_path").map(|s| s.as_str()),
@@ -379,6 +387,14 @@ mod tests {
         assert_eq!(
             req_play.args.get("concurrent").map(|s| s.as_str()),
             Some("true")
+        );
+        assert!(!req_play.args.contains_key("volume"));
+
+        // test play with volume
+        let req_play_volume = Request::play("/path/to/sound.mp3", false, Some(2.5));
+        assert_eq!(
+            req_play_volume.args.get("volume").map(|s| s.as_str()),
+            Some("2.5")
         );
 
         // test set_volume
@@ -389,6 +405,21 @@ mod tests {
             Some("0.8")
         );
         assert_eq!(req_volume.args.get("id").map(|s| s.as_str()), Some("10"));
+
+        // test set_hotkey (with and without volume)
+        let req_hotkey = Request::set_hotkey("slot1", "/path/to/sound.mp3", None);
+        assert_eq!(req_hotkey.name, "set_hotkey");
+        assert_eq!(
+            req_hotkey.args.get("file_path").map(|s| s.as_str()),
+            Some("/path/to/sound.mp3")
+        );
+        assert!(!req_hotkey.args.contains_key("volume"));
+
+        let req_hotkey_volume = Request::set_hotkey("slot1", "/path/to/sound.mp3", Some(2.5));
+        assert_eq!(
+            req_hotkey_volume.args.get("volume").map(|s| s.as_str()),
+            Some("2.5")
+        );
 
         // test set_hotkey_action_and_key
         let action = Request::ping();

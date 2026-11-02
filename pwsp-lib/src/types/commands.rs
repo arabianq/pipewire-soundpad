@@ -82,6 +82,7 @@ pub struct GetDurationCommand {
 pub struct PlayCommand {
     pub file_path: Option<PathBuf>,
     pub concurrent: Option<bool>,
+    pub volume: Option<f32>,
 }
 
 pub struct GetTracksCommand {}
@@ -120,6 +121,7 @@ pub struct GetHotkeysCommand {}
 pub struct SetHotkeyCommand {
     pub slot: Option<String>,
     pub file_path: Option<PathBuf>,
+    pub volume: Option<f32>,
 }
 
 pub struct SetHotkeyActionCommand {
@@ -429,12 +431,15 @@ impl Executable for GetDurationCommand {
 impl Executable for PlayCommand {
     async fn execute(&self) -> Response {
         if let Some(file_path) = &self.file_path {
+            let Some(volume) = validate_volume(Some(self.volume.unwrap_or(1.0))) else {
+                return Response::new(false, "Invalid volume value");
+            };
             let mut audio_player = match get_audio_player().await {
                 Ok(player) => player.lock().await,
                 Err(err) => return Response::new(false, format!("Audio player error: {}", err)),
             };
             match audio_player
-                .play(file_path, self.concurrent.unwrap_or(false))
+                .play(file_path, self.concurrent.unwrap_or(false), volume)
                 .await
             {
                 Ok(id) => Response::new(true, id.to_string()),
@@ -716,6 +721,9 @@ impl Executable for SetHotkeyCommand {
         let Some(file_path) = &self.file_path else {
             return Response::new(false, "Missing file path");
         };
+        if self.volume.is_some() && validate_volume(self.volume).is_none() {
+            return Response::new(false, "Invalid volume value");
+        }
 
         let mut config = match HotkeyConfig::load() {
             Ok(c) => c,
@@ -724,7 +732,7 @@ impl Executable for SetHotkeyCommand {
 
         config.set_slot(
             slot.clone(),
-            Request::play(&file_path.to_string_lossy(), false),
+            Request::play(&file_path.to_string_lossy(), false, self.volume),
         );
 
         match config.save() {

@@ -247,7 +247,7 @@ impl SoundpadGui {
     }
 
     pub fn play_file(&mut self, path: &Path, concurrent: bool) {
-        make_request_async(Request::play(&path.to_string_lossy(), concurrent));
+        make_request_async(Request::play(&path.to_string_lossy(), concurrent, None));
     }
 
     pub fn set_input(&mut self, name: String) {

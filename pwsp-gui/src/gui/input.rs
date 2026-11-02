@@ -143,7 +143,7 @@ impl SoundpadGui {
                         .unwrap_or_default()
                         .to_string_lossy()
                         .to_string();
-                    let action = Request::play(&file_path.to_string_lossy(), false);
+                    let action = Request::play(&file_path.to_string_lossy(), false, None);
 
                     make_request_async(Request::set_hotkey_action_and_key(
                         &slot_name, &action, &chord,

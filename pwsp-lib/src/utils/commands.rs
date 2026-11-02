@@ -84,9 +84,16 @@ pub fn parse_command(request: &Request) -> Option<Box<dyn Executable + Send>> {
                 .unwrap_or(&String::new())
                 .parse::<bool>()
                 .ok();
+            let volume = request
+                .args
+                .get("volume")
+                .unwrap_or(&String::new())
+                .parse::<f32>()
+                .ok();
             Some(Box::new(PlayCommand {
                 file_path,
                 concurrent,
+                volume,
             }))
         }
         "get_tracks" => Some(Box::new(GetTracksCommand {})),
@@ -121,7 +128,15 @@ pub fn parse_command(request: &Request) -> Option<Box<dyn Executable + Send>> {
                 .args
                 .get("file_path")
                 .and_then(|s| s.parse::<PathBuf>().ok());
-            Some(Box::new(SetHotkeyCommand { slot, file_path }))
+            let volume = request
+                .args
+                .get("volume")
+                .and_then(|s| s.parse::<f32>().ok());
+            Some(Box::new(SetHotkeyCommand {
+                slot,
+                file_path,
+                volume,
+            }))
         }
         "set_hotkey_key" => {
             let slot = request.args.get("slot").cloned();
@@ -258,6 +273,24 @@ mod tests {
 
         let cmd = parse_command(&request);
         assert!(cmd.is_some());
+    }
+
+    #[test]
+    fn test_parse_play_volume() {
+        let without_volume = Request::play("/path/to/sound.mp3", false, None);
+        assert!(parse_command(&without_volume).is_some());
+
+        let with_volume = Request::play("/path/to/sound.mp3", false, Some(2.5));
+        assert!(parse_command(&with_volume).is_some());
+
+        let mut args = HashMap::new();
+        args.insert("file_path".to_string(), "/path/to/sound.mp3".to_string());
+        args.insert("volume".to_string(), "not-a-float".to_string());
+        let invalid_volume = Request {
+            name: "play".to_string(),
+            args,
+        };
+        assert!(parse_command(&invalid_volume).is_some());
     }
 
     #[test]
