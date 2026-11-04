@@ -56,6 +56,7 @@ rodio = { git = "https://github.com/RustAudio/rodio.git", rev = "49a3fa0b71d3182
     "symphonia-all",
     "symphonia-libopus",
     "playback",
+    "pipewire",
 ] }
 pipewire = "0.10.0"
 
