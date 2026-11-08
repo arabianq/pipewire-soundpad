@@ -9,6 +9,8 @@ url="https://github.com/arabianq/pipewire-soundpad"
 license=('MIT')
 depends=('pipewire' 'alsa-lib' 'openssl')
 makedepends=(clang rust cargo cmake pipewire alsa-lib)
+# makepkg's C LTO flags break libspa's C wrappers when linking with rust-lld.
+options=('!lto')
 source=("$url/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('SKIP')
 
