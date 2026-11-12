@@ -106,9 +106,13 @@ impl SoundpadGui {
             - (ui.spacing().item_spacing.x * 6.0);
 
         ui.spacing_mut().slider_width = position_slider_width;
-        if ui.add_sized([30.0, 30.0], position_slider).drag_stopped() {
+        let response = ui.add_sized([30.0, 30.0], position_slider);
+        if response.drag_stopped() {
             ui_state.position.dragged = true;
         }
+        ui_state
+            .position
+            .handle_scroll(&response, 0.0..=duration, 1.0);
 
         let time_label =
             Label::new(RichText::new(format_time_pair(track.position, duration)).monospace());
@@ -133,9 +137,11 @@ impl SoundpadGui {
         ui.spacing_mut().slider_width = default_slider_width - 30.0;
         ui.spacing_mut().item_spacing.x = 0.0;
 
-        if ui.add_sized([30.0, 30.0], volume_slider).drag_stopped() {
+        let response = ui.add_sized([30.0, 30.0], volume_slider);
+        if response.drag_stopped() {
             ui_state.volume.dragged = true;
         }
+        ui_state.volume.handle_scroll(&response, 0.0..=1.0, 0.01);
     }
 
     fn draw_stop_control(ui: &mut Ui, track: &TrackInfo) -> Option<TrackAction> {

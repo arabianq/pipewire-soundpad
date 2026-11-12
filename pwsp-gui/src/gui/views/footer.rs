@@ -76,12 +76,13 @@ impl SoundpadGui {
         let slider = Slider::new(&mut latch.value, 0.0..=MAX_MASTER_VOLUME)
             .show_value(false)
             .step_by(0.01);
-        if ui
-            .add_sized([VOLUME_SLIDER_WIDTH, FOOTER_ROW_HEIGHT], slider)
-            .drag_stopped()
-        {
+        let response = ui.add_sized([VOLUME_SLIDER_WIDTH, FOOTER_ROW_HEIGHT], slider);
+
+        if response.drag_stopped() {
             latch.dragged = true;
         }
+
+        latch.handle_scroll(&response, 0.0..=MAX_MASTER_VOLUME, 0.01);
     }
 
     fn draw_hotkeys_button(&mut self, ui: &mut Ui) {

@@ -3,10 +3,11 @@ use crate::types::{
     config::HotkeyConfig,
 };
 
-use egui::Id;
+use egui::{Event, Id, Response};
 
 use std::{
     collections::{HashMap, HashSet},
+    ops::RangeInclusive,
     path::PathBuf,
     sync::{Arc, Mutex},
     time::{Duration, Instant},
@@ -42,6 +43,33 @@ impl SliderLatch {
     pub fn sync(&mut self, value: f32) {
         if self.should_sync() {
             self.value = value;
+        }
+    }
+
+    /// Changes the hovered slider by one step per wheel event and queues the value.
+    pub fn handle_scroll(&mut self, response: &Response, range: RangeInclusive<f32>, step: f32) {
+        if !response.hovered() {
+            return;
+        }
+
+        let steps: f32 = response.ctx.input(|input| {
+            input
+                .events
+                .iter()
+                .map(|event| match event {
+                    Event::MouseWheel { delta, .. } if delta.y != 0.0 => delta.y.signum(),
+                    _ => 0.0,
+                })
+                .sum()
+        });
+
+        if steps != 0.0 {
+            let next = (self.value + steps * step).clamp(*range.start(), *range.end());
+            if next != self.value {
+                self.value = next;
+                self.dragged = true;
+                response.ctx.request_repaint();
+            }
         }
     }
 
