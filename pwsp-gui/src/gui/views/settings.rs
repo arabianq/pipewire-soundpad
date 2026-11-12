@@ -116,6 +116,9 @@ impl SoundpadGui {
                         self.app_state.volume_multiplier.dragged = true;
                     }
                 }
+                self.app_state
+                    .volume_multiplier
+                    .handle_scroll(&response, 0.01..=3.0, 0.01);
             });
             // --------------------------------
 
