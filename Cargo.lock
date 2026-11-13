@@ -3263,7 +3263,6 @@ name = "pwsp-daemon"
 version = "1.17.1"
 dependencies = [
  "anyhow",
- "clap",
  "pipewire",
  "pwsp-lib",
  "serde_json",
