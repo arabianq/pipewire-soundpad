@@ -3306,7 +3306,6 @@ dependencies = [
  "evdev",
  "itertools 0.15.0",
  "pipewire",
- "reqwest",
  "rodio",
  "rustix 1.1.6",
  "serde",

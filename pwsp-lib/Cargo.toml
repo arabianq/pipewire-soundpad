@@ -24,5 +24,3 @@ rodio.workspace = true
 pipewire.workspace = true
 
 egui.workspace = true
-
-reqwest.workspace = true
